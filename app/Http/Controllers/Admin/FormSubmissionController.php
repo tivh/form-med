@@ -17,38 +17,64 @@ class FormSubmissionController extends Controller
     public function index(Request $request): View
     {
         $query = FormSubmission::query()->latest();
+        $formCatalog = $this->formCatalog();
 
         if ($request->filled('email')) {
-            $query->where('email', 'like', '%'.$request->string('email')->trim().'%');
+            $email = trim((string) $request->input('email'));
+            $query->where('email', 'like', '%'.$email.'%');
+        }
+
+        if ($request->filled('name')) {
+            $name = trim((string) $request->input('name'));
+            $query->where(function ($q) use ($name) {
+                $q->where('nome', 'like', '%'.$name.'%')
+                    ->orWhere('razao_social', 'like', '%'.$name.'%')
+                    ->orWhere('nome_fantasia', 'like', '%'.$name.'%');
+            });
+        }
+
+        if ($request->filled('registration_type')) {
+            $type = $request->input('registration_type');
+            if (in_array($type, ['pf', 'pj'], true)) {
+                $query->where('registration_type', $type);
+            }
+        }
+
+        if ($request->filled('form_type')) {
+            $query->where('form_type', $request->input('form_type'));
         }
 
         if ($request->filled('from')) {
-            $query->whereDate('created_at', '>=', $request->date('from'));
+            $query->whereDate('created_at', '>=', $request->input('from'));
         }
 
         if ($request->filled('to')) {
-            $query->whereDate('created_at', '<=', $request->date('to'));
+            $query->whereDate('created_at', '<=', $request->input('to'));
         }
 
         $submissions = $query->paginate(20)->withQueryString();
 
         return view('admin.submissions.index', [
             'submissions' => $submissions,
-            'filters' => $request->only(['email', 'from', 'to']),
+            'filters' => $request->only(['email', 'name', 'registration_type', 'from', 'to', 'form_type']),
+            'formCatalog' => $formCatalog,
         ]);
     }
 
     public function show(FormSubmission $submission): View
     {
-        return view('admin.submissions.show', compact('submission'));
+        return view('admin.submissions.show', [
+            'submission' => $submission,
+            'formCatalog' => $this->formCatalog(),
+        ]);
     }
 
     public function destroy(FormSubmission $submission): RedirectResponse
     {
         if (is_array($submission->documents)) {
             foreach ($submission->documents as $doc) {
-                if (!empty($doc['path']) && Storage::disk('public')->exists($doc['path'])) {
-                    Storage::disk('public')->delete($doc['path']);
+                if (!empty($doc['path']) && Storage::disk('private_uploads')->exists($doc['path'])) {
+                    Storage::disk('private_uploads')->delete($doc['path']);
                 }
             }
         }
@@ -61,25 +87,31 @@ class FormSubmissionController extends Controller
     public function download(FormSubmission $submission)
     {
         $documents = is_array($submission->documents) ? $submission->documents : [];
-        $index = request()->integer('doc', 0);
+        $index = (int) request()->get('doc', 0);
         $doc = $documents[$index] ?? null;
 
-        if (!$doc || empty($doc['path']) || !Storage::disk('public')->exists($doc['path'])) {
+        if (!$doc || empty($doc['path']) || !Storage::disk('private_uploads')->exists($doc['path'])) {
             abort(404);
         }
 
         $downloadName = $doc['original_name'] ?? basename($doc['path']);
 
-        return Storage::disk('public')->download($doc['path'], $downloadName);
+        return Storage::disk('private_uploads')->download($doc['path'], $downloadName);
     }
 
     public function export(Request $request)
     {
-        $format = $request->string('format')->lower()->value() === 'xlsx' ? Excel::XLSX : Excel::CSV;
+        $formatParam = strtolower((string) $request->get('format'));
+        $format = $formatParam === 'xlsx' ? Excel::XLSX : Excel::CSV;
         $fileName = 'form_submissions.'.($format === Excel::XLSX ? 'xlsx' : 'csv');
 
-        $filters = $request->only(['email', 'from', 'to']);
+        $filters = $request->only(['email', 'name', 'registration_type', 'from', 'to', 'form_type']);
 
         return ExcelFacade::download(new FormSubmissionsExport($filters), $fileName, $format);
+    }
+
+    private function formCatalog(): array
+    {
+        return config('forms', []);
     }
 }

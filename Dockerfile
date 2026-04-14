@@ -25,6 +25,11 @@ WORKDIR /var/www/html
 RUN apk add --no-cache libpq-dev libzip-dev oniguruma-dev bash \
     && docker-php-ext-install pdo_pgsql bcmath
 
+# Increase PHP upload limits
+RUN echo "upload_max_filesize=15M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=105M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini
+
 # App source
 COPY . ./
 # Vendors and built assets

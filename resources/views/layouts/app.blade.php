@@ -18,7 +18,7 @@
         }
     </style>
 </head>
-<body class="antialiased text-slate-900 bg-gradient-to-br from-sky-50 via-white to-indigo-50 min-h-screen">
+<body class="antialiased text-slate-900 bg-gradient-to-br from-red-50 via-white to-rose-50 min-h-screen">
     <header class="sticky top-0 z-10 bg-slate-200 border-b border-slate-300 shadow-sm">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <a href="{{ route('login') }}" class="text-sm text-blue-800 hover:text-blue-900 font-semibold border border-blue-100 px-4 py-2 rounded-full bg-blue-100/80">Área Admin</a>
+                <a href="{{ route('login') }}" class="text-sm text-red-800 hover:text-red-900 font-semibold border border-red-100 px-4 py-2 rounded-full bg-red-100/80">Área Admin</a>
             </div>
         </div>
     </header>
