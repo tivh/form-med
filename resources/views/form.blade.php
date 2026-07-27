@@ -3,11 +3,16 @@
 @section('content')
 <div class="max-w-5xl mx-auto px-4 pt-10">
     <div class="glass rounded-3xl p-10 shadow-xl border border-white/70">
+        @php
+            $formTitle = $form['title'] ?? 'QUESTIONÁRIO INICIAL PARA SOLICITAÇÃO DE CADASTRO';
+            $formDescription = $form['description'] ?? 'SGC - R 1-03-1 - Revisão:07  - Emissão: 24/02/2026.';
+            $formSlug = $form['slug'] ?? 'form-med';
+        @endphp
         <div class="flex items-start justify-between mb-10">
             <div class="space-y-3">
-                <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-100">Envio seguro</div>
-                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">QUESTIONÁRIO INICIAL PARA SOLICITAÇÃO DE CADASTRO</h1>
-                <p class="text-slate-600">SGC - R 1-03-1 - Revisão:07  - Emissão: 24/02/2026.</p>
+                <div class="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 border border-red-100">Envio seguro</div>
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">{{ $formTitle }}</h1>
+                <p class="text-slate-600">{{ $formDescription }}</p>
             </div>
         </div>
 
@@ -32,223 +37,530 @@
             </div>
         @endif
 
-        <form action="{{ route('form.submit') }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="submission-form">
+        <form action="{{ route('forms.submit', ['form' => $formSlug]) }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="submission-form">
             @csrf
-            <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm">
-                <p class="block text-sm font-semibold text-slate-800 mb-3">Tipo de cadastro</p>
-                <div class="flex flex-wrap gap-4">
-                    <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-blue-200 hover:bg-blue-50 transition">
-                        <input type="radio" name="registration_type" value="pj" {{ old('registration_type') === 'pj' ? 'checked' : '' }} required class="text-blue-600 border-slate-300">
-                        <span>Pessoa Jurídica</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-blue-200 hover:bg-blue-50 transition">
-                        <input type="radio" name="registration_type" value="pf" {{ old('registration_type') === 'pf' ? 'checked' : '' }} required class="text-blue-600 border-slate-300">
-                        <span>Pessoa Física</span>
-                    </label>
-                </div>
+
+            <div class="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/80 p-4 text-sm font-semibold">
+                <button type="button" data-step-indicator="1" data-go-step="1" class="step-pill inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-red-900 shadow-sm transition cursor-pointer">Dados cadastrais</button>
+                <button type="button" data-step-indicator="2" data-go-step="2" class="step-pill inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-red-900 shadow-sm transition cursor-pointer">Compliance e Conflito de Interesses</button>
             </div>
 
-            <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm" id="fields-common">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="nome" class="block text-sm font-semibold text-slate-900">Nome / Razão social</label>
-                        <input type="text" name="nome" id="nome" value="{{ old('nome') }}" required
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Seu nome ou razão social" />
+            <div id="step-1" data-step="1" class="space-y-8">
+                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4">
+                    <div class="flex items-center gap-2" data-question>
+                        <span class="question-number"></span>
+                        <p class="block text-sm font-semibold text-slate-800">Tipo de cadastro</p>
                     </div>
-                    <div class="pf-only">
-                        <label for="cpf" class="block text-sm font-semibold text-slate-900">CPF (PF)</label>
-                        <input type="text" name="cpf" id="cpf" value="{{ old('cpf') }}"
-                        class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="000.000.000-00" />
-                        <p id="cpf-error" class="mt-1 text-xs text-red-600 hidden">CPF inválido.</p>
-                    </div>
-                    <div class="pj-only">
-                        <label for="razao_social" class="block text-sm font-semibold text-slate-900">Razão social</label>
-                        <input type="text" name="razao_social" id="razao_social" value="{{ old('razao_social') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                    </div>
-                    <div class="pj-only">
-                        <label for="nome_fantasia" class="block text-sm font-semibold text-slate-900">Nome fantasia</label>
-                        <input type="text" name="nome_fantasia" id="nome_fantasia" value="{{ old('nome_fantasia') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                    </div>
-                    <div class="pj-only">
-                        <label for="cnpj" class="block text-sm font-semibold text-slate-900">CNPJ</label>
-                        <input type="text" name="cnpj" id="cnpj" value="{{ old('cnpj') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="00.000.000/0000-00" />
-                    </div>
-                    <div class="pj-only">
-                        <label for="representante_legal" class="block text-sm font-semibold text-slate-900">Representante legal</label>
-                        <input type="text" name="representante_legal" id="representante_legal" value="{{ old('representante_legal') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                    </div>
-                    <div class="pj-only">
-                        <label for="website" class="block text-sm font-semibold text-slate-900">Website</label>
-                        <input type="url" name="website" id="website" value="{{ old('website') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="https://" />
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-semibold text-slate-900">E-mail</label>
-                        <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="voce@email.com" />
-                    </div>
-                    <div>
-                        <label for="email_testemunha" class="block text-sm font-semibold text-slate-900">E-mail testemunha</label>
-                        <input type="email" name="email_testemunha" id="email_testemunha" value="{{ old('email_testemunha') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="testemunha@email.com" />
-                    </div>
-                    <div>
-                        <label for="telefone" class="block text-sm font-semibold text-slate-900">Telefone</label>
-                        <input type="text" name="telefone" id="telefone" value="{{ old('telefone') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="(11) 99999-9999" />
-                    </div>
-                    <div>
-                        <label for="nacionalidade" class="block text-sm font-semibold text-slate-900">Nacionalidade</label>
-                        <input type="text" name="nacionalidade" id="nacionalidade" value="{{ old('nacionalidade') }}" required
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                    </div>
-                    <div>
-                        <label for="profissao" class="block text-sm font-semibold text-slate-900">Profissão</label>
-                        <input type="text" name="profissao" id="profissao" value="{{ old('profissao') }}" required
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                    </div>
-                    <div class="pf-only">
-                        <label for="data_nascimento" class="block text-sm font-semibold text-slate-900">Data de nascimento</label>
-                        <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento') }}"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="endereco" class="block text-sm font-semibold text-slate-900">Endereço</label>
-                        <input type="text" name="endereco" id="endereco" value="{{ old('endereco') }}" required
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="dados_bancarios" class="block text-sm font-semibold text-slate-900">Dados bancários</label>
-                        <textarea name="dados_bancarios" id="dados_bancarios" rows="2" class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Banco, agência, conta ou chave PIX">{{ old('dados_bancarios') }}</textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pj-only space-y-4 rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm">
-                <div>
-                    <p class="text-sm font-medium text-slate-800">Documentos solicitados (marque os que enviará)</p>
-                    @php
-                        $docOptions = [
-                            'Cartão do CNPJ',
-                            'Contrato social',
-                            'Documentos pessoais dos representantes (CNH ou RG)',
-                            'Estatuto social',
-                            'Ata de nomeação ou procuração com poderes específicos de representação',
-                            'Qualificação técnica profissional ativa (ex. CRM)',
-                            'Certificação de especialização profissional',
-                            'Alvará de funcionamento (válido)',
-                            'Alvará sanitário (válido)',
-                            'Licenças ambientais (municipais, estaduais e federais)',
-                            'Certidão negativa distribuidores cíveis/criminais (Estadual)',
-                            'Certidão negativa distribuidores cíveis/criminais (Federal)',
-                            'Certidões de inexistência/distribuição procedimentos extrajudiciais (MPF)',
-                            'Certidões de inexistência/distribuição procedimentos extrajudiciais (MPE)',
-                            'Certificado de Responsabilidade Técnica',
-                            'Contrato com a VH ou minuta',
-                        ];
-                    @endphp
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                        @foreach ($docOptions as $option)
-                            <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
-                                <input type="checkbox" name="doc_checklist[]" value="{{ $option }}" {{ in_array($option, old('doc_checklist', [])) ? 'checked' : '' }} class="mt-0.5 text-blue-600 border-slate-300"> 
-                                <span>{{ $option }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
-
-                <div>
-                    <p class="text-sm font-medium text-slate-800">A empresa possui:</p>
-                    @php
-                        $policyOptions = [
-                            'Código de Ética/Conduta',
-                            'Programa de Compliance estruturado',
-                            'Canal de Denúncias',
-                            'Política Anticorrupção',
-                            'Política de Conflito de Interesses',
-                            'Política de Proteção de Dados (LGPD)',
-                        ];
-                    @endphp
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                        @foreach ($policyOptions as $option)
-                            <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
-                                <input type="checkbox" name="compliance_policies[]" value="{{ $option }}" {{ in_array($option, old('compliance_policies', [])) ? 'checked' : '' }} class="mt-0.5 text-blue-600 border-slate-300">
-                                <span>{{ $option }}</span>
-                            </label>
-                        @endforeach
-                        <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
-                            <input type="checkbox" name="compliance_policies[]" value="Nenhum" {{ in_array('Nenhum', old('compliance_policies', [])) ? 'checked' : '' }} class="mt-0.5 text-blue-600 border-slate-300">
-                            <span>Nenhum dos itens acima</span>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-red-200 hover:bg-red-50 transition">
+                            <input type="radio" name="registration_type" value="pj" {{ old('registration_type') === 'pj' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                            <span>Pessoa Jurídica</span>
+                        </label>
+                        <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-red-200 hover:bg-red-50 transition">
+                            <input type="radio" name="registration_type" value="pf" {{ old('registration_type') === 'pf' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                            <span>Pessoa Física</span>
                         </label>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-800">Empresa ou sócios foram investigados por:</label>
-                        <select name="investigated_for" class="mt-1 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-blue-400 focus:ring-blue-400">
-                            <option value="" {{ old('investigated_for') === null ? 'selected' : '' }}>Selecione</option>
-                            @foreach (['Corrupção','Fraude','Lavagem de dinheiro','Crimes ambientais','Infrações trabalhistas graves','Não'] as $opt)
-                                <option value="{{ $opt }}" {{ old('investigated_for') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm" id="fields-common" data-step="1">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="nome_pf" class="block text-sm font-semibold text-slate-900">Nome completo</label>
+                            </div>
+                            <input type="text" name="nome" id="nome_pf" value="{{ old('nome') }}" required
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Seu nome completo" />
+                        </div>
+                        <input type="hidden" name="nome" id="nome_pj_hidden" class="pj-only" value="{{ old('nome') }}">
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="razao_social" class="block text-sm font-semibold text-slate-900">Razão social</label>
+                            </div>
+                            <input type="text" name="razao_social" id="razao_social" value="{{ old('razao_social') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="nome_fantasia" class="block text-sm font-semibold text-slate-900">Nome fantasia</label>
+                            </div>
+                            <input type="text" name="nome_fantasia" id="nome_fantasia" value="{{ old('nome_fantasia') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="cnpj" class="block text-sm font-semibold text-slate-900">CNPJ</label>
+                            </div>
+                            <input type="text" name="cnpj" id="cnpj" value="{{ old('cnpj') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="00.000.000/0000-00" />
+                            <p id="cnpj-error" class="text-xs text-red-600 hidden">CNPJ inválido.</p>
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="cpf" class="block text-sm font-semibold text-slate-900">CPF</label>
+                            </div>
+                            <input type="text" name="cpf" id="cpf" value="{{ old('cpf') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="000.000.000-00" />
+                            <p id="cpf-error" class="text-xs text-red-600 hidden">CPF inválido.</p>
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="endereco" class="block text-sm font-semibold text-slate-900">Endereço</label>
+                            </div>
+                            <input type="text" name="endereco" id="endereco" value="{{ old('endereco') }}" required
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="email" class="block text-sm font-semibold text-slate-900">E-mail</label>
+                            </div>
+                            <input type="email" name="email" id="email" value="{{ old('email') }}" required
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="voce@email.com" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="email_testemunha" class="block text-sm font-semibold text-slate-900">E-mail testemunha</label>
+                            </div>
+                            <input type="email" name="email_testemunha" id="email_testemunha" value="{{ old('email_testemunha') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="testemunha@email.com" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="nacionalidade" class="block text-sm font-semibold text-slate-900">Nacionalidade</label>
+                            </div>
+                            <input type="text" name="nacionalidade" id="nacionalidade" value="{{ old('nacionalidade') }}" required
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="profissao" class="block text-sm font-semibold text-slate-900">Profissão</label>
+                            </div>
+                            <input type="text" name="profissao" id="profissao" value="{{ old('profissao') }}" required
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="data_nascimento" class="block text-sm font-semibold text-slate-900">Data de nascimento</label>
+                            </div>
+                            <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="dados_bancarios" class="block text-sm font-semibold text-slate-900">Dados bancários</label>
+                            </div>
+                            <textarea name="dados_bancarios" id="dados_bancarios" rows="2" class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Banco, agência, conta ou chave PIX">{{ old('dados_bancarios') }}</textarea>
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="telefone" class="block text-sm font-semibold text-slate-900">Telefone</label>
+                            </div>
+                            <input type="text" name="telefone" id="telefone" value="{{ old('telefone') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="(11) 99999-9999" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="representante_legal" class="block text-sm font-semibold text-slate-900">Representante legal</label>
+                            </div>
+                            <input type="text" name="representante_legal" id="representante_legal" value="{{ old('representante_legal') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                        </div>
+
+                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="website" class="block text-sm font-semibold text-slate-900">Website</label>
+                            </div>
+                            <input type="text" name="website" id="website" value="{{ old('website') }}"
+                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="https://" />
+                        </div>
+                    </div>
+                </div>
+
+                @php
+                    $docOptionsPj = [
+                        'Cartão do CNPJ',
+                        'Contrato social',
+                        'Documentos pessoais dos representantes (CNH ou RG)',
+                        'Estatuto social',
+                        'Ata de nomeação ou procuração com poderes específicos de representação',
+                        'Qualificação técnica profissional ativa (ex. CRM)',
+                        'Certificação de especialização profissional',
+                        'Alvará de funcionamento (válido)',
+                        'Alvará sanitário (válido)',
+                        'Licenças ambientais (municipais, estaduais e federais)',
+                        'Certidão negativa distribuidores cíveis/criminais (Estadual)',
+                        'Certidão negativa distribuidores cíveis/criminais (Federal)',
+                        'Certidões de inexistência/distribuição procedimentos extrajudiciais (MPF)',
+                        'Certidões de inexistência/distribuição procedimentos extrajudiciais (MPE)',
+                        'Certificado de Responsabilidade Técnica',
+                        'Contrato com a VH ou minuta',
+                    ];
+                    $docOptionsPf = [
+                        'Documentos pessoais dos representantes (CNH ou RG)',
+                        'Documentação de qualificação técnica profissional ativo (ex. CRM)',
+                        'Certificação de especialização profissional (ex. diploma, certificação)',
+                        'Minuta contratual (caso não tenha contrato formal para prestação de serviço, sinalizar)',
+                    ];
+                @endphp
+
+                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4" data-step="1">
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm pf-only">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <p class="text-sm font-semibold text-slate-900">Documentação solicitada (PF)</p>
+                        </div>
+                        <div class="mt-3 space-y-3 text-sm text-slate-800">
+                            @foreach ($docOptionsPf as $option)
+                                <label class="flex items-start gap-2">
+                                    <input type="checkbox" name="doc_checklist[]" value="{{ $option }}" class="mt-1 text-red-600 border-slate-300" {{ in_array($option, old('doc_checklist', [])) ? 'checked' : '' }}>
+                                    <span>{{ $option }}</span>
+                                </label>
                             @endforeach
-                        </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-800">Lei 12.846/2013 (Anticorrupção)</label>
-                        <div class="flex items-center space-x-4 mt-2 text-sm text-slate-700">
+                    
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm pj-only">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <p class="text-sm font-semibold text-slate-900">Documentação solicitada (PJ)</p>
+                        </div>
+                        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            @foreach ($docOptionsPj as $option)
+                                <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
+                                    <input type="checkbox" name="doc_checklist[]" value="{{ $option }}" {{ in_array($option, old('doc_checklist', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300">
+                                    <span>{{ $option }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Documentação (PDF, JPG, PNG, DOC, ZIP, RAR ou 7Z até 15MB)</label>
+                        </div>
+                        <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-slate-700">
+                            <input type="file" name="documents[]" id="documents" multiple required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.rar,.7z"
+                                class="block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-700" />
+                            <p class="mt-2 text-xs text-slate-500">Anexe todos os documentos solicitados (pode selecionar vários de uma vez). Máx. 15MB por arquivo. Aceita arquivos compactados (ZIP, RAR, 7Z).</p>
+                            <p id="documents-size-error" class="mt-2 text-sm font-semibold text-red-600 hidden"></p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label for="mensagem" class="block text-sm font-semibold text-slate-900">Observações adicionais</label>
+                        </div>
+                        <textarea name="mensagem" id="mensagem" rows="4" class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Conte-nos mais...">{{ old('mensagem') }}</textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="button" id="next-step" class="inline-flex items-center px-6 py-3 rounded-xl bg-red-600 text-white font-semibold shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Avançar para conflitos</button>
+                </div>
+            </div>
+
+            <div id="step-2" data-step="2" class="space-y-6 hidden">
+                <div class="space-y-4" data-step="2">
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <p class="text-sm font-semibold text-slate-900">A empresa possui:</p>
+                        </div>
+                        @php
+                            $policyOptions = [
+                                'Código de Ética/Conduta',
+                                'Programa de Compliance estruturado',
+                                'Canal de Denúncias',
+                                'Política Anticorrupção',
+                                'Política de Conflito de Interesses',
+                                'Política de Proteção de Dados (LGPD)',
+                            ];
+                        @endphp
+                        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            @foreach ($policyOptions as $option)
+                                <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
+                                    <input type="checkbox" name="compliance_policies[]" value="{{ $option }}" {{ in_array($option, old('compliance_policies', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300">
+                                    <span>{{ $option }}</span>
+                                </label>
+                            @endforeach
+                            <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
+                                <input type="checkbox" name="compliance_policies[]" value="Nenhum" {{ in_array('Nenhum', old('compliance_policies', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300">
+                                <span>Nenhum dos itens acima</span>
+                            </label>
+                        </div>
+                    </div>
+
+                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Declara estar em conformidade com a Lei nº 12.846/2013 (Lei Anticorrupção)?</label>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
                             <label class="inline-flex items-center space-x-2">
-                                <input type="radio" name="law_12846_compliant" value="1" {{ old('law_12846_compliant') === '1' ? 'checked' : '' }} class="text-blue-600 border-slate-300">
+                                <input type="radio" name="law_12846_compliant" value="1" {{ old('law_12846_compliant') === '1' ? 'checked' : '' }} class="text-red-600 border-slate-300">
                                 <span>Sim</span>
                             </label>
                             <label class="inline-flex items-center space-x-2">
-                                <input type="radio" name="law_12846_compliant" value="0" {{ old('law_12846_compliant') === '0' ? 'checked' : '' }} class="text-blue-600 border-slate-300">
+                                <input type="radio" name="law_12846_compliant" value="0" {{ old('law_12846_compliant') === '0' ? 'checked' : '' }} class="text-red-600 border-slate-300">
                                 <span>Não</span>
                             </label>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-800">LGPD</label>
-                        <div class="flex items-center space-x-4 mt-2 text-sm text-slate-700">
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Declara estar em conformidade com a Lei Geral de Proteção de Dados (LGPD)?</label>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
                             <label class="inline-flex items-center space-x-2">
-                                <input type="radio" name="lgpd_compliant" value="1" {{ old('lgpd_compliant') === '1' ? 'checked' : '' }} class="text-blue-600 border-slate-300">
+                                <input type="radio" name="lgpd_compliant" value="1" {{ old('lgpd_compliant') === '1' ? 'checked' : '' }} class="text-red-600 border-slate-300">
                                 <span>Sim</span>
                             </label>
                             <label class="inline-flex items-center space-x-2">
-                                <input type="radio" name="lgpd_compliant" value="0" {{ old('lgpd_compliant') === '0' ? 'checked' : '' }} class="text-blue-600 border-slate-300">
+                                <input type="radio" name="lgpd_compliant" value="0" {{ old('lgpd_compliant') === '0' ? 'checked' : '' }} class="text-red-600 border-slate-300">
                                 <span>Não</span>
                             </label>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-800">Detalhes de investigações (se houver)</label>
-                    <textarea name="investigation_details" rows="3" class="mt-1 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-400 focus:ring-blue-400">{{ old('investigation_details') }}</textarea>
-                </div>
-            </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">A empresa ou seus sócios já foram investigados ou condenados por:</label>
+                        </div>
+                        @php
+                            $investigationOptions = ['Corrupção','Fraude','Lavagem de dinheiro','Crimes ambientais','Infrações trabalhistas graves','Não'];
+                        @endphp
+                        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            @foreach ($investigationOptions as $opt)
+                                <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
+                                    <input type="checkbox" name="investigated_for[]" value="{{ $opt }}" {{ in_array($opt, old('investigated_for', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300">
+                                    <span>{{ $opt }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <label class="block text-sm font-medium text-slate-800" for="conflict_roles_details">Caso positivo, favor detalhar</label>
+                            <textarea name="conflict_roles_details" id="conflict_roles_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('conflict_roles_details') }}</textarea>
+                        </div>
+                    </div>
 
-            <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4">
-                <div>
-                    <label for="mensagem" class="block text-sm font-semibold text-slate-900">Observações adicionais</label>
-                    <textarea name="mensagem" id="mensagem" rows="4" class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Conte-nos mais...">{{ old('mensagem') }}</textarea>
-                </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <p class="text-sm font-semibold text-slate-900">É (pessoa física), é sócio de pessoa jurídica, possui sócio ou administrador, que seja:</p>
+                        </div>
+                        @php
+                            $conflictRoleOptions = [
+                                'Agente Público ou ex-Agente Público (últimos 5 anos)',
+                                'Pessoa Politicamente Exposta (PPE)',
+                                'Parente até 3º grau de Agente Público',
+                                'Nenhuma das opções acima',
+                            ];
+                        @endphp
+                        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            @foreach ($conflictRoleOptions as $option)
+                                <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
+                                    <input type="checkbox" name="conflict_roles[]" value="{{ $option }}" {{ in_array($option, old('conflict_roles', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300 conflict-role-option">
+                                    <span>{{ $option }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <p class="mt-2 text-xs text-slate-500">Selecione uma opção.</p>
+                        <div class="mt-3 space-y-2">
+                            <label class="block text-sm font-medium text-slate-800" for="conflict_roles_details">Caso positivo, favor detalhar</label>
+                            <textarea name="conflict_roles_details" id="conflict_roles_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('conflict_roles_details') }}</textarea>
+                        </div>
+                    </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-slate-900">Documentação (PDF, JPG, PNG ou DOC até 5MB)</label>
-                    <div class="mt-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-slate-700">
-                        <input type="file" name="documents[]" id="documents" multiple required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                            class="block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700" />
-                        <p class="mt-2 text-xs text-slate-500">Anexe todos os documentos solicitados (pode selecionar vários de uma vez).</p>
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Possui cargo ou parentes em poder de decisão em órgãos públicos que tenham alguma relação com a nossa empresa?</label>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="public_power_relatives" value="sim" {{ old('public_power_relatives') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Sim</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="public_power_relatives" value="nao" {{ old('public_power_relatives') === 'nao' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Não</span>
+                            </label>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <label class="block text-sm font-medium text-slate-800" for="public_power_relatives_details">Detalhes (órgão/servidor)</label>
+                            <textarea name="public_power_relatives_details" id="public_power_relatives_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('public_power_relatives_details') }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores da empresa?</label>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="internal_relationships" value="sim" {{ old('internal_relationships') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Sim</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="internal_relationships" value="nao" {{ old('internal_relationships') === 'nao' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Não</span>
+                            </label>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <label class="block text-sm font-medium text-slate-800" for="internal_relationships_details">Detalhes (área/pessoa)</label>
+                            <textarea name="internal_relationships_details" id="internal_relationships_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('internal_relationships_details') }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Possui participação societária direta ou indireta com a empresa?</label>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="employee_shareholding" value="sim" {{ old('employee_shareholding') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Sim</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="employee_shareholding" value="nao" {{ old('employee_shareholding') === 'nao' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Não</span>
+                            </label>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <label class="block text-sm font-medium text-slate-800" for="employee_shareholding_details">Detalhes</label>
+                            <textarea name="employee_shareholding_details" id="employee_shareholding_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('employee_shareholding_details') }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores de empresas concorrentes?</label>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="competitor_relationships" value="sim" {{ old('competitor_relationships') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Sim</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="competitor_relationships" value="nao" {{ old('competitor_relationships') === 'nao' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Não</span>
+                            </label>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <label class="block text-sm font-medium text-slate-800" for="competitor_relationships_details">Detalhes</label>
+                            <textarea name="competitor_relationships_details" id="competitor_relationships_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('competitor_relationships_details') }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Possui qualquer situação que possa caracterizar conflito de interesses real, potencial ou aparente?</label>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="conflict_situation" value="sim" {{ old('conflict_situation') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Sim</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="conflict_situation" value="nao" {{ old('conflict_situation') === 'nao' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Não</span>
+                            </label>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <label class="block text-sm font-medium text-slate-800" for="conflict_situation_details">Detalhes</label>
+                            <textarea name="conflict_situation_details" id="conflict_situation_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('conflict_situation_details') }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label class="block text-sm font-semibold text-slate-900">Declaro, sob as penas da lei, que:</label>
+                        </div>
+                        <ul class="mt-3 space-y-2 text-sm text-slate-800 list-disc list-inside">
+                            <li>As informações prestadas são verdadeiras.</li>
+                            <li>Não pratico atos lesivos contra a Administração Pública.</li>
+                            <li>Não realizo pagamento ou oferecimento de vantagem indevida a agentes públicos ou privados.</li>
+                            <li>Não ofereço vantagens indevidas a profissionais da saúde.</li>
+                            <li>Não realizo indução comercial em desacordo com boas práticas médicas.</li>
+                            <li>Não pratico qualquer ato que viole normas sanitárias.</li>
+                            <li>Cumpro integralmente a legislação e normas éticas, sanitárias, trabalhistas, ambientais e tributárias vigentes.</li>
+                            <li>Comprometo a comunicar imediatamente qualquer alteração nas informações aqui prestadas.</li>
+                            <li>Autorizo a empresa a realizar verificações reputacionais e consultas em bases públicas.</li>
+                        </ul>
+                        <div class="mt-4 flex items-center space-x-4 text-sm text-slate-700">
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="legal_declaration" value="concorda" {{ old('legal_declaration') === 'concorda' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Manifesto minha expressa concordância</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="legal_declaration" value="discorda" {{ old('legal_declaration') === 'discorda' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Manifesto minha expressa discordância</span>
+                            </label>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-800" for="legal_representative">Nome do Responsável Legal</label>
+                                <input type="text" name="legal_representative" id="legal_representative" value="{{ old('legal_representative') }}" required class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-800" for="legal_representative_cpf">CPF</label>
+                                <input type="text" name="legal_representative_cpf" id="legal_representative_cpf" value="{{ old('legal_representative_cpf') }}" required class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" placeholder="000.000.000-00" />
+                                <p id="legal-cpf-error" class="text-xs text-red-600 hidden">CPF inválido.</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-800" for="legal_representative_role">Cargo</label>
+                                <input type="text" name="legal_representative_role" id="legal_representative_role" value="{{ old('legal_representative_role') }}" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-800" for="legal_representative_date">Data</label>
+                                <input type="date" name="legal_representative_date" id="legal_representative_date" value="{{ old('legal_representative_date') }}" required class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" />
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 focus:ring-offset-white transition">Enviar formulário</button>
+                <div class="flex items-center justify-between">
+                    <button type="button" id="previous-step" class="inline-flex items-center px-5 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold shadow-sm hover:border-red-200 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Voltar</button>
+                    <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-red-600 text-white font-semibold shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Enviar formulário</button>
+                </div>
             </div>
         </form>
     </div>
@@ -258,18 +570,240 @@
     (function() {
         const form = document.getElementById('submission-form');
         if (!form) return;
-        const toggle = () => {
-            const type = form.querySelector('input[name="registration_type"]:checked')?.value;
+
+        const stepPanels = [1, 2]
+            .map((step) => document.getElementById(`step-${step}`))
+            .filter(Boolean);
+        const indicators = Array.from(form.querySelectorAll('[data-step-indicator]'));
+        const nextBtn = document.getElementById('next-step');
+        const prevBtn = document.getElementById('previous-step');
+        let currentStep = 1;
+
+        const getRegistrationType = () => form.querySelector('input[name="registration_type"]:checked')?.value;
+
+        const isEnabledForType = (node) => {
+            const type = getRegistrationType();
+            if (node.closest('.pj-only')) return type === 'pj';
+            if (node.closest('.pf-only')) return type === 'pf';
+            return true;
+        };
+
+        const setQuestionNumbers = () => {
+            let counter = 1;
+            const questions = Array.from(form.querySelectorAll('[data-question]')).filter(isEnabledForType);
+            questions.forEach((question) => {
+                let badge = question.querySelector('.question-number');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'question-number inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-800 text-xs font-semibold border border-red-200 flex-shrink-0';
+                    question.prepend(badge);
+                }
+                badge.textContent = `${counter}.`;
+                counter += 1;
+            });
+        };
+
+        const conflictOptions = Array.from(document.querySelectorAll('.conflict-role-option'));
+        const noneOption = conflictOptions.find((opt) => opt.value === 'Nenhuma');
+        if (noneOption) {
+            noneOption.addEventListener('change', () => {
+                if (noneOption.checked) {
+                    conflictOptions.forEach((opt) => {
+                        if (opt !== noneOption) opt.checked = false;
+                    });
+                }
+            });
+            conflictOptions.forEach((opt) => {
+                if (opt === noneOption) return;
+                opt.addEventListener('change', () => {
+                    if (opt.checked) noneOption.checked = false;
+                });
+            });
+        }
+
+        const updateIndicators = () => {
+            indicators.forEach((indicator) => {
+                const isActive = Number(indicator.dataset.stepIndicator) === currentStep;
+                indicator.setAttribute('aria-current', isActive ? 'step' : 'false');
+                indicator.classList.toggle('bg-red-600', isActive);
+                indicator.classList.toggle('text-white', isActive);
+                indicator.classList.toggle('border-red-600', isActive);
+                indicator.classList.toggle('bg-red-50', !isActive);
+                indicator.classList.toggle('text-red-900', !isActive);
+                indicator.classList.toggle('border-red-200', !isActive);
+            });
+        };
+
+        const showStep = (step) => {
+            currentStep = step;
+            stepPanels.forEach((panel) => {
+                const isCurrent = Number(panel.dataset.step) === step;
+                panel.classList.toggle('hidden', !isCurrent);
+            });
+            updateIndicators();
+            setQuestionNumbers();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const navigateToStep = (targetStep) => {
+            if (targetStep === currentStep) return;
+            showStep(targetStep);
+        };
+
+        const invalidInputClasses = ['border-red-500', 'bg-red-50', 'text-red-900', 'placeholder-red-300', 'focus:border-red-500', 'focus:ring-red-500'];
+        const invalidOptionClasses = ['border-red-300', 'bg-red-50', 'text-red-800'];
+
+        const toggleClasses = (elements, classes, enabled) => {
+            elements.forEach((element) => {
+                classes.forEach((className) => element.classList.toggle(className, enabled));
+            });
+        };
+
+        const getGroupedInputs = (field) => {
+            if (!field.name) return [field];
+            return Array.from(form.querySelectorAll(`[name="${CSS.escape(field.name)}"]`)).filter(isEnabledForType);
+        };
+
+        const markFieldValidity = (field, isInvalid) => {
+            if (field.type === 'radio' || field.type === 'checkbox') {
+                const inputs = getGroupedInputs(field);
+                const labels = inputs
+                    .map((input) => input.closest('label'))
+                    .filter(Boolean);
+                toggleClasses(labels, invalidOptionClasses, isInvalid);
+                return;
+            }
+
+            toggleClasses([field], invalidInputClasses, isInvalid);
+        };
+
+        const clearInvalidStates = () => {
+            Array.from(form.querySelectorAll('input, select, textarea')).forEach((field) => {
+                markFieldValidity(field, false);
+            });
+        };
+
+        const getRequiredFields = () => {
+            const fields = Array.from(form.querySelectorAll('input, select, textarea'));
+            const uniqueFields = [];
+            const groupedNames = [];
+
+            fields.forEach((field) => {
+                if (field.disabled || !isEnabledForType(field) || !field.required) return;
+
+                if ((field.type === 'radio' || field.type === 'checkbox') && field.name) {
+                    if (groupedNames.includes(field.name)) return;
+                    groupedNames.push(field.name);
+                }
+
+                uniqueFields.push(field);
+            });
+
+            return uniqueFields;
+        };
+
+        const validateForm = () => {
+            clearInvalidStates();
+
+            const invalidFields = [];
+            const requiredFields = getRequiredFields();
+
+            requiredFields.forEach((field) => {
+                let isInvalid = false;
+
+                if (field.type === 'radio' || field.type === 'checkbox') {
+                    const inputs = getGroupedInputs(field);
+                    isInvalid = !inputs.some((input) => input.checked);
+                } else {
+                    isInvalid = !field.value.trim();
+                }
+
+                if (isInvalid) {
+                    invalidFields.push(field);
+                    markFieldValidity(field, true);
+                }
+            });
+
+            const conflictRoleInputs = Array.from(form.querySelectorAll('input[name="conflict_roles[]"]')).filter(isEnabledForType);
+            const hasConflictRole = conflictRoleInputs.some((input) => input.checked);
+            if (!hasConflictRole && conflictRoleInputs.length > 0) {
+                invalidFields.push(conflictRoleInputs[0]);
+                markFieldValidity(conflictRoleInputs[0], true);
+            }
+
+            return invalidFields;
+        };
+
+        const getStepForField = (field) => {
+            const panel = field.closest('[data-step]');
+            return panel ? Number(panel.dataset.step) : 1;
+        };
+
+        const bindFieldValidationFeedback = () => {
+            Array.from(form.querySelectorAll('input, select, textarea')).forEach((field) => {
+                const eventName = field.type === 'radio' || field.type === 'checkbox' ? 'change' : 'input';
+                field.addEventListener(eventName, () => {
+                    if (field.type === 'radio' || field.type === 'checkbox') {
+                        const inputs = getGroupedInputs(field);
+                        const hasValue = inputs.some((input) => input.checked);
+                        inputs.forEach((input) => markFieldValidity(input, !hasValue && input.required));
+                        return;
+                    }
+
+                    markFieldValidity(field, field.required && !field.value.trim());
+                });
+            });
+        };
+
+        const nomePfInput = document.getElementById('nome_pf');
+        const nomePjHidden = document.getElementById('nome_pj_hidden');
+        const razaoSocialInput = document.getElementById('razao_social');
+
+        const setVisibilityAndState = (selector, visible) => {
+            form.querySelectorAll(selector).forEach((el) => {
+                el.style.display = visible ? '' : 'none';
+                if (el.matches('input, select, textarea')) {
+                    el.disabled = !visible;
+                } else {
+                    el.querySelectorAll('input, select, textarea').forEach((field) => {
+                        field.disabled = !visible;
+                    });
+                }
+            });
+        };
+
+        const toggleRegistrationType = () => {
+            const type = getRegistrationType();
             const pj = type === 'pj';
-            form.querySelectorAll('.pj-only').forEach(el => el.style.display = pj ? '' : 'none');
-            form.querySelectorAll('.pf-only').forEach(el => el.style.display = pj ? 'none' : '');
+
+            setVisibilityAndState('.pj-only', pj);
+            setVisibilityAndState('.pf-only', !pj);
+
+            if (nomePfInput) nomePfInput.disabled = pj;
+            if (nomePjHidden) {
+                nomePjHidden.disabled = !pj;
+                nomePjHidden.value = pj ? (razaoSocialInput?.value || '') : '';
+            }
+
             if (pj) {
                 const cpfInput = document.getElementById('cpf');
                 if (cpfInput) cpfInput.value = '';
             }
+
+            setQuestionNumbers();
         };
-        form.querySelectorAll('input[name="registration_type"]').forEach(r => r.addEventListener('change', toggle));
-        toggle();
+
+        if (razaoSocialInput && nomePjHidden) {
+            razaoSocialInput.addEventListener('input', () => {
+                if (getRegistrationType() === 'pj') {
+                    nomePjHidden.value = razaoSocialInput.value || '';
+                }
+            });
+        }
+
+        form.querySelectorAll('input[name="registration_type"]').forEach((r) => r.addEventListener('change', toggleRegistrationType));
+        toggleRegistrationType();
+        bindFieldValidationFeedback();
 
         const digits = (value) => value.replace(/\D/g, '');
         const formatCpf = (value) => {
@@ -321,25 +855,173 @@
             return calc(10) && calc(11);
         };
 
+        const isValidCnpj = (value) => {
+            const v = digits(value);
+            if (v.length !== 14) return false;
+            if (/^(\d)\1{13}$/.test(v)) return false;
+            const weights1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+            let sum = 0;
+            for (let i = 0; i < 12; i++) sum += parseInt(v[i], 10) * weights1[i];
+            let rem = sum % 11;
+            let check = rem < 2 ? 0 : 11 - rem;
+            if (check !== parseInt(v[12], 10)) return false;
+            const weights2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+            sum = 0;
+            for (let i = 0; i < 13; i++) sum += parseInt(v[i], 10) * weights2[i];
+            rem = sum % 11;
+            check = rem < 2 ? 0 : 11 - rem;
+            return check === parseInt(v[13], 10);
+        };
+
         attachMask('cpf', formatCpf);
         attachMask('cnpj', formatCnpj);
+        attachMask('legal_representative_cpf', formatCpf);
         attachMask('telefone', formatPhone);
 
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToStep(2);
+            });
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToStep(1);
+            });
+        }
+
+        indicators.forEach((indicator) => {
+            indicator.addEventListener('click', () => {
+                const targetStep = Number(indicator.dataset.goStep);
+                if (!targetStep) return;
+                navigateToStep(targetStep);
+            });
+        });
+
+        // Validação imediata ao selecionar arquivos
+        const docInput = document.getElementById('documents');
+        const docSizeError = document.getElementById('documents-size-error');
+        let hasOversizedFiles = false;
+        const allowedExtensions = ['pdf','jpg','jpeg','png','doc','docx','zip','rar','7z'];
+        if (docInput) {
+            docInput.addEventListener('change', () => {
+                const maxFileSize = 15 * 1024 * 1024;
+                const maxTotalSize = 100 * 1024 * 1024;
+                const oversized = [];
+                const invalidType = [];
+                let totalSize = 0;
+                for (let i = 0; i < docInput.files.length; i++) {
+                    const file = docInput.files[i];
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    if (!allowedExtensions.includes(ext)) {
+                        invalidType.push(file.name);
+                    }
+                    if (file.size > maxFileSize) {
+                        oversized.push(file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + 'MB)');
+                    }
+                    totalSize += file.size;
+                }
+                const uploadContainer = docInput.closest('.rounded-2xl');
+                const errors = [];
+                if (oversized.length > 0) {
+                    errors.push('⚠ Arquivos acima de 15MB: ' + oversized.join(', ') + '. Reduza o tamanho ou escolha outros arquivos.');
+                }
+                if (totalSize > maxTotalSize) {
+                    errors.push('⚠ Tamanho total (' + (totalSize / 1024 / 1024).toFixed(1) + 'MB) excede o limite de 20MB.');
+                }
+                if (invalidType.length > 0) {
+                    errors.push('⚠ Tipo de arquivo não permitido: ' + invalidType.join(', ') + '. Use PDF, JPG, PNG, DOC, ZIP, RAR ou 7Z.');
+                }
+                hasOversizedFiles = errors.length > 0;
+                if (hasOversizedFiles) {
+                    docSizeError.innerHTML = errors.join('<br>');
+                    docSizeError.classList.remove('hidden');
+                    if (uploadContainer) {
+                        uploadContainer.classList.remove('border-slate-200');
+                        uploadContainer.classList.add('border-red-500', 'bg-red-50');
+                    }
+                } else {
+                    docSizeError.classList.add('hidden');
+                    if (uploadContainer) {
+                        uploadContainer.classList.remove('border-red-500', 'bg-red-50');
+                        uploadContainer.classList.add('border-slate-200');
+                    }
+                }
+            });
+        }
+
         form.addEventListener('submit', (e) => {
-            const type = form.querySelector('input[name="registration_type"]:checked')?.value;
+            const invalidFields = validateForm();
+            if (invalidFields.length > 0) {
+                e.preventDefault();
+                showStep(getStepForField(invalidFields[0]));
+                invalidFields[0].focus();
+                return;
+            }
+
+            // Bloquear envio se há erros de arquivo detectados dinamicamente
+            if (hasOversizedFiles) {
+                e.preventDefault();
+                const fileInput = document.getElementById('documents');
+                if (fileInput) {
+                    showStep(getStepForField(fileInput));
+                    fileInput.focus();
+                }
+                return;
+            }
+
+            const type = getRegistrationType();
             const cpfInput = document.getElementById('cpf');
             const cpfError = document.getElementById('cpf-error');
-            if (type === 'pf' && cpfInput) {
-                const valid = isValidCpf(cpfInput.value);
-                if (!valid) {
+            const cnpjInput = document.getElementById('cnpj');
+            const cnpjError = document.getElementById('cnpj-error');
+            const legalCpfInput = document.getElementById('legal_representative_cpf');
+            const legalCpfError = document.getElementById('legal-cpf-error');
+
+            if (type === 'pf' && cpfInput && cpfInput.value.trim()) {
+                if (!isValidCpf(cpfInput.value)) {
                     e.preventDefault();
+                    markFieldValidity(cpfInput, true);
                     if (cpfError) cpfError.classList.remove('hidden');
+                    showStep(getStepForField(cpfInput));
                     cpfInput.focus();
                     return;
                 }
             }
+            markFieldValidity(cpfInput, false);
             if (cpfError) cpfError.classList.add('hidden');
+
+            if (type === 'pj' && cnpjInput && cnpjInput.value.trim()) {
+                if (!isValidCnpj(cnpjInput.value)) {
+                    e.preventDefault();
+                    markFieldValidity(cnpjInput, true);
+                    if (cnpjError) cnpjError.classList.remove('hidden');
+                    showStep(getStepForField(cnpjInput));
+                    cnpjInput.focus();
+                    return;
+                }
+            }
+            markFieldValidity(cnpjInput, false);
+            if (cnpjError) cnpjError.classList.add('hidden');
+
+            if (legalCpfInput && legalCpfInput.value.trim()) {
+                if (!isValidCpf(legalCpfInput.value)) {
+                    e.preventDefault();
+                    markFieldValidity(legalCpfInput, true);
+                    if (legalCpfError) legalCpfError.classList.remove('hidden');
+                    showStep(getStepForField(legalCpfInput));
+                    legalCpfInput.focus();
+                    return;
+                }
+            }
+            markFieldValidity(legalCpfInput, false);
+            if (legalCpfError) legalCpfError.classList.add('hidden');
         });
+
+        updateIndicators();
+        setQuestionNumbers();
     })();
 </script>
 @endsection

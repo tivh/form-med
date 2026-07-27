@@ -18,24 +18,27 @@
         }
     </style>
 </head>
-<body class="antialiased text-slate-900 bg-gradient-to-br from-sky-50 via-white to-indigo-50 min-h-screen">
-    <header class="sticky top-0 z-10 bg-slate-200 border-b border-slate-300 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-slate-300 rounded-md p-1.5 shadow-inner">
+<body class="antialiased text-slate-900 bg-gradient-to-br from-red-50 via-white to-rose-50 min-h-screen">
+    <header class="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <a href="{{ route('forms.list') }}" class="flex items-center space-x-3 min-w-0 group">
+                <div class="bg-red-50 rounded-xl p-1.5 border border-red-100 group-hover:bg-red-100 transition shrink-0">
                     <img src="{{ asset('Logo/logo-vitoriahspitalar2.png') }}" alt="Logo" class="h-10 w-auto object-contain" />
                 </div>
-                <div>
-                    <p class="text-xs uppercase tracking-[0.2em] text-slate-600">Vitória Hospitalar</p>
-                    <p class="text-lg font-semibold text-slate-900">{{ config('app.name', 'Form Med') }}</p>
+                <div class="min-w-0">
+                    <p class="text-xs uppercase tracking-[0.2em] text-slate-400 font-medium">Vitória Hospitalar</p>
+                    <p class="text-base font-bold text-slate-900 truncate">{{ config('app.name', 'Form Med') }}</p>
                 </div>
-            </div>
-            <div class="flex items-center space-x-3">
-                <a href="{{ route('login') }}" class="text-sm text-blue-800 hover:text-blue-900 font-semibold border border-blue-100 px-4 py-2 rounded-full bg-blue-100/80">Área Admin</a>
-            </div>
+            </a>
+            <nav class="flex items-center gap-1">
+                <a href="{{ route('forms.list') }}" class="text-sm text-slate-600 hover:text-slate-900 font-medium px-3 py-1.5 rounded-lg hover:bg-slate-100 transition">Formulários</a>
+                <a href="{{ route('compliance.index') }}" class="text-sm text-slate-600 hover:text-slate-900 font-medium px-3 py-1.5 rounded-lg hover:bg-slate-100 transition">Documentos</a>
+                <a href="{{ route('login') }}" class="text-sm text-white font-semibold px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition ml-2">Área Admin</a>
+            </nav>
         </div>
     </header>
 
+    @yield('subnav')
     <main class="pb-16">@yield('content')</main>
 </body>
 </html>
