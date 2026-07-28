@@ -11,6 +11,13 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    public function index(): View
+    {
+        $users = User::query()->latest()->paginate(20);
+
+        return view('admin.users.index', compact('users'));
+    }
+
     public function create(): View
     {
         return view('admin.users.create');

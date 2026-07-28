@@ -43,6 +43,8 @@ class PublicFormController extends Controller
     public function submit(Request $request, string $form): RedirectResponse
     {
         $formConfig = $this->availableForm($form);
+        $registrationType = (string) ($request->input('tipo_pessoa') ?: $request->input('registration_type') ?: 'pf');
+        $request->merge(['registration_type' => $registrationType]);
 
         $rules = $this->rulesForForm($request, $formConfig);
 
@@ -64,17 +66,21 @@ class PublicFormController extends Controller
 
         FormSubmission::create([
             'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
-            'registration_type' => $validated['registration_type'],
+            'registration_type' => $registrationType,
             'nome' => $validated['nome'],
             'cpf' => $validated['cpf'] ?? null,
             'razao_social' => $validated['razao_social'] ?? null,
             'nome_fantasia' => $validated['nome_fantasia'] ?? null,
             'cnpj' => $validated['cnpj'] ?? null,
-            'representante_legal' => $validated['representante_legal'] ?? null,
+            'representante_legal' => $validated['representante_legal'] ?? $validated['representante_legal_nome'] ?? null,
+            'representante_legal_nome' => $validated['representante_legal_nome'] ?? null,
+            'representante_legal_email' => $validated['representante_legal_email'] ?? null,
+            'responsavel_juridico_nome' => $validated['responsavel_juridico_nome'] ?? null,
+            'responsavel_juridico_email' => $validated['responsavel_juridico_email'] ?? null,
             'website' => $validated['website'] ?? null,
             'endereco' => $validated['endereco'],
             'email' => $validated['email'],
-            'email_testemunha' => $validated['email_testemunha'] ?? null,
+            'email_testemunha' => $validated['testemunha_email'] ?? $validated['email_testemunha'] ?? null,
             'telefone' => $validated['telefone'] ?? null,
             'nacionalidade' => $validated['nacionalidade'],
             'profissao' => $validated['profissao'],
@@ -108,6 +114,9 @@ class PublicFormController extends Controller
             'legal_representative_cpf' => $validated['legal_representative_cpf'] ?? null,
             'legal_representative_role' => $validated['legal_representative_role'] ?? null,
             'legal_representative_date' => $validated['legal_representative_date'] ?? null,
+            'testemunha_nome' => $validated['testemunha_nome'] ?? null,
+            'testemunha_email' => $validated['testemunha_email'] ?? null,
+            'compliance_aceito_em' => now(),
             'documents' => $storedDocs,
         ]);
 
@@ -124,7 +133,12 @@ class PublicFormController extends Controller
             'nome_fantasia' => ['nullable', 'string', 'max:255'],
             'cnpj' => ['nullable', 'string', 'max:50', new Cnpj],
             'representante_legal' => ['nullable', 'string', 'max:255'],
-            'website' => ['nullable', 'string', 'max:255'],
+            'representante_legal_nome' => ['nullable', 'string', 'max:255'],
+            'representante_legal_email' => ['nullable', 'email', 'max:255'],
+            'responsavel_juridico_nome' => ['nullable', 'string', 'max:255'],
+            'responsavel_juridico_email' => ['nullable', 'email', 'max:255'],
+            'testemunha_nome' => ['nullable', 'string', 'max:255'],
+            'testemunha_email' => ['nullable', 'email', 'max:255'],
             'endereco' => ['required', 'string', 'max:1000'],
             'email' => ['required', 'email', 'max:255'],
             'email_testemunha' => ['nullable', 'email', 'max:255'],
@@ -165,19 +179,29 @@ class PublicFormController extends Controller
             'legal_representative_cpf' => ['required', 'string', 'max:50', new Cpf],
             'legal_representative_role' => ['nullable', 'string', 'max:255'],
             'legal_representative_date' => ['required', 'date'],
+            'compliance_aceito_em' => ['prohibited'],
             'documents' => ['required', 'array', 'min:1'],
             'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,zip,rar,7z', 'max:15360'],
         ];
 
-        if ($request->input('registration_type') === 'pf') {
+        $registrationType = (string) ($request->input('tipo_pessoa') ?: $request->input('registration_type') ?: 'pf');
+
+        if ($registrationType === 'pf') {
             $rules['cpf'][0] = 'required';
+            $rules['testemunha_nome'][0] = 'required';
+            $rules['testemunha_email'][0] = 'required';
+            $rules['testemunha_email'][1] = 'email';
         }
 
-        if ($request->input('registration_type') === 'pj') {
+        if ($registrationType === 'pj') {
             $rules['razao_social'][0] = 'required';
             $rules['nome_fantasia'][0] = 'required';
             $rules['cnpj'][0] = 'required';
-            $rules['representante_legal'][0] = 'required';
+            $rules['representante_legal_nome'][0] = 'required';
+            $rules['representante_legal_email'][0] = 'required';
+            $rules['testemunha_nome'][0] = 'required';
+            $rules['testemunha_email'][0] = 'required';
+            $rules['testemunha_email'][1] = 'email';
             $rules['dados_bancarios'][0] = 'required';
         }
 

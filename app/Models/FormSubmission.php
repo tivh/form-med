@@ -18,6 +18,12 @@ class FormSubmission extends Model
         'nome_fantasia',
         'cnpj',
         'representante_legal',
+        'representante_legal_nome',
+        'representante_legal_email',
+        'responsavel_juridico_nome',
+        'responsavel_juridico_email',
+        'testemunha_nome',
+        'testemunha_email',
         'website',
         'endereco',
         'email',
@@ -55,6 +61,7 @@ class FormSubmission extends Model
         'legal_representative_cpf',
         'legal_representative_role',
         'legal_representative_date',
+        'compliance_aceito_em',
         'documents',
     ];
 
@@ -67,5 +74,6 @@ class FormSubmission extends Model
         'law_12846_compliant' => 'boolean',
         'lgpd_compliant' => 'boolean',
         'legal_representative_date' => 'date',
+        'compliance_aceito_em' => 'datetime',
     ];
 }

@@ -64,142 +64,153 @@
                 </div>
 
                 <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm" id="fields-common" data-step="1">
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="nome_pf" class="block text-sm font-semibold text-slate-900">Nome completo</label>
+                    <div class="space-y-6">
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-sm font-semibold text-red-700">1</span>
+                                <h2 class="text-base font-semibold text-slate-900">{{ old('registration_type') === 'pj' ? 'Identificação da empresa' : 'Identificação pessoal' }}</h2>
                             </div>
-                            <input type="text" name="nome" id="nome_pf" value="{{ old('nome') }}" required
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Seu nome completo" />
-                        </div>
-                        <input type="hidden" name="nome" id="nome_pj_hidden" class="pj-only" value="{{ old('nome') }}">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
+                                    <label for="nome_pf" class="block text-sm font-semibold text-slate-900">Nome completo</label>
+                                    <input type="text" name="nome" id="nome_pf" value="{{ old('nome') }}" required
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Seu nome completo" />
+                                </div>
+                                <input type="hidden" name="nome" id="nome_pj_hidden" class="pj-only" value="{{ old('nome') }}">
 
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="razao_social" class="block text-sm font-semibold text-slate-900">Razão social</label>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                                    <label for="razao_social" class="block text-sm font-semibold text-slate-900">Razão social</label>
+                                    <input type="text" name="razao_social" id="razao_social" value="{{ old('razao_social') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                                    <label for="nome_fantasia" class="block text-sm font-semibold text-slate-900">Nome fantasia</label>
+                                    <input type="text" name="nome_fantasia" id="nome_fantasia" value="{{ old('nome_fantasia') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                                    <label for="cnpj" class="block text-sm font-semibold text-slate-900">CNPJ</label>
+                                    <input type="text" name="cnpj" id="cnpj" value="{{ old('cnpj') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="00.000.000/0000-00" />
+                                    <p id="cnpj-error" class="text-xs text-red-600 hidden">CNPJ inválido.</p>
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
+                                    <label for="cpf" class="block text-sm font-semibold text-slate-900">CPF</label>
+                                    <input type="text" name="cpf" id="cpf" value="{{ old('cpf') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="000.000.000-00" />
+                                    <p id="cpf-error" class="text-xs text-red-600 hidden">CPF inválido.</p>
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="telefone" class="block text-sm font-semibold text-slate-900">Telefone</label>
+                                    <input type="text" name="telefone" id="telefone" value="{{ old('telefone') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="(11) 99999-9999" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="endereco" class="block text-sm font-semibold text-slate-900">Endereço</label>
+                                    <input type="text" name="endereco" id="endereco" value="{{ old('endereco') }}" required
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="email" class="block text-sm font-semibold text-slate-900">E-mail</label>
+                                    <input type="email" name="email" id="email" value="{{ old('email') }}" required
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="voce@email.com" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
+                                    <label for="website" class="block text-sm font-semibold text-slate-900">Website</label>
+                                    <input type="text" name="website" id="website" value="{{ old('website') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="https://" />
+                                </div>
                             </div>
-                            <input type="text" name="razao_social" id="razao_social" value="{{ old('razao_social') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="nome_fantasia" class="block text-sm font-semibold text-slate-900">Nome fantasia</label>
-                            </div>
-                            <input type="text" name="nome_fantasia" id="nome_fantasia" value="{{ old('nome_fantasia') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="cnpj" class="block text-sm font-semibold text-slate-900">CNPJ</label>
-                            </div>
-                            <input type="text" name="cnpj" id="cnpj" value="{{ old('cnpj') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="00.000.000/0000-00" />
-                            <p id="cnpj-error" class="text-xs text-red-600 hidden">CNPJ inválido.</p>
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="cpf" class="block text-sm font-semibold text-slate-900">CPF</label>
-                            </div>
-                            <input type="text" name="cpf" id="cpf" value="{{ old('cpf') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="000.000.000-00" />
-                            <p id="cpf-error" class="text-xs text-red-600 hidden">CPF inválido.</p>
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="endereco" class="block text-sm font-semibold text-slate-900">Endereço</label>
-                            </div>
-                            <input type="text" name="endereco" id="endereco" value="{{ old('endereco') }}" required
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="email" class="block text-sm font-semibold text-slate-900">E-mail</label>
-                            </div>
-                            <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="voce@email.com" />
                         </div>
 
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="email_testemunha" class="block text-sm font-semibold text-slate-900">E-mail testemunha</label>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 pj-only">
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-sm font-semibold text-red-700">2</span>
+                                <h2 class="text-base font-semibold text-slate-900">Representante legal</h2>
                             </div>
-                            <input type="email" name="email_testemunha" id="email_testemunha" value="{{ old('email_testemunha') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="testemunha@email.com" />
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="representante_legal_nome" class="block text-sm font-semibold text-slate-900">Nome do representante legal</label>
+                                    <input type="text" name="representante_legal_nome" id="representante_legal_nome" value="{{ old('representante_legal_nome') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="representante_legal_email" class="block text-sm font-semibold text-slate-900">E-mail do representante legal</label>
+                                    <input type="email" name="representante_legal_email" id="representante_legal_email" value="{{ old('representante_legal_email') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="representante@email.com" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="nacionalidade" class="block text-sm font-semibold text-slate-900">Nacionalidade</label>
+                                    <input type="text" name="nacionalidade" id="nacionalidade" value="{{ old('nacionalidade') }}" required
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="profissao" class="block text-sm font-semibold text-slate-900">Profissão</label>
+                                    <input type="text" name="profissao" id="profissao" value="{{ old('profissao') }}" required
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="nacionalidade" class="block text-sm font-semibold text-slate-900">Nacionalidade</label>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 pj-only">
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-sm font-semibold text-red-700">3</span>
+                                <h2 class="text-base font-semibold text-slate-900">Responsável jurídico</h2>
                             </div>
-                            <input type="text" name="nacionalidade" id="nacionalidade" value="{{ old('nacionalidade') }}" required
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="responsavel_juridico_nome" class="block text-sm font-semibold text-slate-900">Nome do responsável jurídico</label>
+                                    <input type="text" name="responsavel_juridico_nome" id="responsavel_juridico_nome" value="{{ old('responsavel_juridico_nome') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="responsavel_juridico_email" class="block text-sm font-semibold text-slate-900">E-mail do responsável jurídico</label>
+                                    <input type="email" name="responsavel_juridico_email" id="responsavel_juridico_email" value="{{ old('responsavel_juridico_email') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="responsavel@email.com" />
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="profissao" class="block text-sm font-semibold text-slate-900">Profissão</label>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-sm font-semibold text-red-700">{{ old('registration_type') === 'pj' ? '4' : '2' }}</span>
+                                <h2 class="text-base font-semibold text-slate-900">Testemunha</h2>
                             </div>
-                            <input type="text" name="profissao" id="profissao" value="{{ old('profissao') }}" required
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="testemunha_nome" class="block text-sm font-semibold text-slate-900">Nome da testemunha</label>
+                                    <input type="text" name="testemunha_nome" id="testemunha_nome" value="{{ old('testemunha_nome') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="testemunha_email" class="block text-sm font-semibold text-slate-900">E-mail da testemunha</label>
+                                    <input type="email" name="testemunha_email" id="testemunha_email" value="{{ old('testemunha_email') }}"
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="testemunha@email.com" />
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pf-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="data_nascimento" class="block text-sm font-semibold text-slate-900">Data de nascimento</label>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-sm font-semibold text-red-700">{{ old('registration_type') === 'pj' ? '5' : '3' }}</span>
+                                <h2 class="text-base font-semibold text-slate-900">Dados financeiros</h2>
                             </div>
-                            <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
+                            <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
                                 <label for="dados_bancarios" class="block text-sm font-semibold text-slate-900">Dados bancários</label>
+                                <textarea name="dados_bancarios" id="dados_bancarios" rows="2" class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Banco, agência, conta ou chave PIX">{{ old('dados_bancarios') }}</textarea>
                             </div>
-                            <textarea name="dados_bancarios" id="dados_bancarios" rows="2" class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Banco, agência, conta ou chave PIX">{{ old('dados_bancarios') }}</textarea>
                         </div>
 
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="telefone" class="block text-sm font-semibold text-slate-900">Telefone</label>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 pf-only">
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-sm font-semibold text-red-700">4</span>
+                                <h2 class="text-base font-semibold text-slate-900">Data de nascimento</h2>
                             </div>
-                            <input type="text" name="telefone" id="telefone" value="{{ old('telefone') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="(11) 99999-9999" />
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="representante_legal" class="block text-sm font-semibold text-slate-900">Representante legal</label>
+                            <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                <label for="data_nascimento" class="block text-sm font-semibold text-slate-900">Data de nascimento</label>
+                                <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento') }}"
+                                    class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
                             </div>
-                            <input type="text" name="representante_legal" id="representante_legal" value="{{ old('representante_legal') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
-                        </div>
-
-                        <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
-                            <div class="flex items-center gap-2" data-question>
-                                <span class="question-number"></span>
-                                <label for="website" class="block text-sm font-semibold text-slate-900">Website</label>
-                            </div>
-                            <input type="text" name="website" id="website" value="{{ old('website') }}"
-                                class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="https://" />
                         </div>
                     </div>
                 </div>
@@ -294,6 +305,12 @@
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
                         <div class="flex items-center gap-2" data-question>
                             <span class="question-number"></span>
+                            <p class="text-sm font-semibold text-slate-900">Compliance e conflito de interesses</p>
+                        </div>
+                        <div class="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                            A data de submissão será registrada automaticamente no envio: <strong>{{ now()->format('d/m/Y') }}</strong>
+                        </div>
+                        <div class="mt-4">
                             <p class="text-sm font-semibold text-slate-900">A empresa possui:</p>
                         </div>
                         @php
