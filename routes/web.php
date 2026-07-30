@@ -72,9 +72,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'show'])->name('tax-regime.show');
         Route::delete('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'destroy'])->name('tax-regime.destroy');
     });
+    // routes/web.php — dentro do grupo Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(...)
 
-    // Usuários: todo mundo autenticado acessa, mas o controller filtra pelo escopo de quem está logado
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('users', [UserController::class, 'store'])->name('users.store');
+    Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');   // NOVO
+    Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');    // NOVO
 });

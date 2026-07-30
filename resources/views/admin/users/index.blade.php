@@ -32,8 +32,10 @@
                             <th class="px-4 py-3">Área</th>
                         @endif
                         <th class="px-4 py-3">Criado em</th>
+                        <th class="px-4 py-3 text-right">Ações</th>
                     </tr>
                 </thead>
+                {{-- dentro de @forelse ($users as $user), acrescentar coluna de ações --}}
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($users as $user)
                         <tr class="text-sm text-slate-800">
@@ -49,13 +51,16 @@
                                 </td>
                             @endif
                             <td class="px-4 py-3">{{ optional($user->created_at)->format('d/m/Y H:i') }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100">Editar</a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $isSuperAdmin ? 4 : 3 }}" class="px-4 py-6 text-center text-slate-500">Nenhum usuário cadastrado ainda.</td>
+                            <td colspan="{{ $isSuperAdmin ? 5 : 4 }}" class="px-4 py-6 text-center text-slate-500">Nenhum usuário cadastrado ainda.</td>
                         </tr>
                     @endforelse
-                </tbody>
+                </tbody>        
             </table>
         </div>
         <div class="mt-6">{{ $users->links() }}</div>

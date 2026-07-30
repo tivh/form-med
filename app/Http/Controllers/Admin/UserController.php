@@ -47,17 +47,15 @@ class UserController extends Controller
         ];
 
         if ($actingUser->isSuperAdmin()) {
-            $rules['form_scope'] = ['nullable', 'string', 'in:form-med,regime-tributario'];
+            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];
         }
 
         $data = $request->validate($rules);
 
-        // Admin escopado só pode criar usuário dentro do próprio escopo;
-        // só o Super Admin escolhe a área livremente.
-        // dentro de store(), troque a linha do form_scope por:
-        if ($actingUser->isSuperAdmin()) {
-            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];
-        }
+        // Admin escopado só cria usuário dentro do próprio escopo, não escolhe.
+        $formScope = $actingUser->isSuperAdmin()
+            ? ($data['form_scope'] ?? null)
+            : $actingUser->form_scope;
 
         User::create([
             'name' => $data['name'],
@@ -70,4 +68,79 @@ class UserController extends Controller
             ->route('admin.users.index')
             ->with('status', 'Usuário criado com sucesso.');
     }
-}
+
+    public function edit(Request $request, User $user): View
+    {
+        $this->authorizeManage($request->user(), $user);
+
+        return view('admin.users.edit', [
+            'user' => $user,
+            'isSuperAdmin' => $request->user()->isSuperAdmin(),
+        ]);
+    }
+
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        $actingUser = $request->user();
+
+        $this->authorizeManage($actingUser, $user);
+
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ];
+
+        if ($actingUser->isSuperAdmin()) {
+            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];
+        }
+
+        $data = $request->validate($rules);
+
+        // Impede o último Super Admin de se rebaixar e travar o próprio acesso.
+        if (
+            $actingUser->isSuperAdmin()
+            && $user->id === $actingUser->id
+            && array_key_exists('form_scope', $data)
+            && !empty($data['form_scope'])
+            && User::whereNull('form_scope')->count() <= 1
+        ) {
+            return back()
+                ->withInput()
+                ->withErrors(['form_scope' => 'Não é possível remover o último Super Admin do sistema.']);
+        }
+
+        $updateData = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+        ];
+
+        if (!empty($data['password'])) {
+            $updateData['password'] = Hash::make($data['password']);
+        }
+
+        // Só o Super Admin pode alterar a área de um usuário.
+        if ($actingUser->isSuperAdmin() && array_key_exists('form_scope', $data)) {
+            $updateData['form_scope'] = $data['form_scope'] ?: null;
+        }
+
+        $user->update($updateData);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('status', 'Usuário atualizado com sucesso.');
+    }
+
+    private function authorizeManage(User $actingUser, User $targetUser): void
+    {
+        if ($actingUser->isSuperAdmin()) {
+            return;
+        }
+
+        abort_unless(
+            $targetUser->form_scope === $actingUser->form_scope,
+            403,
+            'Você não tem permissão para gerenciar este usuário.'
+        );
+    }
+}   
