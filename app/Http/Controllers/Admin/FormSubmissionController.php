@@ -16,6 +16,7 @@ class FormSubmissionController extends Controller
 {
     public function index(Request $request): View
     {
+        abort_unless($request->user()->canAccess('form-med'), 403);
         $query = FormSubmission::query()->latest();
         $formCatalog = $this->formCatalog();
 

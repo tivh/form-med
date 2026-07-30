@@ -21,7 +21,19 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'form_scope',
     ];
+
+
+    public function canAccess(string $formSlug): bool
+    {
+        return $this->form_scope === null || $this->form_scope === $formSlug;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->form_scope === null;
+    }
 
     /**
      * The attributes that should be hidden for serialization.

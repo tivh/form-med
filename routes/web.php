@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ComplianceDocumentController;
 use App\Http\Controllers\PublicFormController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TaxRegimeFormController;
+use App\Http\Controllers\TaxRegimeSubmissionController;
 
 Route::get('/', [PublicFormController::class, 'listForms'])->name('forms.list');
 Route::get('/forms/{form}', [PublicFormController::class, 'show'])->name('forms.show');
@@ -14,6 +16,13 @@ Route::post('/forms/{form}/submit', [PublicFormController::class, 'submit'])
     ->middleware('throttle:10,1')
     ->name('forms.submit');
 Route::get('/forms/{form}/sucesso', [PublicFormController::class, 'success'])->name('forms.success');
+
+Route::get('/regime-tributario', [TaxRegimeFormController::class, 'show'])->name('tax-regime.show');
+Route::post('/regime-tributario/submit', [TaxRegimeFormController::class, 'submit'])
+    ->middleware('throttle:10,1')
+    ->name('tax-regime.submit');
+Route::get('/regime-tributario/sucesso', [TaxRegimeFormController::class, 'success'])->name('tax-regime.success');
+
 
 // Legacy aliases kept for existing bookmarks until the new form URLs are fully adopted
 Route::get('/form-med', [PublicFormController::class, 'show'])
@@ -52,4 +61,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('compliance/{complianceDocument}', [AdminComplianceDocumentController::class, 'update'])->name('compliance.update');
     Route::delete('compliance/{complianceDocument}', [AdminComplianceDocumentController::class, 'destroy'])->name('compliance.destroy');
     Route::get('compliance/{complianceDocument}/download', [AdminComplianceDocumentController::class, 'download'])->name('compliance.download');
-});
+
+    Route::get('tax-regime', [TaxRegimeSubmissionController::class, 'index'])->name('tax-regime.index');
+    Route::get('tax-regime/export', [TaxRegimeSubmissionController::class, 'export'])->name('tax-regime.export');
+    Route::get('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'show'])->name('tax-regime.show');
+    Route::delete('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'destroy'])->name('tax-regime.destroy');
+ });
