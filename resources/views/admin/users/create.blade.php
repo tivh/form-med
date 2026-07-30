@@ -46,8 +46,22 @@
                         class="mt-2 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
                 </div>
             </div>
+
+            @if($isSuperAdmin)
+                <div>
+                    <label class="block text-sm font-semibold text-slate-800" for="form_scope">Área de acesso</label>
+                    <select id="form_scope" name="form_scope"
+                        class="mt-2 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-red-500 focus:ring-red-500">
+                        <option value="" {{ old('form_scope') === null ? 'selected' : '' }}>Super Admin (acesso total)</option>
+                        @foreach (config('admin_areas') as $slug => $area)
+                            <option value="{{ $slug }}" {{ old('form_scope') === $slug ? 'selected' : '' }}>{{ $area['label'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
             <div class="flex items-center justify-between pt-2">
-                <a href="{{ route('admin.submissions.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50">
+                <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50">
                     Voltar
                 </a>
                 <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold shadow-lg hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white">

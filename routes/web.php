@@ -1,14 +1,15 @@
 <?php
 
 use App\Http\Controllers\Admin\ComplianceDocumentController as AdminComplianceDocumentController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComplianceDocumentController;
 use App\Http\Controllers\PublicFormController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaxRegimeFormController;
 use App\Http\Controllers\TaxRegimeSubmissionController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicFormController::class, 'listForms'])->name('forms.list');
 Route::get('/forms/{form}', [PublicFormController::class, 'show'])->name('forms.show');
@@ -22,7 +23,6 @@ Route::post('/regime-tributario/submit', [TaxRegimeFormController::class, 'submi
     ->middleware('throttle:10,1')
     ->name('tax-regime.submit');
 Route::get('/regime-tributario/sucesso', [TaxRegimeFormController::class, 'success'])->name('tax-regime.success');
-
 
 // Legacy aliases kept for existing bookmarks until the new form URLs are fully adopted
 Route::get('/form-med', [PublicFormController::class, 'show'])
@@ -44,26 +44,37 @@ Route::get('/documentos-comp', [ComplianceDocumentController::class, 'index'])->
 Route::get('/documentos-comp/{complianceDocument}/download', [ComplianceDocumentController::class, 'download'])->name('compliance.download');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('submissions', [AdminFormSubmissionController::class, 'index'])->name('submissions.index');
-    Route::get('submissions/export', [AdminFormSubmissionController::class, 'export'])->name('submissions.export');
-    Route::get('submissions/{submission}', [AdminFormSubmissionController::class, 'show'])->name('submissions.show');
-    Route::delete('submissions/{submission}', [AdminFormSubmissionController::class, 'destroy'])->name('submissions.destroy');
-    Route::get('submissions/{submission}/download', [AdminFormSubmissionController::class, 'download'])->name('submissions.download');
 
+    // Hub: super admin vê os cards; usuário escopado é redirecionado direto pra sua área
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Área Compliance (form-med)
+    Route::middleware('form.scope:form-med')->group(function () {
+        Route::get('submissions', [AdminFormSubmissionController::class, 'index'])->name('submissions.index');
+        Route::get('submissions/export', [AdminFormSubmissionController::class, 'export'])->name('submissions.export');
+        Route::get('submissions/{submission}', [AdminFormSubmissionController::class, 'show'])->name('submissions.show');
+        Route::delete('submissions/{submission}', [AdminFormSubmissionController::class, 'destroy'])->name('submissions.destroy');
+        Route::get('submissions/{submission}/download', [AdminFormSubmissionController::class, 'download'])->name('submissions.download');
+
+        Route::get('compliance', [AdminComplianceDocumentController::class, 'index'])->name('compliance.index');
+        Route::get('compliance/create', [AdminComplianceDocumentController::class, 'create'])->name('compliance.create');
+        Route::post('compliance', [AdminComplianceDocumentController::class, 'store'])->name('compliance.store');
+        Route::get('compliance/{complianceDocument}/edit', [AdminComplianceDocumentController::class, 'edit'])->name('compliance.edit');
+        Route::put('compliance/{complianceDocument}', [AdminComplianceDocumentController::class, 'update'])->name('compliance.update');
+        Route::delete('compliance/{complianceDocument}', [AdminComplianceDocumentController::class, 'destroy'])->name('compliance.destroy');
+        Route::get('compliance/{complianceDocument}/download', [AdminComplianceDocumentController::class, 'download'])->name('compliance.download');
+    });
+
+    // Área Financeiro (regime-tributario)
+    Route::middleware('form.scope:regime-tributario')->group(function () {
+        Route::get('tax-regime', [TaxRegimeSubmissionController::class, 'index'])->name('tax-regime.index');
+        Route::get('tax-regime/export', [TaxRegimeSubmissionController::class, 'export'])->name('tax-regime.export');
+        Route::get('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'show'])->name('tax-regime.show');
+        Route::delete('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'destroy'])->name('tax-regime.destroy');
+    });
+
+    // Usuários: todo mundo autenticado acessa, mas o controller filtra pelo escopo de quem está logado
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('users', [UserController::class, 'store'])->name('users.store');
-
-    Route::get('compliance', [AdminComplianceDocumentController::class, 'index'])->name('compliance.index');
-    Route::get('compliance/create', [AdminComplianceDocumentController::class, 'create'])->name('compliance.create');
-    Route::post('compliance', [AdminComplianceDocumentController::class, 'store'])->name('compliance.store');
-    Route::get('compliance/{complianceDocument}/edit', [AdminComplianceDocumentController::class, 'edit'])->name('compliance.edit');
-    Route::put('compliance/{complianceDocument}', [AdminComplianceDocumentController::class, 'update'])->name('compliance.update');
-    Route::delete('compliance/{complianceDocument}', [AdminComplianceDocumentController::class, 'destroy'])->name('compliance.destroy');
-    Route::get('compliance/{complianceDocument}/download', [AdminComplianceDocumentController::class, 'download'])->name('compliance.download');
-
-    Route::get('tax-regime', [TaxRegimeSubmissionController::class, 'index'])->name('tax-regime.index');
-    Route::get('tax-regime/export', [TaxRegimeSubmissionController::class, 'export'])->name('tax-regime.export');
-    Route::get('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'show'])->name('tax-regime.show');
-    Route::delete('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'destroy'])->name('tax-regime.destroy');
- });
+});
