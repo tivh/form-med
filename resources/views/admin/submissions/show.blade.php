@@ -302,85 +302,161 @@
             </div>
         </div>
 
-        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Perfis Conflitantes</p>
-                    @if(is_array($submission->conflict_roles) && count($submission->conflict_roles))
-                        <ul class="space-y-1">
-                            @foreach ($submission->conflict_roles as $item)
-                                <li class="text-sm text-slate-800">• {{ $item }}</li>
-                            @endforeach
-                        </ul>
+        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg space-y-8">
+            <!-- Pergunta 1 - Compliance Policies -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>1.</strong> A PJ/PF possui algum dos seguintes documentos ou programas?</p>
+                @if(is_array($submission->compliance_policies) && count($submission->compliance_policies))
+                    <ul class="space-y-1 mt-3">
+                        @foreach ($submission->compliance_policies as $item)
+                            <li class="text-sm text-slate-800">☐ {{ $item }}</li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-sm text-slate-500 mt-2">Nenhuma política marcada.</p>
+                @endif
+            </div>
+
+            <!-- Pergunta 2 - Lei 12.846/2013 -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>2.</strong> A PJ/PF declara estar em conformidade com a Lei nº 12.846/2013 (Lei Anticorrupção)?</p>
+                <p class="text-sm font-semibold text-slate-900 mt-2">
+                    @if($submission->law_12846_compliant === null)
+                        <span class="text-slate-500">—</span>
                     @else
-                        <p class="text-sm text-slate-500">Nenhum perfil marcado.</p>
+                        <span class="{{ $submission->law_12846_compliant ? 'text-emerald-700' : 'text-red-700' }}">
+                            {{ $submission->law_12846_compliant ? '( ✓ ) Sim' : '( ✗ ) Não' }}
+                        </span>
                     @endif
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Detalhes dos Perfis</p>
-                    <p class="text-sm text-slate-800 whitespace-pre-line">{{ $submission->conflict_roles_details ?: '—' }}</p>
-                </div>
+                </p>
             </div>
 
-            <div class="pt-4 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Parentes em Órgão Público</p>
-                    <p class="text-sm font-semibold text-slate-900">{{ $submission->public_power_relatives ?: '—' }}</p>
-                    @if($submission->public_power_relatives_details)
-                        <p class="text-sm text-slate-700 mt-1">{{ $submission->public_power_relatives_details }}</p>
+            <!-- Pergunta 3 - LGPD -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>3.</strong> A PJ/PF declara estar em conformidade com a Lei nº 13.709/2018 (Lei Geral de Proteção de Dados – LGPD)?</p>
+                <p class="text-sm font-semibold text-slate-900 mt-2">
+                    @if($submission->lgpd_compliant === null)
+                        <span class="text-slate-500">—</span>
+                    @else
+                        <span class="{{ $submission->lgpd_compliant ? 'text-emerald-700' : 'text-red-700' }}">
+                            {{ $submission->lgpd_compliant ? '( ✓ ) Sim' : '( ✗ ) Não' }}
+                        </span>
                     @endif
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Relacionamento Interno</p>
-                    <p class="text-sm font-semibold text-slate-900">{{ $submission->internal_relationships ?: '—' }}</p>
-                    @if($submission->internal_relationships_details)
-                        <p class="text-sm text-slate-700 mt-1">{{ $submission->internal_relationships_details }}</p>
-                    @endif
-                </div>
+                </p>
             </div>
 
-            <div class="pt-4 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Participação de Colaborador</p>
-                    <p class="text-sm font-semibold text-slate-900">{{ $submission->employee_shareholding ?: '—' }}</p>
-                    @if($submission->employee_shareholding_details)
-                        <p class="text-sm text-slate-700 mt-1">{{ $submission->employee_shareholding_details }}</p>
-                    @endif
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Situação de Conflito</p>
-                    <p class="text-sm font-semibold text-slate-900">{{ $submission->conflict_situation ?: '—' }}</p>
-                    @if($submission->conflict_situation_details)
-                        <p class="text-sm text-slate-700 mt-1">{{ $submission->conflict_situation_details }}</p>
-                    @endif
-                </div>
+            <!-- Pergunta 4 - Investigação -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>4.</strong> A PJ/PF ou, no caso de pessoa jurídica, algum de seus sócios, administradores ou representantes, já foi investigado ou condenado por algum dos fatos abaixo?</p>
+                @if(is_array($submission->investigated_for) && count($submission->investigated_for))
+                    <ul class="space-y-1 mt-3">
+                        @foreach ($submission->investigated_for as $item)
+                            <li class="text-sm text-slate-800">☐ {{ $item }}</li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-sm text-slate-500 mt-2">Nenhuma opção marcada.</p>
+                @endif
+                @if($submission->conflict_roles_details && in_array('Não', (array)$submission->investigated_for) === false)
+                    <div class="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <p class="text-xs font-semibold text-red-700 mb-1">Detalhes:</p>
+                        <p class="text-sm text-red-600 whitespace-pre-line">{{ $submission->conflict_roles_details }}</p>
+                    </div>
+                @endif
             </div>
 
-            <div class="pt-4 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Relacionamento com Concorrente</p>
-                    <p class="text-sm font-semibold text-slate-900">{{ $submission->competitor_relationships ?: '—' }}</p>
-                    @if($submission->competitor_relationships_details)
-                        <p class="text-sm text-slate-700 mt-1">{{ $submission->competitor_relationships_details }}</p>
-                    @endif
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Participação na Contratante</p>
-                    <p class="text-sm font-semibold text-slate-900">{{ $submission->contractor_shareholding ?: '—' }}</p>
-                    @if($submission->contractor_shareholding_details)
-                        <p class="text-sm text-slate-700 mt-1">{{ $submission->contractor_shareholding_details }}</p>
-                    @endif
-                </div>
+            <!-- Pergunta 5 - Conflict Roles -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>5.</strong> A PJ/PF ou, no caso de pessoa jurídica, algum de seus sócios, administradores ou representantes, enquadra-se em alguma das situações abaixo?</p>
+                @if(is_array($submission->conflict_roles) && count($submission->conflict_roles))
+                    <ul class="space-y-1 mt-3">
+                        @foreach ($submission->conflict_roles as $item)
+                            <li class="text-sm text-slate-800">☐ {{ $item }}</li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-sm text-slate-500 mt-2">Nenhuma opção marcada.</p>
+                @endif
+                @if($submission->conflict_roles_details_q5)
+                    <div class="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                        <p class="text-xs font-semibold text-amber-700 mb-1">Detalhes:</p>
+                        <p class="text-sm text-amber-800 whitespace-pre-line">{{ $submission->conflict_roles_details_q5 }}</p>
+                    </div>
+                @endif
             </div>
 
-            <div class="pt-4 border-t border-slate-200">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Laços de Amizade/Parentesco</p>
-                    <p class="text-sm font-semibold text-slate-900">{{ $submission->friendship_ties ?: '—' }}</p>
-                    @if($submission->friendship_ties_details)
-                        <p class="text-sm text-slate-700 mt-1">{{ $submission->friendship_ties_details }}</p>
-                    @endif
-                </div>
+            <!-- Pergunta 6 - Public Power Relatives -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>6.</strong> A PJ/PF ou, no caso de pessoa jurídica, algum de seus sócios, administradores ou representantes, ocupa cargo ou mantém vínculo familiar com pessoa em posição de decisão em órgão ou entidade pública que possua relação com a Vitória Hospitalar?</p>
+                <p class="text-sm font-semibold text-slate-900 mt-2">
+                    <span class="{{ $submission->public_power_relatives === 'sim' ? 'text-red-700' : 'text-emerald-700' }}">
+                        {{ $submission->public_power_relatives === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}
+                    </span>
+                </p>
+                @if($submission->public_power_relatives_details)
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p class="text-xs font-semibold text-blue-700 mb-1">Órgão, cargo e/ou nome do servidor:</p>
+                        <p class="text-sm text-blue-600 whitespace-pre-line">{{ $submission->public_power_relatives_details }}</p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Pergunta 7 - Internal Relationships -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>7.</strong> A PJ/PF possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores da Vitória Hospitalar?</p>
+                <p class="text-sm font-semibold text-slate-900 mt-2">
+                    <span class="{{ $submission->internal_relationships === 'sim' ? 'text-red-700' : 'text-emerald-700' }}">
+                        {{ $submission->internal_relationships === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}
+                    </span>
+                </p>
+                @if($submission->internal_relationships_details)
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p class="text-xs font-semibold text-blue-700 mb-1">Pessoa, área e natureza do relacionamento:</p>
+                        <p class="text-sm text-blue-600 whitespace-pre-line">{{ $submission->internal_relationships_details }}</p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Pergunta 8 - Employee Shareholding -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>8.</strong> A PJ/PF ou, no caso de pessoa jurídica, seus sócios ou administradores, possuem participação societária, direta ou indireta, na Vitória Hospitalar?</p>
+                <p class="text-sm font-semibold text-slate-900 mt-2">
+                    <span class="{{ $submission->employee_shareholding === 'sim' ? 'text-red-700' : 'text-emerald-700' }}">
+                        {{ $submission->employee_shareholding === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}
+                    </span>
+                </p>
+                @if($submission->employee_shareholding_details)
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p class="text-xs font-semibold text-blue-700 mb-1">Detalhes:</p>
+                        <p class="text-sm text-blue-600 whitespace-pre-line">{{ $submission->employee_shareholding_details }}</p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Pergunta 9 - Competitor Relationships -->
+            <div class="border-b border-slate-200 pb-6 last:border-b-0">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>9.</strong> A PJ/PF possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores de empresas concorrentes da Vitória Hospitalar?</p>
+                <p class="text-sm font-semibold text-slate-900 mt-2">
+                    <span class="{{ $submission->competitor_relationships === 'sim' ? 'text-red-700' : 'text-emerald-700' }}">
+                        {{ $submission->competitor_relationships === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}
+                    </span>
+                </p>
+                @if($submission->competitor_relationships_details)
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p class="text-xs font-semibold text-blue-700 mb-1">Detalhes:</p>
+                        <p class="text-sm text-blue-600 whitespace-pre-line">{{ $submission->competitor_relationships_details }}</p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Pergunta 10 - Conflict Situation -->
+            <div class="pb-6">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2"><strong>10.</strong> Existe qualquer situação envolvendo a PJ/PF que possa caracterizar conflito de interesses real, potencial ou aparente em relação à Vitória Hospitalar?</p>
+                <p class="text-sm font-semibold text-slate-900 mt-2">
+                    <span class="{{ $submission->conflict_situation === 'sim' ? 'text-red-700' : 'text-emerald-700' }}">
+                        {{ $submission->conflict_situation === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}
+                    </span>
+                </p>
             </div>
         </div>
     </div>

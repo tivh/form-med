@@ -128,9 +128,9 @@
                         <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Verificado</p>
                         <form method="POST" action="{{ route('admin.submissions.toggle-verified', $submission) }}" class="inline">
                             @csrf
-                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
-                                <input type="checkbox" name="verified" value="1" {{ $submission->verified ? 'checked' : '' }} class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer" onchange="this.form.submit()">
-                                <span class="text-xs font-semibold">{{ $submission->verified ? '✓ Sim' : 'Não' }}</span>
+                            <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border font-semibold cursor-pointer transition {{ $submission->verified ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' }}">
+                                <input type="checkbox" name="verified" value="1" {{ $submission->verified ? 'checked' : '' }} class="h-4 w-4 rounded cursor-pointer" onchange="this.form.submit()">
+                                <span class="text-xs font-semibold">{{ $submission->verified ? '✓ Verificado' : '✗ Não verificado' }}</span>
                             </label>
                         </form>
                     </div>

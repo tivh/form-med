@@ -423,74 +423,136 @@
             </div>
             
             <div class="section-content full">
-                <div class="field">
-                    <div class="field-label">Perfis Conflitantes</div>
-                    @if(is_array($submission->conflict_roles) && count($submission->conflict_roles))
+                <!-- Pergunta 1 -->
+                <div class="field full-width">
+                    <div class="field-label"><strong>1. A PJ/PF possui algum dos seguintes documentos ou programas?</strong></div>
+                    @if(is_array($submission->compliance_policies) && count($submission->compliance_policies))
                         <div>
-                            @foreach ($submission->conflict_roles as $item)
-                                <div class="list-item">• {{ $item }}</div>
+                            @foreach ($submission->compliance_policies as $item)
+                                <div class="list-item">☐ {{ $item }}</div>
                             @endforeach
                         </div>
                     @else
-                        <div class="field-value empty">Nenhum perfil marcado</div>
+                        <div class="field-value empty">Nenhuma política registrada</div>
                     @endif
                 </div>
-                <div class="field full-width">
-                    <div class="field-label">Detalhes dos Perfis</div>
-                    <div class="field-value">{{ $submission->conflict_roles_details ?: '—' }}</div>
-                </div>
-                
+
+                <!-- Pergunta 2 -->
                 <div class="field">
-                    <div class="field-label">Parentes em Órgão Público</div>
-                    <div class="field-value">{{ $submission->public_power_relatives ?: '—' }}</div>
+                    <div class="field-label"><strong>2. Lei 12.846/2013 (Lei Anticorrupção)</strong></div>
+                    <div class="field-value">
+                        @if($submission->law_12846_compliant === null)
+                            <span class="empty">—</span>
+                        @else
+                            <span class="status-badge {{ $submission->law_12846_compliant ? 'status-yes' : 'status-no' }}">
+                                {{ $submission->law_12846_compliant ? '( ✓ ) Sim' : '( ✗ ) Não' }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Pergunta 3 -->
+                <div class="field">
+                    <div class="field-label"><strong>3. Lei 13.709/2018 (LGPD)</strong></div>
+                    <div class="field-value">
+                        @if($submission->lgpd_compliant === null)
+                            <span class="empty">—</span>
+                        @else
+                            <span class="status-badge {{ $submission->lgpd_compliant ? 'status-yes' : 'status-no' }}">
+                                {{ $submission->lgpd_compliant ? '( ✓ ) Sim' : '( ✗ ) Não' }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Pergunta 4 -->
+                <div class="field full-width">
+                    <div class="field-label"><strong>4. A PJ/PF ou sócios já foi investigado ou condenado?</strong></div>
+                    @if(is_array($submission->investigated_for) && count($submission->investigated_for))
+                        <div>
+                            @foreach ($submission->investigated_for as $item)
+                                <div class="list-item">☐ {{ $item }}</div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="field-value empty">Nenhuma opção marcada</div>
+                    @endif
+                    @if($submission->conflict_roles_details && in_array('Não', (array)$submission->investigated_for) === false)
+                        <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border-left: 3px solid #dc2626;">
+                            <strong style="color: #991b1b; font-size: 12px;">Detalhes:</strong>
+                            <div style="margin-top: 4px; font-size: 12px; color: #7f1d1d;">{{ $submission->conflict_roles_details }}</div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Pergunta 5 -->
+                <div class="field full-width">
+                    <div class="field-label"><strong>5. A PJ/PF ou sócios enquadra-se em situações de conflito?</strong></div>
+                    @if(is_array($submission->conflict_roles) && count($submission->conflict_roles))
+                        <div>
+                            @foreach ($submission->conflict_roles as $item)
+                                <div class="list-item">☐ {{ $item }}</div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="field-value empty">Nenhuma opção marcada</div>
+                    @endif
+                    @if($submission->conflict_roles_details_q5)
+                        <div style="margin-top: 8px; padding: 8px; background: #fffbeb; border-left: 3px solid #f59e0b;">
+                            <strong style="color: #92400e; font-size: 12px;">Detalhes:</strong>
+                            <div style="margin-top: 4px; font-size: 12px; color: #78350f;">{{ $submission->conflict_roles_details_q5 }}</div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Pergunta 6 -->
+                <div class="field full-width">
+                    <div class="field-label"><strong>6. Ocupa cargo ou vínculo com órgão público relacionado à Vitória Hospitalar?</strong></div>
+                    <div class="field-value">{{ $submission->public_power_relatives === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}</div>
                     @if($submission->public_power_relatives_details)
-                        <div class="field-value" style="margin-top: 6px; font-size: 12px;">{{ $submission->public_power_relatives_details }}</div>
+                        <div style="margin-top: 6px; padding: 6px; background: #eff6ff; border-left: 2px solid #0284c7; font-size: 12px;">
+                            <strong style="color: #0c4a6e;">Órgão/Servidor:</strong> {{ $submission->public_power_relatives_details }}
+                        </div>
                     @endif
                 </div>
-                <div class="field">
-                    <div class="field-label">Relacionamento Interno</div>
-                    <div class="field-value">{{ $submission->internal_relationships ?: '—' }}</div>
-                    @if($submission->internal_relationships_details)
-                        <div class="field-value" style="margin-top: 6px; font-size: 12px;">{{ $submission->internal_relationships_details }}</div>
-                    @endif
-                </div>
-                
-                <div class="field">
-                    <div class="field-label">Participação de Colaborador</div>
-                    <div class="field-value">{{ $submission->employee_shareholding ?: '—' }}</div>
-                    @if($submission->employee_shareholding_details)
-                        <div class="field-value" style="margin-top: 6px; font-size: 12px;">{{ $submission->employee_shareholding_details }}</div>
-                    @endif
-                </div>
-                <div class="field">
-                    <div class="field-label">Situação de Conflito</div>
-                    <div class="field-value">{{ $submission->conflict_situation ?: '—' }}</div>
-                    @if($submission->conflict_situation_details)
-                        <div class="field-value" style="margin-top: 6px; font-size: 12px;">{{ $submission->conflict_situation_details }}</div>
-                    @endif
-                </div>
-                
-                <div class="field">
-                    <div class="field-label">Relacionamento com Concorrente</div>
-                    <div class="field-value">{{ $submission->competitor_relationships ?: '—' }}</div>
-                    @if($submission->competitor_relationships_details)
-                        <div class="field-value" style="margin-top: 6px; font-size: 12px;">{{ $submission->competitor_relationships_details }}</div>
-                    @endif
-                </div>
-                <div class="field">
-                    <div class="field-label">Participação na Contratante</div>
-                    <div class="field-value">{{ $submission->contractor_shareholding ?: '—' }}</div>
-                    @if($submission->contractor_shareholding_details)
-                        <div class="field-value" style="margin-top: 6px; font-size: 12px;">{{ $submission->contractor_shareholding_details }}</div>
-                    @endif
-                </div>
-                
+
+                <!-- Pergunta 7 -->
                 <div class="field full-width">
-                    <div class="field-label">Laços de Amizade/Parentesco</div>
-                    <div class="field-value">{{ $submission->friendship_ties ?: '—' }}</div>
-                    @if($submission->friendship_ties_details)
-                        <div class="field-value" style="margin-top: 6px;">{{ $submission->friendship_ties_details }}</div>
+                    <div class="field-label"><strong>7. Possui relacionamento pessoal/familiar/comercial com a Vitória Hospitalar?</strong></div>
+                    <div class="field-value">{{ $submission->internal_relationships === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}</div>
+                    @if($submission->internal_relationships_details)
+                        <div style="margin-top: 6px; padding: 6px; background: #eff6ff; border-left: 2px solid #0284c7; font-size: 12px;">
+                            <strong style="color: #0c4a6e;">Pessoa/Área/Natureza:</strong> {{ $submission->internal_relationships_details }}
+                        </div>
                     @endif
+                </div>
+
+                <!-- Pergunta 8 -->
+                <div class="field full-width">
+                    <div class="field-label"><strong>8. Possuem participação societária na Vitória Hospitalar?</strong></div>
+                    <div class="field-value">{{ $submission->employee_shareholding === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}</div>
+                    @if($submission->employee_shareholding_details)
+                        <div style="margin-top: 6px; padding: 6px; background: #eff6ff; border-left: 2px solid #0284c7; font-size: 12px;">
+                            <strong style="color: #0c4a6e;">Detalhes:</strong> {{ $submission->employee_shareholding_details }}
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Pergunta 9 -->
+                <div class="field full-width">
+                    <div class="field-label"><strong>9. Relacionamento com concorrentes da Vitória Hospitalar?</strong></div>
+                    <div class="field-value">{{ $submission->competitor_relationships === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}</div>
+                    @if($submission->competitor_relationships_details)
+                        <div style="margin-top: 6px; padding: 6px; background: #eff6ff; border-left: 2px solid #0284c7; font-size: 12px;">
+                            <strong style="color: #0c4a6e;">Detalhes:</strong> {{ $submission->competitor_relationships_details }}
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Pergunta 10 -->
+                <div class="field full-width">
+                    <div class="field-label"><strong>10. Existe situação que caracterize conflito de interesses com a Vitória Hospitalar?</strong></div>
+                    <div class="field-value">{{ $submission->conflict_situation === 'sim' ? '( ) Sim' : '( ✓ ) Não' }}</div>
                 </div>
             </div>
         </div>

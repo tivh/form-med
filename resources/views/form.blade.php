@@ -303,19 +303,21 @@
             <div id="step-2" data-step="2" class="space-y-6 hidden">
                 <div class="space-y-4" data-step="2">
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <p class="text-sm font-semibold text-slate-900">Compliance e conflito de interesses</p>
-                        </div>
                         <div class="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                             A data de submissão será registrada automaticamente no envio: <strong>{{ now()->format('d/m/Y') }}</strong>
                         </div>
-                        <div class="mt-4">
-                            <p class="text-sm font-semibold text-slate-900">A empresa possui:</p>
+                    </div>
+
+                    <!-- Pergunta 1 -->
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">1</span>
+                            <p class="text-sm font-semibold text-slate-900">A PJ/PF possui algum dos seguintes documentos ou programas?</p>
                         </div>
+                        <p class="text-xs text-slate-600 mb-3 italic">(Marque todas as opções aplicáveis.)</p>
                         @php
                             $policyOptions = [
-                                'Código de Ética/Conduta',
+                                'Código de Ética ou Conduta',
                                 'Programa de Compliance estruturado',
                                 'Canal de Denúncias',
                                 'Política Anticorrupção',
@@ -323,7 +325,7 @@
                                 'Política de Proteção de Dados (LGPD)',
                             ];
                         @endphp
-                        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             @foreach ($policyOptions as $option)
                                 <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
                                     <input type="checkbox" name="compliance_policies[]" value="{{ $option }}" {{ in_array($option, old('compliance_policies', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300">
@@ -337,12 +339,13 @@
                         </div>
                     </div>
 
-                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">Declara estar em conformidade com a Lei nº 12.846/2013 (Lei Anticorrupção)?</label>
+                    <!-- Pergunta 2 -->
+                    <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">2</span>
+                            <label class="text-sm font-semibold text-slate-900">A PJ/PF declara estar em conformidade com a Lei nº 12.846/2013 (Lei Anticorrupção)?</label>
                         </div>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                        <div class="flex items-center space-x-6 text-sm text-slate-700">
                             <label class="inline-flex items-center space-x-2">
                                 <input type="radio" name="law_12846_compliant" value="1" {{ old('law_12846_compliant') === '1' ? 'checked' : '' }} class="text-red-600 border-slate-300">
                                 <span>Sim</span>
@@ -354,12 +357,13 @@
                         </div>
                     </div>
 
+                    <!-- Pergunta 3 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">Declara estar em conformidade com a Lei Geral de Proteção de Dados (LGPD)?</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">3</span>
+                            <label class="text-sm font-semibold text-slate-900">A PJ/PF declara estar em conformidade com a Lei nº 13.709/2018 (Lei Geral de Proteção de Dados – LGPD)?</label>
                         </div>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                        <div class="flex items-center space-x-6 text-sm text-slate-700">
                             <label class="inline-flex items-center space-x-2">
                                 <input type="radio" name="lgpd_compliant" value="1" {{ old('lgpd_compliant') === '1' ? 'checked' : '' }} class="text-red-600 border-slate-300">
                                 <span>Sim</span>
@@ -371,15 +375,17 @@
                         </div>
                     </div>
 
+                    <!-- Pergunta 4 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">A empresa ou seus sócios já foram investigados ou condenados por:</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">4</span>
+                            <p class="text-sm font-semibold text-slate-900">A PJ/PF ou, no caso de pessoa jurídica, algum de seus sócios, administradores ou representantes, já foi investigado ou condenado por algum dos fatos abaixo?</p>
                         </div>
+                        <p class="text-xs text-slate-600 mb-3 italic">(Marque todas as opções aplicáveis.)</p>
                         @php
                             $investigationOptions = ['Corrupção','Fraude','Lavagem de dinheiro','Crimes ambientais','Infrações trabalhistas graves','Não'];
                         @endphp
-                        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             @foreach ($investigationOptions as $opt)
                                 <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
                                     <input type="checkbox" name="investigated_for[]" value="{{ $opt }}" {{ in_array($opt, old('investigated_for', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300">
@@ -387,46 +393,49 @@
                                 </label>
                             @endforeach
                         </div>
-                        <div class="mt-3 space-y-2">
-                            <label class="block text-sm font-medium text-slate-800" for="conflict_roles_details">Caso positivo, favor detalhar</label>
-                            <textarea name="conflict_roles_details" id="conflict_roles_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('conflict_roles_details') }}</textarea>
+                        <div class="mt-4 space-y-2">
+                            <label class="block text-sm font-semibold text-slate-800" for="conflict_roles_details">Caso tenha assinalado qualquer opção diferente de "Não", descreva os detalhes:</label>
+                            <textarea name="conflict_roles_details" id="conflict_roles_details" rows="3" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" placeholder="Descreva os detalhes...">{{ old('conflict_roles_details') }}</textarea>
                         </div>
                     </div>
 
+                    <!-- Pergunta 5 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <p class="text-sm font-semibold text-slate-900">É (pessoa física), é sócio de pessoa jurídica, possui sócio ou administrador, que seja:</p>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">5</span>
+                            <p class="text-sm font-semibold text-slate-900">A PJ/PF ou, no caso de pessoa jurídica, algum de seus sócios, administradores ou representantes, enquadra-se em alguma das situações abaixo?</p>
                         </div>
+                        <p class="text-xs text-slate-600 mb-3 italic">(Marque todas as opções aplicáveis.)</p>
                         @php
                             $conflictRoleOptions = [
-                                'Agente Público ou ex-Agente Público (últimos 5 anos)',
+                                'Agente Público',
+                                'Ex-Agente Público (nos últimos 5 anos)',
                                 'Pessoa Politicamente Exposta (PPE)',
-                                'Parente até 3º grau de Agente Público',
+                                'Parente até o 3º grau de Agente Público',
                                 'Nenhuma das opções acima',
                             ];
                         @endphp
-                        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             @foreach ($conflictRoleOptions as $option)
                                 <label class="inline-flex items-start space-x-2 text-sm text-slate-700">
-                                    <input type="checkbox" name="conflict_roles[]" value="{{ $option }}" {{ in_array($option, old('conflict_roles', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300 conflict-role-option">
+                                    <input type="checkbox" name="conflict_roles[]" value="{{ $option }}" {{ in_array($option, old('conflict_roles', [])) ? 'checked' : '' }} class="mt-0.5 text-red-600 border-slate-300">
                                     <span>{{ $option }}</span>
                                 </label>
                             @endforeach
                         </div>
-                        <p class="mt-2 text-xs text-slate-500">Selecione uma opção.</p>
-                        <div class="mt-3 space-y-2">
-                            <label class="block text-sm font-medium text-slate-800" for="conflict_roles_details">Caso positivo, favor detalhar</label>
-                            <textarea name="conflict_roles_details" id="conflict_roles_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('conflict_roles_details') }}</textarea>
+                        <div class="mt-4 space-y-2">
+                            <label class="block text-sm font-semibold text-slate-800" for="conflict_roles_details">Caso positivo, informe os detalhes:</label>
+                            <textarea name="conflict_roles_details_q5" id="conflict_roles_details_q5" rows="3" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" placeholder="Informe os detalhes...">{{ old('conflict_roles_details_q5') }}</textarea>
                         </div>
                     </div>
 
+                    <!-- Pergunta 6 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">Possui cargo ou parentes em poder de decisão em órgãos públicos que tenham alguma relação com a nossa empresa?</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">6</span>
+                            <p class="text-sm font-semibold text-slate-900">A PJ/PF ou, no caso de pessoa jurídica, algum de seus sócios, administradores ou representantes, ocupa cargo ou mantém vínculo familiar com pessoa em posição de decisão em órgão ou entidade pública que possua relação com a Vitória Hospitalar?</p>
                         </div>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                        <div class="flex items-center space-x-6 text-sm text-slate-700 mb-4">
                             <label class="inline-flex items-center space-x-2">
                                 <input type="radio" name="public_power_relatives" value="sim" {{ old('public_power_relatives') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
                                 <span>Sim</span>
@@ -436,18 +445,19 @@
                                 <span>Não</span>
                             </label>
                         </div>
-                        <div class="mt-3 space-y-2">
-                            <label class="block text-sm font-medium text-slate-800" for="public_power_relatives_details">Detalhes (órgão/servidor)</label>
-                            <textarea name="public_power_relatives_details" id="public_power_relatives_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('public_power_relatives_details') }}</textarea>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-800" for="public_power_relatives_details">Se sim, informe o órgão, cargo e/ou nome do servidor:</label>
+                            <textarea name="public_power_relatives_details" id="public_power_relatives_details" rows="3" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" placeholder="Informe os detalhes...">{{ old('public_power_relatives_details') }}</textarea>
                         </div>
                     </div>
 
+                    <!-- Pergunta 7 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">Possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores da empresa?</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">7</span>
+                            <p class="text-sm font-semibold text-slate-900">A PJ/PF possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores da Vitória Hospitalar?</p>
                         </div>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                        <div class="flex items-center space-x-6 text-sm text-slate-700 mb-4">
                             <label class="inline-flex items-center space-x-2">
                                 <input type="radio" name="internal_relationships" value="sim" {{ old('internal_relationships') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
                                 <span>Sim</span>
@@ -457,18 +467,19 @@
                                 <span>Não</span>
                             </label>
                         </div>
-                        <div class="mt-3 space-y-2">
-                            <label class="block text-sm font-medium text-slate-800" for="internal_relationships_details">Detalhes (área/pessoa)</label>
-                            <textarea name="internal_relationships_details" id="internal_relationships_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('internal_relationships_details') }}</textarea>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-800" for="internal_relationships_details">Se sim, informe a pessoa, área e a natureza do relacionamento:</label>
+                            <textarea name="internal_relationships_details" id="internal_relationships_details" rows="3" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" placeholder="Informe os detalhes...">{{ old('internal_relationships_details') }}</textarea>
                         </div>
                     </div>
 
+                    <!-- Pergunta 8 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">Possui participação societária direta ou indireta com a empresa?</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">8</span>
+                            <p class="text-sm font-semibold text-slate-900">A PJ/PF ou, no caso de pessoa jurídica, seus sócios ou administradores, possuem participação societária, direta ou indireta, na Vitória Hospitalar?</p>
                         </div>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                        <div class="flex items-center space-x-6 text-sm text-slate-700 mb-4">
                             <label class="inline-flex items-center space-x-2">
                                 <input type="radio" name="employee_shareholding" value="sim" {{ old('employee_shareholding') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
                                 <span>Sim</span>
@@ -478,18 +489,19 @@
                                 <span>Não</span>
                             </label>
                         </div>
-                        <div class="mt-3 space-y-2">
-                            <label class="block text-sm font-medium text-slate-800" for="employee_shareholding_details">Detalhes</label>
-                            <textarea name="employee_shareholding_details" id="employee_shareholding_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('employee_shareholding_details') }}</textarea>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-800" for="employee_shareholding_details">Se sim, informe os detalhes:</label>
+                            <textarea name="employee_shareholding_details" id="employee_shareholding_details" rows="3" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" placeholder="Informe os detalhes...">{{ old('employee_shareholding_details') }}</textarea>
                         </div>
                     </div>
 
+                    <!-- Pergunta 9 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">Possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores de empresas concorrentes?</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">9</span>
+                            <p class="text-sm font-semibold text-slate-900">A PJ/PF possui relacionamento pessoal, familiar ou comercial com sócios, administradores ou colaboradores de empresas concorrentes da Vitória Hospitalar?</p>
                         </div>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                        <div class="flex items-center space-x-6 text-sm text-slate-700 mb-4">
                             <label class="inline-flex items-center space-x-2">
                                 <input type="radio" name="competitor_relationships" value="sim" {{ old('competitor_relationships') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
                                 <span>Sim</span>
@@ -499,18 +511,19 @@
                                 <span>Não</span>
                             </label>
                         </div>
-                        <div class="mt-3 space-y-2">
-                            <label class="block text-sm font-medium text-slate-800" for="competitor_relationships_details">Detalhes</label>
-                            <textarea name="competitor_relationships_details" id="competitor_relationships_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('competitor_relationships_details') }}</textarea>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-800" for="competitor_relationships_details">Se sim, informe os detalhes:</label>
+                            <textarea name="competitor_relationships_details" id="competitor_relationships_details" rows="3" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400" placeholder="Informe os detalhes...">{{ old('competitor_relationships_details') }}</textarea>
                         </div>
                     </div>
 
+                    <!-- Pergunta 10 -->
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                        <div class="flex items-center gap-2" data-question>
-                            <span class="question-number"></span>
-                            <label class="block text-sm font-semibold text-slate-900">Possui qualquer situação que possa caracterizar conflito de interesses real, potencial ou aparente?</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">10</span>
+                            <p class="text-sm font-semibold text-slate-900">Existe qualquer situação envolvendo a PJ/PF que possa caracterizar conflito de interesses real, potencial ou aparente em relação à Vitória Hospitalar?</p>
                         </div>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-slate-700">
+                        <div class="flex items-center space-x-6 text-sm text-slate-700">
                             <label class="inline-flex items-center space-x-2">
                                 <input type="radio" name="conflict_situation" value="sim" {{ old('conflict_situation') === 'sim' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
                                 <span>Sim</span>
@@ -519,10 +532,6 @@
                                 <input type="radio" name="conflict_situation" value="nao" {{ old('conflict_situation') === 'nao' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
                                 <span>Não</span>
                             </label>
-                        </div>
-                        <div class="mt-3 space-y-2">
-                            <label class="block text-sm font-medium text-slate-800" for="conflict_situation_details">Detalhes</label>
-                            <textarea name="conflict_situation_details" id="conflict_situation_details" rows="2" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-400 focus:ring-red-400">{{ old('conflict_situation_details') }}</textarea>
                         </div>
                     </div>
 
