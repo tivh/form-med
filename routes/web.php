@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ComplianceDocumentController as AdminComplianceDocumentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComplianceDocumentController;
@@ -53,6 +54,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('submissions', [AdminFormSubmissionController::class, 'index'])->name('submissions.index');
         Route::get('submissions/export', [AdminFormSubmissionController::class, 'export'])->name('submissions.export');
         Route::get('submissions/{submission}', [AdminFormSubmissionController::class, 'show'])->name('submissions.show');
+        Route::get('submissions/{submission}/print', [AdminFormSubmissionController::class, 'print'])->name('submissions.print');
+        Route::post('submissions/{submission}/toggle-verified', [AdminFormSubmissionController::class, 'toggleVerified'])->name('submissions.toggle-verified');
         Route::delete('submissions/{submission}', [AdminFormSubmissionController::class, 'destroy'])->name('submissions.destroy');
         Route::get('submissions/{submission}/download', [AdminFormSubmissionController::class, 'download'])->name('submissions.download');
 
@@ -70,9 +73,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('tax-regime', [TaxRegimeSubmissionController::class, 'index'])->name('tax-regime.index');
         Route::get('tax-regime/export', [TaxRegimeSubmissionController::class, 'export'])->name('tax-regime.export');
         Route::get('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'show'])->name('tax-regime.show');
+        Route::post('tax-regime/{taxRegimeSubmission}/toggle-verified', [TaxRegimeSubmissionController::class, 'toggleVerified'])->name('tax-regime.toggle-verified');
         Route::delete('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'destroy'])->name('tax-regime.destroy');
     });
     // routes/web.php — dentro do grupo Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(...)
+
+    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('users.create');

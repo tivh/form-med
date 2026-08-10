@@ -25,40 +25,69 @@
         </div>
     </form>
 
-    <div class="glass rounded-2xl overflow-hidden shadow-xl border border-white/60">
-        <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50/80">
-                <tr>
-                    <th class="px-4 py-3 text-left">Razão Social</th>
-                    <th class="px-4 py-3 text-left">CNPJ</th>
-                    <th class="px-4 py-3 text-left">Regime</th>
-                    <th class="px-4 py-3 text-left">LC 214/2025</th>
-                    <th class="px-4 py-3 text-left">Data</th>
-                    <th class="px-4 py-3 text-right">Ações</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white/90">
-                @forelse ($submissions as $s)
-                    <tr>
-                        <td class="px-4 py-3 font-semibold">{{ $s->razao_social }}</td>
-                        <td class="px-4 py-3">{{ $s->cnpj }}</td>
-                        <td class="px-4 py-3">{{ $s->regime_tributario }}</td>
-                        <td class="px-4 py-3">{{ $s->lc_214_2025_compliant ? 'Sim' : 'Não' }}</td>
-                        <td class="px-4 py-3">{{ optional($s->created_at)->format('d/m/Y H:i') }}</td>
-                        <td class="px-4 py-3 text-right">
-                            <a href="{{ route('admin.tax-regime.show', $s) }}" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700">Ver</a>
-                            <form method="POST" action="{{ route('admin.tax-regime.destroy', $s) }}" class="inline" onsubmit="return confirm('Excluir?')">
-                                @csrf @method('DELETE')
-                                <button class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700">Excluir</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="6" class="px-4 py-10 text-center text-slate-500">Nenhuma resposta ainda.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="space-y-4">
+        @forelse ($submissions as $s)
+            <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg hover:shadow-xl transition">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-start">
+                    <!-- Razão Social -->
+                    <div class="lg:col-span-2">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Razão Social</p>
+                        <p class="text-sm font-semibold text-slate-900">{{ $s->razao_social }}</p>
+                    </div>
+
+                    <!-- CNPJ -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">CNPJ</p>
+                        <p class="text-sm font-semibold text-slate-700">{{ $s->cnpj }}</p>
+                    </div>
+
+                    <!-- Regime -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Regime</p>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                            {{ $s->regime_tributario }}
+                        </span>
+                    </div>
+
+                    <!-- Verificado -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Verificado</p>
+                        <form method="POST" action="{{ route('admin.tax-regime.toggle-verified', $s) }}" class="inline">
+                            @csrf
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                                <input type="checkbox" name="verified" value="1" {{ $s->verified ? 'checked' : '' }} class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer" onchange="this.form.submit()">
+                                <span class="text-xs font-semibold">{{ $s->verified ? '✓ Sim' : 'Não' }}</span>
+                            </label>
+                        </form>
+                    </div>
+
+                    <!-- Data -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Data</p>
+                        <p class="text-sm font-semibold text-slate-600">{{ optional($s->created_at)->format('d/m/Y') }}</p>
+                        <p class="text-xs text-slate-500">{{ optional($s->created_at)->format('H:i') }}</p>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="lg:col-span-1 flex flex-wrap gap-2">
+                        <a href="{{ route('admin.tax-regime.show', $s) }}" class="inline-flex items-center px-2 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-100 text-xs font-medium">Ver</a>
+                        <form method="POST" action="{{ route('admin.tax-regime.destroy', $s) }}" class="inline" onsubmit="return confirm('Remover essa submissão?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex items-center px-2 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-200 text-xs font-medium">Excluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="text-center py-12">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m0 6a9 9 0 100-18 9 9 0 000 18z"/></svg>
+                    <span class="text-slate-600 font-medium">Nenhuma submissão encontrada.</span>
+                </div>
+            </div>
+        @endforelse
     </div>
-    <div class="mt-4">{{ $submissions->withQueryString()->links() }}</div>
+
 </div>
 @endsection

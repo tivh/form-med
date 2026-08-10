@@ -41,6 +41,17 @@ class TaxRegimeSubmissionController extends Controller
         return view('admin.tax-regime.show', ['submission' => $taxRegimeSubmission]);
     }
 
+    public function toggleVerified(Request $request, TaxRegimeSubmission $taxRegimeSubmission): RedirectResponse
+    {
+        abort_unless($request->user()->canAccess('regime-tributario'), 403);
+
+        $taxRegimeSubmission->update([
+            'verified' => (bool) $request->boolean('verified'),
+        ]);
+
+        return back()->with('status', 'Status de verificação atualizado com sucesso.');
+    }
+
     public function destroy(Request $request, TaxRegimeSubmission $taxRegimeSubmission): RedirectResponse
     {
         abort_unless($request->user()->canAccess('regime-tributario'), 403);

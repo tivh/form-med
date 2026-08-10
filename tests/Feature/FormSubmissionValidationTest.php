@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\FormSubmission;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -74,5 +75,39 @@ class FormSubmissionValidationTest extends TestCase
         $this->assertSame('Carlos Testemunha', $submission->testemunha_nome);
         $this->assertSame('carlos@example.com', $submission->testemunha_email);
         $this->assertNotNull($submission->compliance_aceito_em);
+        $this->assertFalse($submission->verified);
+    }
+
+    public function test_admin_can_toggle_verified_status_for_a_submission(): void
+    {
+        $user = User::factory()->create([
+            'form_scope' => 'form-med',
+        ]);
+        $user->markEmailAsVerified();
+        $submission = FormSubmission::create([
+            'form_type' => 'form-med',
+            'registration_type' => 'pf',
+            'nome' => 'Cliente Teste',
+            'email' => 'cliente@example.com',
+            'endereco' => 'Rua Teste, 123',
+            'nacionalidade' => 'Brasileira',
+            'profissao' => 'Analista',
+            'legal_declaration' => 'concorda',
+            'legal_representative' => 'Responsável',
+            'legal_representative_cpf' => '123.456.789-09',
+            'legal_representative_date' => '2026-07-28',
+            'public_power_relatives' => 'nao',
+            'internal_relationships' => 'nao',
+            'employee_shareholding' => 'nao',
+            'conflict_situation' => 'nao',
+            'competitor_relationships' => 'nao',
+            'documents' => [],
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('admin.submissions.toggle-verified', $submission), ['verified' => '1'])
+            ->assertRedirect();
+
+        $this->assertTrue($submission->fresh()->verified);
     }
 }

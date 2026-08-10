@@ -92,63 +92,84 @@
         </div>
     </div>
 
-    <div class="glass rounded-2xl overflow-hidden shadow-xl border border-white/60">
-        <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50/80 backdrop-blur">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Formulário</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Nome / Razão social</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">E-mail</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Tipo</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Data</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">Ações</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white/90">
-                @forelse ($submissions as $submission)
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="px-4 py-3 text-slate-900 font-semibold">
-                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200">
-                                {{ $formCatalog[$submission->form_type]['title'] ?? $submission->form_type ?? '—' }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-slate-900 font-semibold">
+    <div class="space-y-4">
+        @forelse ($submissions as $submission)
+            <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg hover:shadow-xl transition">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-start">
+                    <!-- Formulário -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Formulário</p>
+                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200">
+                            {{ $formCatalog[$submission->form_type]['title'] ?? $submission->form_type ?? '—' }}
+                        </span>
+                    </div>
+
+                    <!-- Nome / Razão Social -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Nome</p>
+                        <p class="text-sm font-semibold text-slate-900">
                             {{ $submission->registration_type === 'pj' ? ($submission->razao_social ?? $submission->nome) : $submission->nome }}
-                            <div class="text-xs text-slate-500">{{ $submission->email }}</div>
-                        </td>
-                        <td class="px-4 py-3 text-slate-700">{{ $submission->email }}</td>
-                        <td class="px-4 py-3">
-                            @php $isPj = $submission->registration_type === 'pj'; @endphp
-                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold {{ $isPj ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100' }}">
-                                <span class="h-2 w-2 rounded-full {{ $isPj ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
-                                {{ $isPj ? 'Pessoa Jurídica' : 'Pessoa Física' }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-slate-600">{{ optional($submission->created_at)->format('d/m/Y H:i') }}</td>
-                        <td class="px-4 py-3 text-right">
-                            <div class="inline-flex items-center gap-2">
-                                <a href="{{ route('admin.submissions.show', $submission) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-100">Ver</a>
-                                <a href="{{ route('admin.submissions.download', $submission) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100">Download</a>
-                                <form method="POST" action="{{ route('admin.submissions.destroy', $submission) }}" class="inline" onsubmit="return confirm('Remover essa submissão?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-100">Excluir</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="px-4 py-10 text-center text-slate-500">
-                            <div class="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200">
-                                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m0 6a9 9 0 100-18 9 9 0 000 18z"/></svg>
-                                Nenhuma submissão encontrada.
-                            </div>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </p>
+                        <p class="text-xs text-slate-500 mt-1">{{ $submission->email }}</p>
+                    </div>
+
+                    <!-- Tipo -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Tipo</p>
+                        @php $isPj = $submission->registration_type === 'pj'; @endphp
+                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold {{ $isPj ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100' }}">
+                            <span class="h-2 w-2 rounded-full {{ $isPj ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
+                            {{ $isPj ? 'PJ' : 'PF' }}
+                        </span>
+                    </div>
+
+                    <!-- Verificado -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Verificado</p>
+                        <form method="POST" action="{{ route('admin.submissions.toggle-verified', $submission) }}" class="inline">
+                            @csrf
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                                <input type="checkbox" name="verified" value="1" {{ $submission->verified ? 'checked' : '' }} class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer" onchange="this.form.submit()">
+                                <span class="text-xs font-semibold">{{ $submission->verified ? '✓ Sim' : 'Não' }}</span>
+                            </label>
+                        </form>
+                    </div>
+
+                    <!-- Data -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Data</p>
+                        <p class="text-sm font-semibold text-slate-600">{{ optional($submission->created_at)->format('d/m/Y') }}</p>
+                        <p class="text-xs text-slate-500">{{ optional($submission->created_at)->format('H:i') }}</p>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="lg:col-span-1">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Ações</p>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('admin.submissions.show', $submission) }}" class="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-100 text-xs font-medium">Ver</a>
+                            @if(is_array($submission->documents) && count($submission->documents))
+                                <a href="{{ route('admin.submissions.download', $submission) }}" class="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100 text-xs font-medium">
+                                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    Download
+                                </a>
+                            @endif
+                            <form method="POST" action="{{ route('admin.submissions.destroy', $submission) }}" class="inline" onsubmit="return confirm('Remover essa submissão?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-200 text-xs font-medium">Excluir</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="text-center py-12">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m0 6a9 9 0 100-18 9 9 0 000 18z"/></svg>
+                    <span class="text-slate-600 font-medium">Nenhuma submissão encontrada.</span>
+                </div>
+            </div>
+        @endforelse
     </div>
 
     <div class="mt-4 text-slate-800">{{ $submissions->withQueryString()->links() }}</div>

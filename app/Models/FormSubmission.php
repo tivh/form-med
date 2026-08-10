@@ -10,6 +10,7 @@ class FormSubmission extends Model
     use HasFactory;
 
     protected $fillable = [
+        'verified',
         'form_type',
         'registration_type',
         'nome',
@@ -66,6 +67,7 @@ class FormSubmission extends Model
     ];
 
     protected $casts = [
+        'verified' => 'boolean',
         'documents' => 'array',
         'doc_checklist' => 'array',
         'compliance_policies' => 'array',

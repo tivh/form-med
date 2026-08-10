@@ -70,6 +70,15 @@ class FormSubmissionController extends Controller
         ]);
     }
 
+    public function toggleVerified(Request $request, FormSubmission $submission): RedirectResponse
+    {
+        $submission->update([
+            'verified' => (bool) $request->boolean('verified'),
+        ]);
+
+        return back()->with('status', 'Status de verificação atualizado com sucesso.');
+    }
+
     public function destroy(FormSubmission $submission): RedirectResponse
     {
         if (is_array($submission->documents)) {
@@ -98,6 +107,13 @@ class FormSubmissionController extends Controller
         $downloadName = $doc['original_name'] ?? basename($doc['path']);
 
         return Storage::disk('private_uploads')->download($doc['path'], $downloadName);
+    }
+
+    public function print(FormSubmission $submission)
+    {
+        return view('admin.submissions.print', [
+            'submission' => $submission,
+        ]);
     }
 
     public function export(Request $request)

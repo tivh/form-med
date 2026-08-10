@@ -1,38 +1,35 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-6xl mx-auto px-4 pt-12 pb-10 space-y-6">
-    <div class="rounded-3xl bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-white shadow-xl overflow-hidden">
+<div class="max-w-6xl mx-auto px-4 pt-12 pb-10">
+    @php $isPj = $submission->registration_type === 'pj'; @endphp
+    
+    <!-- Header -->
+    <div class="rounded-3xl bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-white shadow-xl overflow-hidden mb-8">
         <div class="p-8 md:p-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div class="space-y-2">
+            <div class="space-y-3">
                 <p class="text-xs uppercase tracking-[0.25em] text-white/70">Admin • Revisão</p>
-                <h1 class="text-3xl md:text-4xl font-black">Detalhes da submissão</h1>
+                <h1 class="text-3xl md:text-4xl font-black">Resposta do {{ $isPj ? 'Cadastro da Empresa' : 'Cadastro do Fornecedor' }}</h1>
                 <div class="flex flex-wrap gap-3 text-sm text-white/80">
                     <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20">
                         <span class="h-2 w-2 rounded-full bg-emerald-300 animate-pulse"></span>
                         Recebida {{ optional($submission->created_at)->format('d/m/Y H:i') }}
                     </span>
                     <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20">
-                        {{ $formCatalog[$submission->form_type]['title'] ?? $submission->form_type ?? 'Formulário' }}
-                    </span>
-                    @php $isPj = $submission->registration_type === 'pj'; @endphp
-                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20">
                         {{ $isPj ? 'Pessoa Jurídica' : 'Pessoa Física' }}
                     </span>
                 </div>
             </div>
             <div class="flex flex-wrap gap-3">
-                @if(is_array($submission->documents) && count($submission->documents))
-                    <a href="{{ route('admin.submissions.download', $submission) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-slate-900 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
-                        Baixar primeiro arquivo
-                    </a>
-                @endif
+                <a href="{{ route('admin.submissions.print', $submission) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-slate-900 font-semibold shadow-lg hover:shadow-xl transition">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 17h2a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h4a2 2 0 002-2v-2a2 2 0 00-2-2z"/></svg>
+                    Imprimir/PDF
+                </a>
                 <form method="POST" action="{{ route('admin.submissions.destroy', $submission) }}" onsubmit="return confirm('Remover essa submissão?');" class="inline-flex">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-700 font-semibold border border-red-200 hover:bg-red-200/80">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12H9m10 0a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         Excluir
                     </button>
                 </form>
@@ -44,264 +41,380 @@
         </div>
     </div>
 
-    @if(is_array($submission->documents) && count($submission->documents))
-        <div class="glass rounded-2xl p-6 border border-slate-100 shadow-lg">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.2em] text-red-600">Arquivos enviados</p>
-                    <p class="text-sm text-slate-600">{{ count($submission->documents) }} arquivo(s) disponível(is) para download</p>
-                </div>
+    <!-- Status e Verificação -->
+    <div class="glass rounded-2xl p-6 mb-8 border border-white/60 shadow-lg">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Tipo de Cadastro</p>
+                <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold {{ $isPj ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100' }}">
+                    <span class="h-2 w-2 rounded-full {{ $isPj ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
+                    {{ $isPj ? 'Pessoa Jurídica' : 'Pessoa Física' }}
+                </p>
             </div>
-            <ul class="divide-y divide-slate-200 text-sm text-slate-800">
+            <div>
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Verificado</p>
+                <form method="POST" action="{{ route('admin.submissions.toggle-verified', $submission) }}" class="inline">
+                    @csrf
+                    <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                        <input type="checkbox" name="verified" value="1" {{ $submission->verified ? 'checked' : '' }} class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer" onchange="this.form.submit()">
+                        <span class="text-xs font-semibold">{{ $submission->verified ? '✓ Verificado' : 'Pendente' }}</span>
+                    </label>
+                </form>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Data de Envio</p>
+                <p class="text-sm font-semibold text-slate-900">{{ optional($submission->created_at)->format('d/m/Y') }}</p>
+                <p class="text-xs text-slate-600">{{ optional($submission->created_at)->format('H:i') }}</p>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">ID do Registro</p>
+                <p class="text-sm font-semibold text-slate-900">#{{ $submission->id }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documentos Anexados -->
+    @if(is_array($submission->documents) && count($submission->documents))
+        <div class="glass rounded-2xl p-6 mb-8 border border-white/60 shadow-lg">
+            <div class="mb-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-red-600 font-semibold">Documentos Enviados</p>
+                <p class="text-sm text-slate-600 mt-1">{{ count($submission->documents) }} arquivo(s)</p>
+            </div>
+            <div class="space-y-2">
                 @foreach ($submission->documents as $index => $doc)
-                    <li class="py-3 flex items-center justify-between">
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white/50 hover:bg-white transition">
                         <div class="flex items-center gap-3">
-                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-700 font-semibold">{{ $index + 1 }}</span>
-                            <span>{{ $doc['original_name'] ?? ('Documento '.($index + 1)) }}</span>
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-700 font-semibold text-sm">{{ $index + 1 }}</span>
+                            <span class="text-sm text-slate-800">{{ $doc['original_name'] ?? 'Documento '.($index + 1) }}</span>
                         </div>
-                        <a href="{{ route('admin.submissions.download', [$submission, 'doc' => $index]) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-100">Baixar</a>
-                    </li>
+                        <a href="{{ route('admin.submissions.download', [$submission, 'doc' => $index]) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-100 text-xs font-medium">
+                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download
+                        </a>
+                    </div>
                 @endforeach
-            </ul>
+            </div>
         </div>
     @endif
 
-    <div class="glass rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-900 shadow-lg">
-        <div>
-            <p class="text-sm text-slate-500">Formulário</p>
-            <p class="text-lg font-semibold">{{ $formCatalog[$submission->form_type]['title'] ?? $submission->form_type ?? '—' }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Tipo de cadastro</p>
-            <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold {{ $isPj ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100' }}">
-                <span class="h-2 w-2 rounded-full {{ $isPj ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
-                {{ $isPj ? 'Pessoa Jurídica' : 'Pessoa Física' }}
-            </p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Nome</p>
-            <p class="text-lg font-semibold">{{ $submission->nome }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">CPF</p>
-            <p class="text-lg font-semibold">{{ $submission->cpf ?: '—' }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Razão social</p>
-            <p class="text-lg font-semibold">{{ $submission->razao_social }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Nome fantasia</p>
-            <p class="text-lg font-semibold">{{ $submission->nome_fantasia }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">CNPJ</p>
-            <p class="text-lg font-semibold">{{ $submission->cnpj ?: '—' }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Representante legal</p>
-            <p class="text-lg font-semibold">{{ $submission->representante_legal }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Website</p>
-            <p class="text-lg font-semibold">{{ $submission->website }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">E-mail</p>
-            <p class="text-lg font-semibold">{{ $submission->email }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">E-mail testemunha</p>
-            <p class="text-lg font-semibold">{{ $submission->email_testemunha }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Telefone</p>
-            <p class="text-lg font-semibold">{{ $submission->telefone }}</p>
-        </div>
-        <div class="md:col-span-2">
-            <p class="text-sm text-slate-500">Endereço</p>
-            <p class="text-lg font-semibold">{{ $submission->endereco }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Nacionalidade</p>
-            <p class="text-lg font-semibold">{{ $submission->nacionalidade }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Profissão</p>
-            <p class="text-lg font-semibold">{{ $submission->profissao }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Data de nascimento</p>
-            <p class="text-lg font-semibold">{{ optional($submission->data_nascimento)->format('d/m/Y') ?: '—' }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Dados bancários</p>
-            <p class="text-lg font-semibold">{{ $submission->dados_bancarios }}</p>
-        </div>
-        <div class="md:col-span-2">
-            <p class="text-sm text-slate-500">Mensagem</p>
-            <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->mensagem }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Enviado em</p>
-            <p class="text-lg font-semibold">{{ optional($submission->created_at)->format('d/m/Y H:i') }}</p>
-        </div>
-        <div class="md:col-span-2 space-y-2">
-            <p class="text-sm text-slate-500">Documentos</p>
-            @if(is_array($submission->documents) && count($submission->documents))
-                <p class="text-sm text-slate-700">Consulte a lista acima para baixar.</p>
-            @else
-                <p class="text-slate-500 text-sm">Nenhum documento enviado.</p>
-            @endif
+    <!-- SEÇÃO 1: Identificação -->
+    <div class="space-y-6 mb-8">
+        <div class="rounded-2xl border-2 border-red-200 bg-gradient-to-r from-red-50 to-rose-50 p-5">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">1</span>
+                <h2 class="text-lg font-bold text-slate-900">{{ $isPj ? 'Identificação da Empresa' : 'Identificação Pessoal' }}</h2>
+            </div>
         </div>
 
-        <div class="md:col-span-2">
-            <p class="text-sm text-slate-500">Checklist enviado</p>
-            @if(is_array($submission->doc_checklist) && count($submission->doc_checklist))
-                <ul class="list-disc list-inside text-sm text-slate-800 space-y-1">
-                    @foreach ($submission->doc_checklist as $item)
-                        <li>{{ $item }}</li>
-                    @endforeach
-                </ul>
-            @else
-                <p class="text-slate-500 text-sm">Nenhum item marcado.</p>
-            @endif
-        </div>
-
-        <div class="md:col-span-2">
-            <p class="text-sm text-slate-500">Políticas de compliance</p>
-            @if(is_array($submission->compliance_policies) && count($submission->compliance_policies))
-                <ul class="list-disc list-inside text-sm text-slate-800 space-y-1">
-                    @foreach ($submission->compliance_policies as $item)
-                        <li>{{ $item }}</li>
-                    @endforeach
-                </ul>
-            @else
-                <p class="text-slate-500 text-sm">Não informado.</p>
-            @endif
-        </div>
-
-        <div>
-            <p class="text-sm text-slate-500">Investigado por</p>
-            <p class="text-lg font-semibold">{{ $submission->investigated_for ?: '—' }}</p>
-        </div>
-        <div class="md:col-span-2">
-            <p class="text-sm text-slate-500">Detalhes investigação</p>
-            <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->investigation_details }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">Lei 12.846/2013</p>
-            <p class="text-lg font-semibold">{{ $submission->law_12846_compliant === null ? '' : ($submission->law_12846_compliant ? 'Sim' : 'Não') }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-slate-500">LGPD</p>
-            <p class="text-lg font-semibold">{{ $submission->lgpd_compliant === null ? '' : ($submission->lgpd_compliant ? 'Sim' : 'Não') }}</p>
-        </div>
-
-        <div class="md:col-span-2 pt-4 border-t border-slate-100">
-            <p class="text-xs uppercase tracking-[0.2em] text-red-600 mb-1">Conflito de interesse</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-900">
+        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @if($isPj)
+                    <div class="md:col-span-2">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Razão Social</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->razao_social ?: '—' }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Nome Fantasia</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->nome_fantasia ?: '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">CNPJ</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->cnpj ?: '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Website</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->website ?: '—' }}</p>
+                    </div>
+                @else
+                    <div class="md:col-span-2">
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Nome Completo</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->nome ?: '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">CPF</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->cpf ?: '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Data de Nascimento</p>
+                        <p class="text-base font-semibold text-slate-900">{{ optional($submission->data_nascimento)->format('d/m/Y') ?: '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Nacionalidade</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->nacionalidade ?: '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Profissão</p>
+                        <p class="text-base font-semibold text-slate-900">{{ $submission->profissao ?: '—' }}</p>
+                    </div>
+                @endif
+                
+                <div class="md:col-span-2">
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Endereço</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->endereco ?: '—' }}</p>
+                </div>
                 <div>
-                    <p class="text-sm text-slate-500">Perfis marcados</p>
-                    @if(is_array($submission->conflict_roles) && count($submission->conflict_roles))
-                        <ul class="list-disc list-inside text-sm text-slate-800 space-y-1">
-                            @foreach ($submission->conflict_roles as $item)
-                                <li>{{ $item }}</li>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">E-mail</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->email ?: '—' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Telefone</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->telefone ?: '—' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 2: Representantes (apenas PJ) -->
+    @if($isPj)
+    <div class="space-y-6 mb-8">
+        <div class="rounded-2xl border-2 border-red-200 bg-gradient-to-r from-red-50 to-rose-50 p-5">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">2</span>
+                <h2 class="text-lg font-bold text-slate-900">Representantes Legais</h2>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg">
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 pb-3 border-b border-slate-200">Representante Legal</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Nome</p>
+                            <p class="text-base font-semibold text-slate-900">{{ $submission->representante_legal_nome ?: '—' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">E-mail</p>
+                            <p class="text-base font-semibold text-slate-900">{{ $submission->representante_legal_email ?: '—' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 pb-3 border-b border-slate-200">Responsável Jurídico</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Nome</p>
+                            <p class="text-base font-semibold text-slate-900">{{ $submission->responsavel_juridico_nome ?: '—' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">E-mail</p>
+                            <p class="text-base font-semibold text-slate-900">{{ $submission->responsavel_juridico_email ?: '—' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- SEÇÃO 3: Testemunha e Dados Financeiros -->
+    <div class="space-y-6 mb-8">
+        <div class="rounded-2xl border-2 border-red-200 bg-gradient-to-r from-red-50 to-rose-50 p-5">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold">{{ $isPj ? '3' : '2' }}</span>
+                <h2 class="text-lg font-bold text-slate-900">Testemunha e Dados Financeiros</h2>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Nome da Testemunha</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->testemunha_nome ?: '—' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">E-mail da Testemunha</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->testemunha_email ?: '—' }}</p>
+                </div>
+                <div class="md:col-span-2">
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Dados Bancários</p>
+                    <p class="text-base font-semibold text-slate-900 whitespace-pre-line">{{ $submission->dados_bancarios ?: '—' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 4: Compliance e Conformidades -->
+    <div class="space-y-6 mb-8">
+        <div class="rounded-2xl border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 p-5">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">{{ $isPj ? '4' : '3' }}</span>
+                <h2 class="text-lg font-bold text-slate-900">Compliance e Conformidades</h2>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Lei 12.846/2013</p>
+                    <p class="text-base font-semibold {{ $submission->law_12846_compliant ? 'text-emerald-700' : 'text-slate-900' }}">
+                        {{ $submission->law_12846_compliant === null ? '—' : ($submission->law_12846_compliant ? '✓ Sim' : '✗ Não') }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">LGPD</p>
+                    <p class="text-base font-semibold {{ $submission->lgpd_compliant ? 'text-emerald-700' : 'text-slate-900' }}">
+                        {{ $submission->lgpd_compliant === null ? '—' : ($submission->lgpd_compliant ? '✓ Sim' : '✗ Não') }}
+                    </p>
+                </div>
+                <div class="md:col-span-2">
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Investigação Anterior</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->investigated_for ?: '—' }}</p>
+                    @if($submission->investigation_details)
+                        <p class="text-sm text-slate-700 mt-2 whitespace-pre-line">{{ $submission->investigation_details }}</p>
+                    @endif
+                </div>
+                <div class="md:col-span-2">
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Checklist de Documentos</p>
+                    @if(is_array($submission->doc_checklist) && count($submission->doc_checklist))
+                        <ul class="space-y-1">
+                            @foreach ($submission->doc_checklist as $item)
+                                <li class="text-sm text-slate-800">✓ {{ $item }}</li>
                             @endforeach
                         </ul>
                     @else
-                        <p class="text-slate-500 text-sm">Não informado.</p>
+                        <p class="text-sm text-slate-500">Nenhum item marcado.</p>
+                    @endif
+                </div>
+                <div class="md:col-span-2">
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Políticas de Compliance</p>
+                    @if(is_array($submission->compliance_policies) && count($submission->compliance_policies))
+                        <ul class="space-y-1">
+                            @foreach ($submission->compliance_policies as $item)
+                                <li class="text-sm text-slate-800">✓ {{ $item }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-sm text-slate-500">Nenhuma política registrada.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 5: Conflito de Interesses -->
+    <div class="space-y-6 mb-8">
+        <div class="rounded-2xl border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-600 text-white text-sm font-bold">{{ $isPj ? '5' : '4' }}</span>
+                <h2 class="text-lg font-bold text-slate-900">Conflito de Interesses</h2>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Perfis Conflitantes</p>
+                    @if(is_array($submission->conflict_roles) && count($submission->conflict_roles))
+                        <ul class="space-y-1">
+                            @foreach ($submission->conflict_roles as $item)
+                                <li class="text-sm text-slate-800">• {{ $item }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-sm text-slate-500">Nenhum perfil marcado.</p>
                     @endif
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500">Detalhes perfis</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->conflict_roles_details }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Detalhes dos Perfis</p>
+                    <p class="text-sm text-slate-800 whitespace-pre-line">{{ $submission->conflict_roles_details ?: '—' }}</p>
                 </div>
+            </div>
 
+            <div class="pt-4 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <p class="text-sm text-slate-500">Parentes em órgão público</p>
-                    <p class="text-lg font-semibold">{{ $submission->public_power_relatives ?: '—' }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Parentes em Órgão Público</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ $submission->public_power_relatives ?: '—' }}</p>
+                    @if($submission->public_power_relatives_details)
+                        <p class="text-sm text-slate-700 mt-1">{{ $submission->public_power_relatives_details }}</p>
+                    @endif
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500">Detalhes (órgão público)</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->public_power_relatives_details }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Relacionamento Interno</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ $submission->internal_relationships ?: '—' }}</p>
+                    @if($submission->internal_relationships_details)
+                        <p class="text-sm text-slate-700 mt-1">{{ $submission->internal_relationships_details }}</p>
+                    @endif
                 </div>
+            </div>
 
+            <div class="pt-4 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <p class="text-sm text-slate-500">Relacionamento interno</p>
-                    <p class="text-lg font-semibold">{{ $submission->internal_relationships ?: '—' }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Participação de Colaborador</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ $submission->employee_shareholding ?: '—' }}</p>
+                    @if($submission->employee_shareholding_details)
+                        <p class="text-sm text-slate-700 mt-1">{{ $submission->employee_shareholding_details }}</p>
+                    @endif
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500">Detalhes (relacionamento interno)</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->internal_relationships_details }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Situação de Conflito</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ $submission->conflict_situation ?: '—' }}</p>
+                    @if($submission->conflict_situation_details)
+                        <p class="text-sm text-slate-700 mt-1">{{ $submission->conflict_situation_details }}</p>
+                    @endif
                 </div>
+            </div>
 
+            <div class="pt-4 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <p class="text-sm text-slate-500">Participação de colaborador</p>
-                    <p class="text-lg font-semibold">{{ $submission->employee_shareholding ?: '—' }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Relacionamento com Concorrente</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ $submission->competitor_relationships ?: '—' }}</p>
+                    @if($submission->competitor_relationships_details)
+                        <p class="text-sm text-slate-700 mt-1">{{ $submission->competitor_relationships_details }}</p>
+                    @endif
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500">Detalhes (participação colaborador)</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->employee_shareholding_details }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Participação na Contratante</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ $submission->contractor_shareholding ?: '—' }}</p>
+                    @if($submission->contractor_shareholding_details)
+                        <p class="text-sm text-slate-700 mt-1">{{ $submission->contractor_shareholding_details }}</p>
+                    @endif
                 </div>
+            </div>
 
+            <div class="pt-4 border-t border-slate-200">
                 <div>
-                    <p class="text-sm text-slate-500">Situação de conflito</p>
-                    <p class="text-lg font-semibold">{{ $submission->conflict_situation ?: '—' }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Laços de Amizade/Parentesco</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ $submission->friendship_ties ?: '—' }}</p>
+                    @if($submission->friendship_ties_details)
+                        <p class="text-sm text-slate-700 mt-1">{{ $submission->friendship_ties_details }}</p>
+                    @endif
                 </div>
-                <div>
-                    <p class="text-sm text-slate-500">Detalhes (situação conflito)</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->conflict_situation_details }}</p>
-                </div>
+            </div>
+        </div>
+    </div>
 
-                <div>
-                    <p class="text-sm text-slate-500">Relacionamento com concorrente</p>
-                    <p class="text-lg font-semibold">{{ $submission->competitor_relationships ?: '—' }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-slate-500">Detalhes (concorrente)</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->competitor_relationships_details }}</p>
-                </div>
+    <!-- SEÇÃO 6: Assinatura Legal -->
+    <div class="space-y-6 mb-8">
+        <div class="rounded-2xl border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 p-5">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-white text-sm font-bold">{{ $isPj ? '6' : '5' }}</span>
+                <h2 class="text-lg font-bold text-slate-900">Assinatura Legal</h2>
+            </div>
+        </div>
 
+        <div class="glass rounded-2xl p-6 border border-white/60 shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <p class="text-sm text-slate-500">Participação na contratante</p>
-                    <p class="text-lg font-semibold">{{ $submission->contractor_shareholding ?: '—' }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Declaração Legal</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->legal_declaration === 'concorda' ? '✓ Concorda' : '✗ Discorda' }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500">Detalhes (participação contratante)</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->contractor_shareholding_details }}</p>
-                </div>
-
-                <div>
-                    <p class="text-sm text-slate-500">Laços de amizade/parentesco</p>
-                    <p class="text-lg font-semibold">{{ $submission->friendship_ties ?: '—' }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Responsável Legal</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->legal_representative ?: '—' }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500">Detalhes (laços)</p>
-                    <p class="text-base text-slate-800 whitespace-pre-line">{{ $submission->friendship_ties_details }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">CPF do Responsável</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->legal_representative_cpf ?: '—' }}</p>
                 </div>
-
                 <div>
-                    <p class="text-sm text-slate-500">Declaração legal</p>
-                    <p class="text-lg font-semibold">{{ $submission->legal_declaration ?: '—' }}</p>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Cargo</p>
+                    <p class="text-base font-semibold text-slate-900">{{ $submission->legal_representative_role ?: '—' }}</p>
                 </div>
-                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <p class="text-sm text-slate-500">Responsável legal</p>
-                        <p class="text-lg font-semibold">{{ $submission->legal_representative }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-500">CPF responsável</p>
-                        <p class="text-lg font-semibold">{{ $submission->legal_representative_cpf }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-500">Cargo</p>
-                        <p class="text-lg font-semibold">{{ $submission->legal_representative_role }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-500">Data</p>
-                        <p class="text-lg font-semibold">{{ optional($submission->legal_representative_date)->format('d/m/Y') }}</p>
-                    </div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Data da Assinatura</p>
+                    <p class="text-base font-semibold text-slate-900">{{ optional($submission->legal_representative_date)->format('d/m/Y') ?: '—' }}</p>
                 </div>
             </div>
         </div>

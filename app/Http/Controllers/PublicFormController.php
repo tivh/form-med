@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FormSubmission;
+use App\Models\Setting;
 use App\Rules\Cnpj;
 use App\Rules\Cpf;
 use Illuminate\Http\RedirectResponse;
@@ -30,7 +31,11 @@ class PublicFormController extends Controller
     {
         $formConfig = $this->availableForm($form);
 
-        return view($formConfig['view'], ['form' => $formConfig]);
+        return view($formConfig['view'], [
+            'form' => $formConfig,
+            'terms_pf' => Setting::get('terms_pf', ''),
+            'terms_pj' => Setting::get('terms_pj', ''),
+        ]);
     }
 
     public function success(string $form): View
@@ -65,6 +70,7 @@ class PublicFormController extends Controller
         }
 
         FormSubmission::create([
+            'verified' => false,
             'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
             'registration_type' => $registrationType,
             'nome' => $validated['nome'],
@@ -179,6 +185,7 @@ class PublicFormController extends Controller
             'legal_representative_cpf' => ['required', 'string', 'max:50', new Cpf],
             'legal_representative_role' => ['nullable', 'string', 'max:255'],
             'legal_representative_date' => ['required', 'date'],
+            'terms_accepted' => ['required', 'accepted'],
             'compliance_aceito_em' => ['prohibited'],
             'documents' => ['required', 'array', 'min:1'],
             'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,zip,rar,7z', 'max:15360'],

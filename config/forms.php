@@ -2,7 +2,7 @@
 
 return [
     'form-med' => [
-        'title' => 'Cadastro de Fornecedores – VH',
+        'title' => 'Formulário de Qualificação e Cadastro – VH',
         'description' => 'Questionário inicial para solicitação de cadastro e compliance.',
         'view' => 'form',
         'form_type' => 'form-med',
