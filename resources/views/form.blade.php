@@ -1126,6 +1126,18 @@
             closeModal();
         });
 
+        // Clicar no checkbox abre a modal em vez de marcar diretamente
+        const termsCheckbox = document.getElementById('terms_accepted');
+        if (termsCheckbox) {
+            termsCheckbox.addEventListener('click', (e) => {
+                // Só abre se está tentando marcar (não ao desmarcar)
+                if (!termsCheckbox.checked) {
+                    e.preventDefault();
+                    openModal();
+                }
+            });
+        }
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
         });
