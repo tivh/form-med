@@ -41,6 +41,26 @@ class SupportRequestController extends Controller
         return back()->with('success', 'Sua solicitação foi enviada com sucesso.');
     }
 
+    public function index()
+    {
+        $requests = SupportRequest::query()
+            ->where('user_id', auth()->id())
+            ->with(['messages'])
+            ->orderByDesc('updated_at')
+            ->get();
+
+        return view('support.index', compact('requests'));
+    }
+
+    public function show(SupportRequest $supportRequest)
+    {
+        abort_unless($supportRequest->user_id === auth()->id(), 403);
+
+        $supportRequest->load(['messages']);
+
+        return view('support.show', compact('supportRequest'));
+    }
+
     public function create(Request $request)
     {
         $request->user();

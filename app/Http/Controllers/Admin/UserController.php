@@ -47,7 +47,9 @@ class UserController extends Controller
         ];
 
         if ($actingUser->isSuperAdmin()) {
-            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];
+            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))] ;
+            $rules['admin_role'] = ['nullable', 'array'];
+            $rules['admin_role.*'] = ['string', 'in:pj_diverso,pj_colaborador,pf'];
         }
 
         $data = $request->validate($rules);
@@ -62,6 +64,7 @@ class UserController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'form_scope' => $formScope,
+            'admin_role' => $this->normalizeAdminRole($data['admin_role'] ?? null),
         ]);
 
         return redirect()
@@ -92,8 +95,8 @@ class UserController extends Controller
         ];
 
         if ($actingUser->isSuperAdmin()) {
-            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];
-        }
+            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];            $rules['admin_role'] = ['nullable', 'array'];
+            $rules['admin_role.*'] = ['string', 'in:pj_diverso,pj_colaborador,pf'];        }
 
         $data = $request->validate($rules);
 
@@ -124,11 +127,34 @@ class UserController extends Controller
             $updateData['form_scope'] = $data['form_scope'] ?: null;
         }
 
+        if ($actingUser->isSuperAdmin() && array_key_exists('admin_role', $data)) {
+            $updateData['admin_role'] = $this->normalizeAdminRole($data['admin_role'] ?? null);
+        }
+
         $user->update($updateData);
 
         return redirect()
             ->route('admin.users.index')
             ->with('status', 'Usuário atualizado com sucesso.');
+    }
+
+    private function normalizeAdminRole(mixed $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            $values = array_values(array_unique(array_filter(array_map('strval', $value), fn ($item) => $item !== '')));
+            return $values === [] ? null : implode(',', $values);
+        }
+
+        if (is_string($value)) {
+            $values = array_filter(array_map('trim', explode(',', $value)));
+            return $values === [] ? null : implode(',', $values);
+        }
+
+        return null;
     }
 
     private function authorizeManage(User $actingUser, User $targetUser): void
@@ -143,4 +169,4 @@ class UserController extends Controller
             'Você não tem permissão para gerenciar este usuário.'
         );
     }
-}   
+}

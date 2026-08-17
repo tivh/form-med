@@ -18,8 +18,15 @@ class FormSubmissionController extends Controller
     public function index(Request $request): View
     {
         abort_unless($request->user()->canAccess('form-med'), 403);
+
+        $user = $request->user();
         $query = FormSubmission::query()->latest();
         $formCatalog = $this->formCatalog();
+
+        $allowedClassifications = $user->allowedClassifications();
+        if ($user->isSuperAdmin() === false && $allowedClassifications !== []) {
+            $query->whereIn('classification', $allowedClassifications);
+        }
 
         if ($request->filled('email')) {
             $email = trim((string) $request->input('email'));
@@ -63,8 +70,10 @@ class FormSubmissionController extends Controller
         ]);
     }
 
-    public function show(FormSubmission $submission): View
+    public function show(Request $request, FormSubmission $submission): View
     {
+        abort_unless($request->user()->canViewSubmission($submission), 403);
+
         return view('admin.submissions.show', [
             'submission' => $submission,
             'formCatalog' => $this->formCatalog(),

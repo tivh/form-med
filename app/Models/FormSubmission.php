@@ -13,6 +13,7 @@ class FormSubmission extends Model
         'verified',
         'form_type',
         'registration_type',
+        'classification',
         'nome',
         'cpf',
         'razao_social',

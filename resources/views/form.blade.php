@@ -39,6 +39,9 @@
 
         <form action="{{ route('forms.submit', ['form' => $formSlug]) }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="submission-form">
             @csrf
+            <input type="hidden" name="submission_context" value="{{ $form['submission_context'] ?? 'public' }}">
+
+            @php $restrictRegistrationType = $form['restrict_registration_type'] ?? null; @endphp
 
             <div class="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/80 p-4 text-sm font-semibold">
                 <button type="button" data-step-indicator="1" data-go-step="1" class="step-pill inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-red-900 shadow-sm transition cursor-pointer">Dados cadastrais</button>
@@ -52,14 +55,22 @@
                         <p class="block text-sm font-semibold text-slate-800">Tipo de cadastro</p>
                     </div>
                     <div class="flex flex-wrap gap-4">
-                        <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-red-200 hover:bg-red-50 transition">
-                            <input type="radio" name="registration_type" value="pj" {{ old('registration_type') === 'pj' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
-                            <span>Pessoa Jurídica</span>
-                        </label>
-                        <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-red-200 hover:bg-red-50 transition">
-                            <input type="radio" name="registration_type" value="pf" {{ old('registration_type') === 'pf' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
-                            <span>Pessoa Física</span>
-                        </label>
+                        @if($restrictRegistrationType === 'pj')
+                            <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-red-200 hover:bg-red-50 transition">
+                                <input type="radio" name="registration_type" value="pj" checked required class="text-red-600 border-slate-300">
+                                <span>Pessoa Jurídica</span>
+                            </label>
+                            <input type="hidden" name="registration_type" value="pj">
+                        @else
+                            <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-red-200 hover:bg-red-50 transition">
+                                <input type="radio" name="registration_type" value="pj" {{ old('registration_type') === 'pj' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Pessoa Jurídica</span>
+                            </label>
+                            <label class="inline-flex items-center gap-2 text-slate-900 text-sm font-medium px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-red-200 hover:bg-red-50 transition">
+                                <input type="radio" name="registration_type" value="pf" {{ old('registration_type') === 'pf' ? 'checked' : '' }} required class="text-red-600 border-slate-300">
+                                <span>Pessoa Física</span>
+                            </label>
+                        @endif
                     </div>
                 </div>
 

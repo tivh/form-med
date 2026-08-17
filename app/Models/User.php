@@ -22,8 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'form_scope',
+        'admin_role',
     ];
-
 
     public function canAccess(string $formSlug): bool
     {
@@ -33,6 +33,71 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return $this->form_scope === null;
+    }
+
+    public function adminRoleOptions(): array
+    {
+        if (empty($this->admin_role)) {
+            return [];
+        }
+
+        $legacyMap = [
+            'rh' => ['pj_colaborador'],
+            'juridico' => ['pj_diverso', 'pf'],
+        ];
+
+        if (is_array($this->admin_role)) {
+            return array_values(array_filter(array_map('strval', $this->admin_role), fn ($value) => $value !== ''));
+        }
+
+        $roleValue = (string) $this->admin_role;
+        if (isset($legacyMap[$roleValue])) {
+            return $legacyMap[$roleValue];
+        }
+
+        $values = array_filter(array_map('trim', explode(',', $roleValue)));
+        if ($values !== []) {
+            return array_values($values);
+        }
+
+        return [];
+    }
+
+    public function allowedClassifications(): array
+    {
+        $options = $this->adminRoleOptions();
+
+        if ($options === []) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter($options, fn ($value) => in_array($value, ['pj_diverso', 'pj_colaborador', 'pf'], true))));
+    }
+
+    public function isRh(): bool
+    {
+        return in_array('pj_colaborador', $this->allowedClassifications(), true);
+    }
+
+    public function isJuridico(): bool
+    {
+        return in_array('pj_diverso', $this->allowedClassifications(), true) || in_array('pf', $this->allowedClassifications(), true);
+    }
+
+    public function canViewSubmission(
+        \App\Models\FormSubmission $submission
+    ): bool {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        $allowed = $this->allowedClassifications();
+
+        if ($allowed === []) {
+            return true;
+        }
+
+        return in_array($submission->classification, $allowed, true);
     }
 
     /**

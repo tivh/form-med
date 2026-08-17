@@ -53,15 +53,27 @@
             </div>
 
             @if($isSuperAdmin)
-                <div>
-                    <label class="block text-sm font-semibold text-slate-800" for="form_scope">Área de acesso</label>
-                    <select id="form_scope" name="form_scope"
-                        class="mt-2 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-red-500 focus:ring-red-500">
-                        <option value="" {{ old('form_scope', $user->form_scope) === null ? 'selected' : '' }}>Super Admin (acesso total)</option>
-                        @foreach (config('admin_areas') as $slug => $area)
-                            <option value="{{ $slug }}" {{ old('form_scope', $user->form_scope) === $slug ? 'selected' : '' }}>{{ $area['label'] }}</option>
-                        @endforeach
-                    </select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-800" for="form_scope">Área de acesso</label>
+                        <select id="form_scope" name="form_scope"
+                            class="mt-2 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-red-500 focus:ring-red-500">
+                            <option value="" {{ old('form_scope', $user->form_scope) === null ? 'selected' : '' }}>Super Admin (acesso total)</option>
+                            @foreach (config('admin_areas') as $slug => $area)
+                                <option value="{{ $slug }}" {{ old('form_scope', $user->form_scope) === $slug ? 'selected' : '' }}>{{ $area['label'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-800" for="admin_role">Classificações permitidas</label>
+                        <select id="admin_role" name="admin_role[]" multiple
+                            class="mt-2 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-red-500 focus:ring-red-500 min-h-[120px]">
+                            <option value="pj_diverso" {{ in_array('pj_diverso', old('admin_role', $user->adminRoleOptions()), true) ? 'selected' : '' }}>PJ normal → pj_diverso</option>
+                            <option value="pj_colaborador" {{ in_array('pj_colaborador', old('admin_role', $user->adminRoleOptions()), true) ? 'selected' : '' }}>PJ do fluxo RH → pj_colaborador</option>
+                            <option value="pf" {{ in_array('pf', old('admin_role', $user->adminRoleOptions()), true) ? 'selected' : '' }}>PF → pf</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">Selecione uma ou mais classificações que este usuário pode visualizar.</p>
+                    </div>
                 </div>
             @endif
 

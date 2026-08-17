@@ -48,8 +48,17 @@ class PublicFormController extends Controller
     public function submit(Request $request, string $form): RedirectResponse
     {
         $formConfig = $this->availableForm($form);
-        $registrationType = (string) ($request->input('tipo_pessoa') ?: $request->input('registration_type') ?: 'pf');
-        $request->merge(['registration_type' => $registrationType]);
+        $submissionContext = (string) ($request->input('submission_context') ?: $formConfig['submission_context'] ?? 'public');
+        $registrationType = (string) ($request->input('tipo_pessoa') ?: $request->input('registration_type') ?: (($formConfig['restrict_registration_type'] ?? null) === 'pj' ? 'pj' : 'pf'));
+
+        if ($submissionContext === 'rh') {
+            $registrationType = 'pj';
+        }
+
+        $request->merge([
+            'registration_type' => $registrationType,
+            'submission_context' => $submissionContext,
+        ]);
 
         $rules = $this->rulesForForm($request, $formConfig);
 
@@ -68,6 +77,8 @@ class PublicFormController extends Controller
             ];
         }
 
+        $classification = $this->resolveClassification($request, $registrationType);
+
         $requiredDocuments = [];
         foreach ($request->file('required_documents', []) as $key => $file) {
             $path = $file->store('', 'private_uploads');
@@ -81,6 +92,7 @@ class PublicFormController extends Controller
             'verified' => false,
             'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
             'registration_type' => $registrationType,
+            'classification' => $classification,
             'nome' => $validated['nome'],
             'cpf' => $validated['cpf'] ?? null,
             'razao_social' => $validated['razao_social'] ?? null,
@@ -136,6 +148,21 @@ class PublicFormController extends Controller
         ]);
 
         return redirect()->route('forms.success', ['form' => $formConfig['slug']]);
+    }
+
+    private function resolveClassification(Request $request, string $registrationType): ?string
+    {
+        $source = strtolower((string) ($request->input('submission_context') ?: $request->input('source') ?: 'public'));
+
+        if ($source === 'rh') {
+            return 'pj_colaborador';
+        }
+
+        if ($registrationType === 'pj') {
+            return 'pj_diverso';
+        }
+
+        return null;
     }
 
     private function rulesForForm(Request $request, array $formConfig): array
@@ -202,7 +229,12 @@ class PublicFormController extends Controller
             'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,zip,rar,7z', 'max:15360'],
         ];
 
-        $registrationType = (string) ($request->input('tipo_pessoa') ?: $request->input('registration_type') ?: 'pf');
+        $submissionContext = (string) ($request->input('submission_context') ?: $formConfig['submission_context'] ?? 'public');
+        $registrationType = (string) ($request->input('tipo_pessoa') ?: $request->input('registration_type') ?: (($formConfig['restrict_registration_type'] ?? null) === 'pj' ? 'pj' : 'pf'));
+
+        if ($submissionContext === 'rh') {
+            $registrationType = 'pj';
+        }
 
         if ($registrationType === 'pf') {
             $rules['cpf'][0] = 'required';

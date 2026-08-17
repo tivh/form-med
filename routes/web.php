@@ -22,6 +22,17 @@ Route::post('/forms/{form}/submit', [PublicFormController::class, 'submit'])
     ->name('forms.submit');
 Route::get('/forms/{form}/sucesso', [PublicFormController::class, 'success'])->name('forms.success');
 
+Route::get('/fornecedor-rh', [PublicFormController::class, 'show'])
+    ->name('rh-form.show')
+    ->defaults('form', 'fornecedor-rh');
+Route::post('/fornecedor-rh/submit', [PublicFormController::class, 'submit'])
+    ->middleware('throttle:10,1')
+    ->name('rh-form.submit')
+    ->defaults('form', 'fornecedor-rh');
+Route::get('/fornecedor-rh/sucesso', [PublicFormController::class, 'success'])
+    ->name('rh-form.success')
+    ->defaults('form', 'fornecedor-rh');
+
 Route::get('/regime-tributario', [TaxRegimeFormController::class, 'show'])->name('tax-regime.show');
 Route::post('/regime-tributario/submit', [TaxRegimeFormController::class, 'submit'])
     ->middleware('throttle:10,1')
@@ -46,6 +57,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/suporte', [SupportRequestController::class, 'create'])->name('support.create');
 Route::post('/suporte', [SupportRequestController::class, 'store'])->name('support.store');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/minhas-solicitacoes', [SupportRequestController::class, 'index'])->name('support.index');
+    Route::get('/minhas-solicitacoes/{supportRequest}', [SupportRequestController::class, 'show'])->name('support.show');
+});
 
 Route::get('/documentos-comp', [ComplianceDocumentController::class, 'index'])->name('compliance.index');
 Route::get('/documentos-comp/{complianceDocument}/download', [ComplianceDocumentController::class, 'download'])->name('compliance.download');

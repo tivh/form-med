@@ -52,6 +52,7 @@
                 <div class="flex gap-2 flex-wrap">
                     <a href="{{ route('admin.support.show', $request) }}" class="inline-flex items-center px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-700 transition">Abrir</a>
                     @if($request->status !== 'closed')
+                        <a href="{{ route('admin.support.show', $request) }}#responder" class="inline-flex items-center px-3 py-2 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition">Responder</a>
                         <form action="{{ route('admin.support.close', $request) }}" method="POST">
                             @csrf
                             @method('PATCH')
