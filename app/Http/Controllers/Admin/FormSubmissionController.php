@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\FormSubmissionsExport;
 use App\Http\Controllers\Controller;
 use App\Models\FormSubmission;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -89,6 +90,14 @@ class FormSubmissionController extends Controller
             }
         }
 
+        if (is_array($submission->required_documents)) {
+            foreach ($submission->required_documents as $doc) {
+                if (!empty($doc['path']) && Storage::disk('private_uploads')->exists($doc['path'])) {
+                    Storage::disk('private_uploads')->delete($doc['path']);
+                }
+            }
+        }
+
         $submission->delete();
 
         return redirect()->route('admin.submissions.index')->with('status', 'Registro excluído com sucesso.');
@@ -96,6 +105,18 @@ class FormSubmissionController extends Controller
 
     public function download(FormSubmission $submission)
     {
+        $requiredDocumentKey = request()->get('required_doc');
+        if ($requiredDocumentKey) {
+            $requiredDocuments = is_array($submission->required_documents) ? $submission->required_documents : [];
+            $doc = $requiredDocuments[$requiredDocumentKey] ?? null;
+
+            if (!$doc || empty($doc['path']) || !Storage::disk('private_uploads')->exists($doc['path'])) {
+                abort(404);
+            }
+
+            return Storage::disk('private_uploads')->download($doc['path'], $doc['original_name'] ?? basename($doc['path']));
+        }
+
         $documents = is_array($submission->documents) ? $submission->documents : [];
         $index = (int) request()->get('doc', 0);
         $doc = $documents[$index] ?? null;
@@ -113,6 +134,7 @@ class FormSubmissionController extends Controller
     {
         return view('admin.submissions.print', [
             'submission' => $submission,
+            'terms' => Setting::get($submission->registration_type === 'pj' ? 'terms_pj' : 'terms_pf', ''),
         ]);
     }
 

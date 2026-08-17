@@ -132,6 +132,33 @@
             color: #9ca3af;
             font-style: italic;
         }
+
+        .compliance-answer {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .compliance-answer-status {
+            display: block;
+            margin-top: 4px;
+        }
+
+        .terms-content {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #374151;
+            white-space: pre-wrap;
+        }
+
+        .compliance-answer.yes {
+            color: #15803d;
+        }
+
+        .compliance-answer.no {
+            color: #b91c1c;
+        }
         
         .list-item {
             font-size: 13px;
@@ -355,25 +382,25 @@
             
             <div class="section-content full">
                 <div class="field">
-                    <div class="field-label">Lei 12.846/2013</div>
                     <div class="field-value">
                         @if($submission->law_12846_compliant === null)
-                            <span class="empty">—</span>
+                            <span class="empty">A PJ/PF está em conformidade com a Lei 12.846/2013 (Lei Anticorrupção)? —</span>
                         @else
-                            <span class="status-badge {{ $submission->law_12846_compliant ? 'status-yes' : 'status-no' }}">
-                                {{ $submission->law_12846_compliant ? '✓ Sim' : '✗ Não' }}
+                            <span class="compliance-answer {{ $submission->law_12846_compliant ? 'yes' : 'no' }}">
+                                A PJ/PF está em conformidade com a Lei 12.846/2013 (Lei Anticorrupção)?
+                                <span class="compliance-answer-status">{{ $submission->law_12846_compliant ? '✓ Sim' : '✗ Não' }}</span>
                             </span>
                         @endif
                     </div>
                 </div>
                 <div class="field">
-                    <div class="field-label">LGPD</div>
                     <div class="field-value">
                         @if($submission->lgpd_compliant === null)
-                            <span class="empty">—</span>
+                            <span class="empty">A PJ/PF está em conformidade com a Lei 13.709/2018 (LGPD)? —</span>
                         @else
-                            <span class="status-badge {{ $submission->lgpd_compliant ? 'status-yes' : 'status-no' }}">
-                                {{ $submission->lgpd_compliant ? '✓ Sim' : '✗ Não' }}
+                            <span class="compliance-answer {{ $submission->lgpd_compliant ? 'yes' : 'no' }}">
+                                A PJ/PF está em conformidade com a Lei 13.709/2018 (LGPD)?
+                                <span class="compliance-answer-status">{{ $submission->lgpd_compliant ? '✓ Sim' : '✗ Não' }}</span>
                             </span>
                         @endif
                     </div>
@@ -426,15 +453,23 @@
                 <!-- Pergunta 1 -->
                 <div class="field full-width">
                     <div class="field-label"><strong>1. A PJ/PF possui algum dos seguintes documentos ou programas?</strong></div>
-                    @if(is_array($submission->compliance_policies) && count($submission->compliance_policies))
-                        <div>
-                            @foreach ($submission->compliance_policies as $item)
-                                <div class="list-item">☐ {{ $item }}</div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="field-value empty">Nenhuma política registrada</div>
-                    @endif
+                    @php
+                        $policyOptions = [
+                            'Código de Ética ou Conduta',
+                            'Programa de Compliance estruturado',
+                            'Canal de Denúncias',
+                            'Política Anticorrupção',
+                            'Política de Conflito de Interesses',
+                            'Política de Proteção de Dados (LGPD)',
+                            'Nenhum',
+                        ];
+                        $selectedPolicies = is_array($submission->compliance_policies) ? $submission->compliance_policies : [];
+                    @endphp
+                    <div>
+                        @foreach ($policyOptions as $option)
+                            <div class="list-item">{{ in_array($option, $selectedPolicies, true) ? '☒' : '☐' }} {{ $option === 'Nenhum' ? 'Nenhum dos itens acima' : $option }}</div>
+                        @endforeach
+                    </div>
                 </div>
 
                 <!-- Pergunta 2 -->
@@ -565,12 +600,29 @@
             </div>
             
             <div class="section-content">
-                <div class="field">
+                <div class="field full-width">
                     <div class="field-label">Declaração Legal</div>
                     <div class="field-value">
-                        <span class="status-badge {{ $submission->legal_declaration === 'concorda' ? 'status-yes' : 'status-no' }}">
-                            {{ $submission->legal_declaration === 'concorda' ? '✓ Concorda' : '✗ Discorda' }}
+                        @if($submission->legal_declaration === null)
+                            <span class="empty">A PJ/PF manifesta sua expressa concordância com a declaração legal? —</span>
+                        @else
+                            <span class="compliance-answer {{ $submission->legal_declaration === 'concorda' ? 'yes' : 'no' }}">
+                                A PJ/PF manifesta sua expressa concordância com a declaração legal?
+                                <span class="compliance-answer-status">{{ $submission->legal_declaration === 'concorda' ? '✓ Concorda' : '✗ Discorda' }}</span>
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <div class="field full-width">
+                    <div class="field-label">Termos e Condições</div>
+                    <div class="field-value">
+                        <span class="compliance-answer yes">
+                            Li e aceito os termos e condições referentes a este cadastro.
+                            <span class="compliance-answer-status">✓ Aceitos</span>
                         </span>
+                        @if($terms)
+                            <div class="terms-content">{{ $terms }}</div>
+                        @endif
                     </div>
                 </div>
                 <div class="field">
@@ -585,7 +637,7 @@
                     <div class="field-label">Cargo</div>
                     <div class="field-value">{{ $submission->legal_representative_role ?: '—' }}</div>
                 </div>
-                <div class="field full-width">
+                <div class="field">
                     <div class="field-label">Data da Assinatura</div>
                     <div class="field-value">{{ optional($submission->legal_representative_date)->format('d/m/Y') ?: '—' }}</div>
                 </div>

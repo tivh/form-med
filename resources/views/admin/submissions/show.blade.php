@@ -73,6 +73,40 @@
         </div>
     </div>
 
+    <!-- Documentos Obrigatórios -->
+    @if(is_array($submission->required_documents) && count($submission->required_documents))
+        @php
+            $requiredDocumentLabels = [
+                'personal_documents' => 'Documentos pessoais (CNH ou RG)',
+                'corporate_document' => 'Contrato social ou Estatuto social',
+                'legal_representative_document' => 'Documento do representante legal (CNH ou RG)',
+            ];
+        @endphp
+        <div class="glass rounded-2xl p-6 mb-8 border border-red-100 shadow-lg">
+            <div class="mb-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-red-600 font-semibold">Documentos Obrigatórios</p>
+                <p class="text-sm text-slate-600 mt-1">{{ count($submission->required_documents) }} arquivo(s)</p>
+            </div>
+            <div class="space-y-2">
+                @foreach ($submission->required_documents as $key => $doc)
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-red-100 bg-red-50/50 hover:bg-red-50 transition">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-700 font-semibold text-sm">!</span>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800">{{ $requiredDocumentLabels[$key] ?? 'Documento obrigatório' }}</p>
+                                <p class="text-xs text-slate-600">{{ $doc['original_name'] ?? 'Arquivo enviado' }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.submissions.download', [$submission, 'required_doc' => $key]) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-100 hover:bg-red-100 text-xs font-medium">
+                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <!-- Documentos Anexados -->
     @if(is_array($submission->documents) && count($submission->documents))
         <div class="glass rounded-2xl p-6 mb-8 border border-white/60 shadow-lg">

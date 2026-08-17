@@ -218,9 +218,6 @@
                 @php
                     $docOptionsPj = [
                         'Cartão do CNPJ',
-                        'Contrato social',
-                        'Documentos pessoais dos representantes (CNH ou RG)',
-                        'Estatuto social',
                         'Ata de nomeação ou procuração com poderes específicos de representação',
                         'Qualificação técnica profissional ativa (ex. CRM)',
                         'Certificação de especialização profissional',
@@ -235,7 +232,6 @@
                         'Contrato com a VH ou minuta',
                     ];
                     $docOptionsPf = [
-                        'Documentos pessoais dos representantes (CNH ou RG)',
                         'Documentação de qualificação técnica profissional ativo (ex. CRM)',
                         'Certificação de especialização profissional (ex. diploma, certificação)',
                         'Minuta contratual (caso não tenha contrato formal para prestação de serviço, sinalizar)',
@@ -243,6 +239,34 @@
                 @endphp
 
                 <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4" data-step="1">
+                    <div class="rounded-2xl border border-red-200 bg-red-50/60 p-5 shadow-sm pf-only">
+                        <div class="flex items-center gap-2" data-question>
+                            <span class="question-number"></span>
+                            <label for="personal_documents" class="text-sm font-semibold text-slate-900">Documentos pessoais (CNH ou RG) <span class="text-red-600">*</span></label>
+                        </div>
+                        <p class="mt-2 text-xs text-slate-600">Envie o documento pessoal obrigatório em PDF, JPG, PNG, DOC ou DOCX, com até 15MB.</p>
+                        <input type="file" name="required_documents[personal_documents]" id="personal_documents" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="mt-3 block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-700" />
+                    </div>
+
+                    <div class="rounded-2xl border border-red-200 bg-red-50/60 p-5 shadow-sm space-y-5 pj-only">
+                        <div>
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="corporate_document" class="text-sm font-semibold text-slate-900">Contrato social ou Estatuto social <span class="text-red-600">*</span></label>
+                            </div>
+                            <p class="mt-2 text-xs text-slate-600">Envie um dos dois documentos em PDF, JPG, PNG, DOC ou DOCX, com até 15MB.</p>
+                            <input type="file" name="required_documents[corporate_document]" id="corporate_document" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="mt-3 block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-700" />
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2" data-question>
+                                <span class="question-number"></span>
+                                <label for="legal_representative_document" class="text-sm font-semibold text-slate-900">Documento do representante legal (CNH ou RG) <span class="text-red-600">*</span></label>
+                            </div>
+                            <p class="mt-2 text-xs text-slate-600">Envie o documento do representante em PDF, JPG, PNG, DOC ou DOCX, com até 15MB.</p>
+                            <input type="file" name="required_documents[legal_representative_document]" id="legal_representative_document" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="mt-3 block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-700" />
+                        </div>
+                    </div>
+
                     <div class="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm pf-only">
                         <div class="flex items-center gap-2" data-question>
                             <span class="question-number"></span>

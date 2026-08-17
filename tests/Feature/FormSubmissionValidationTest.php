@@ -36,7 +36,11 @@ class FormSubmissionValidationTest extends TestCase
             'nacionalidade' => 'Brasileira',
             'profissao' => 'Empresária',
             'dados_bancarios' => 'Banco do Brasil, Agencia 1234, Conta 56789',
-            'doc_checklist' => ['Contrato social'],
+            'doc_checklist' => ['Contrato social', 'Documento do representante legal (CNH ou RG)'],
+            'required_documents' => [
+                'corporate_document' => UploadedFile::fake()->create('contrato-social.pdf', 100, 'application/pdf'),
+                'legal_representative_document' => UploadedFile::fake()->create('representante.pdf', 100, 'application/pdf'),
+            ],
             'compliance_policies' => ['Programa de Compliance estruturado'],
             'investigated_for' => ['Não'],
             'investigation_details' => null,
@@ -63,6 +67,7 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_cpf' => '123.456.789-09',
             'legal_representative_role' => 'Diretora',
             'legal_representative_date' => '2026-07-28',
+            'terms_accepted' => '1',
             'documents' => [UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf')],
         ]);
 
@@ -74,6 +79,8 @@ class FormSubmissionValidationTest extends TestCase
         $this->assertSame('joao@example.com', $submission->representante_legal_email);
         $this->assertSame('Carlos Testemunha', $submission->testemunha_nome);
         $this->assertSame('carlos@example.com', $submission->testemunha_email);
+        $this->assertArrayHasKey('corporate_document', $submission->required_documents);
+        $this->assertArrayHasKey('legal_representative_document', $submission->required_documents);
         $this->assertNotNull($submission->compliance_aceito_em);
         $this->assertFalse($submission->verified);
     }

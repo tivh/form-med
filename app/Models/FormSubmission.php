@@ -64,11 +64,13 @@ class FormSubmission extends Model
         'legal_representative_date',
         'compliance_aceito_em',
         'documents',
+        'required_documents',
     ];
 
     protected $casts = [
         'verified' => 'boolean',
         'documents' => 'array',
+        'required_documents' => 'array',
         'doc_checklist' => 'array',
         'compliance_policies' => 'array',
         'conflict_roles' => 'array',

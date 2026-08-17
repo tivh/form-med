@@ -54,7 +54,6 @@ class PublicFormController extends Controller
         $rules = $this->rulesForForm($request, $formConfig);
 
         $validated = $request->validate($rules);
-
         $investigatedFor = $validated['investigated_for'] ?? [];
         if (is_array($investigatedFor)) {
             $investigatedFor = implode(', ', $investigatedFor);
@@ -64,6 +63,15 @@ class PublicFormController extends Controller
         foreach ($request->file('documents', []) as $file) {
             $path = $file->store('', 'private_uploads');
             $storedDocs[] = [
+                'path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+            ];
+        }
+
+        $requiredDocuments = [];
+        foreach ($request->file('required_documents', []) as $key => $file) {
+            $path = $file->store('', 'private_uploads');
+            $requiredDocuments[$key] = [
                 'path' => $path,
                 'original_name' => $file->getClientOriginalName(),
             ];
@@ -124,6 +132,7 @@ class PublicFormController extends Controller
             'testemunha_email' => $validated['testemunha_email'] ?? null,
             'compliance_aceito_em' => now(),
             'documents' => $storedDocs,
+            'required_documents' => $requiredDocuments,
         ]);
 
         return redirect()->route('forms.success', ['form' => $formConfig['slug']]);
@@ -156,6 +165,8 @@ class PublicFormController extends Controller
             'mensagem' => ['nullable', 'string'],
             'doc_checklist' => ['nullable', 'array'],
             'doc_checklist.*' => ['string', 'max:255'],
+            'required_documents' => ['required', 'array'],
+            'required_documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:15360'],
             'compliance_policies' => ['nullable', 'array'],
             'compliance_policies.*' => ['string', 'max:255'],
             'investigated_for' => ['nullable', 'array'],
@@ -198,6 +209,7 @@ class PublicFormController extends Controller
             $rules['testemunha_nome'][0] = 'required';
             $rules['testemunha_email'][0] = 'required';
             $rules['testemunha_email'][1] = 'email';
+            $rules['required_documents.personal_documents'] = ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:15360'];
         }
 
         if ($registrationType === 'pj') {
@@ -210,6 +222,8 @@ class PublicFormController extends Controller
             $rules['testemunha_email'][0] = 'required';
             $rules['testemunha_email'][1] = 'email';
             $rules['dados_bancarios'][0] = 'required';
+            $rules['required_documents.corporate_document'] = ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:15360'];
+            $rules['required_documents.legal_representative_document'] = ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:15360'];
         }
 
         if (!empty($formConfig['validation_rules'])) {
