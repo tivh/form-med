@@ -65,14 +65,23 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-800" for="admin_role">Classificações permitidas</label>
-                        <select id="admin_role" name="admin_role[]" multiple
-                            class="mt-2 block w-full rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-red-500 focus:ring-red-500 min-h-[120px]">
-                            <option value="pj_diverso" {{ in_array('pj_diverso', old('admin_role', $user->adminRoleOptions()), true) ? 'selected' : '' }}>PJ normal → pj_diverso</option>
-                            <option value="pj_colaborador" {{ in_array('pj_colaborador', old('admin_role', $user->adminRoleOptions()), true) ? 'selected' : '' }}>PJ do fluxo RH → pj_colaborador</option>
-                            <option value="pf" {{ in_array('pf', old('admin_role', $user->adminRoleOptions()), true) ? 'selected' : '' }}>PF → pf</option>
-                        </select>
-                        <p class="text-xs text-slate-500 mt-1">Selecione uma ou mais classificações que este usuário pode visualizar.</p>
+                        <label class="block text-sm font-semibold text-slate-800">Classificações permitidas</label>
+                        <div class="mt-2 flex flex-wrap gap-3">
+                            @php $selectedRoles = old('admin_role', $user->adminRoleOptions()); @endphp
+                            <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50">
+                                <input type="checkbox" name="admin_role[]" value="pj_diverso" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" {{ in_array('pj_diverso', $selectedRoles, true) ? 'checked' : '' }}>
+                                <span>PJ normal</span>
+                            </label>
+                            <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50">
+                                <input type="checkbox" name="admin_role[]" value="pj_colaborador" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" {{ in_array('pj_colaborador', $selectedRoles, true) ? 'checked' : '' }}>
+                                <span>PJ RH</span>
+                            </label>
+                            <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50">
+                                <input type="checkbox" name="admin_role[]" value="pf" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" {{ in_array('pf', $selectedRoles, true) ? 'checked' : '' }}>
+                                <span>PF</span>
+                            </label>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Selecione uma ou mais classificações que este usuário pode visualizar.</p>
                     </div>
                 </div>
             @endif
