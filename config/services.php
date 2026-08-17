@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'glpi' => [
+        // Legacy REST API base path (works with a per-user personal token).
+        // The newer "api.php/v2" endpoint is OAuth2-only and is NOT compatible with GLPI_USER_TOKEN.
+        'api_base_url' => env('GLPI_API_BASE_URL'),
+        'app_token' => env('GLPI_APP_TOKEN'),
+        'user_token' => env('GLPI_USER_TOKEN'),
+        'front_base_url' => env('GLPI_FRONT_BASE_URL'),
+        'feed_statuses' => env('GLPI_FEED_STATUSES', '1,2,3,4'),
+        'feed_category_name' => env('GLPI_FEED_CATEGORY_NAME', ''),
+    ],
+
 ];

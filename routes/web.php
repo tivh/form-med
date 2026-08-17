@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ComplianceDocumentController as AdminComplianceDocumentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
+use App\Http\Controllers\Admin\GlpiFeedController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
@@ -80,6 +81,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    Route::get('glpi-feed', [GlpiFeedController::class, 'index'])->name('glpi-feed.index');
+    Route::get('glpi-feed/data', [GlpiFeedController::class, 'data'])->name('glpi-feed.data');
 
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('users.create');

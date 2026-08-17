@@ -30,6 +30,12 @@
                 Usuários
             </a>
 
+            <a href="{{ route('admin.glpi-feed.index') }}"
+               class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition
+               {{ request()->routeIs('admin.glpi-feed.*') ? 'border-red-400 text-white' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-500' }}">
+                Feed GLPI
+            </a>
+
             <a href="{{ route('admin.settings.index') }}"
                class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition
                {{ request()->routeIs('admin.settings.*') ? 'border-red-400 text-white' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-500' }}">
