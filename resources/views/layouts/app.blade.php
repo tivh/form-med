@@ -32,6 +32,7 @@
             </a>
             <nav class="flex items-center gap-1">
                 <a href="{{ route('forms.list') }}" class="text-sm text-slate-600 hover:text-slate-900 font-medium px-3 py-1.5 rounded-lg hover:bg-slate-100 transition">Formulários</a>
+                <a href="{{ route('support.create') }}" class="text-sm text-slate-600 hover:text-slate-900 font-medium px-3 py-1.5 rounded-lg hover:bg-slate-100 transition">Solicitar ajuda</a>
                 <a href="{{ route('login') }}" class="text-sm text-white font-semibold px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition ml-2">Área Admin</a>
             </nav>
         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\SupportRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -70,8 +71,17 @@ class GlpiFeedService
                 ];
             }
 
+            $localTicketIds = SupportRequest::query()
+                ->whereNotNull('external_ticket_id')
+                ->pluck('external_ticket_id')
+                ->map(fn ($value) => (int) $value)
+                ->filter()
+                ->values()
+                ->all();
+
             $tickets = collect($response->json() ?? [])
                 ->filter(fn ($ticket) => is_array($ticket))
+                ->filter(fn ($ticket) => in_array((int) ($ticket['id'] ?? 0), $localTicketIds, true))
                 ->filter(fn ($ticket) => in_array((int) ($ticket['status'] ?? 0), $this->allowedStatuses, true))
                 ->when($this->categoryFilter, function ($collection) {
                     return $collection->filter(function ($ticket) {
@@ -141,20 +151,34 @@ class GlpiFeedService
     private function normalizeTicket(array $ticket): array
     {
         $id = (int) ($ticket['id'] ?? 0);
+        $category = (string) ($ticket['itilcategories_id'] ?? '');
 
         return [
             'id' => $id,
             'title' => (string) ($ticket['name'] ?? 'Sem título'),
             'status' => (int) ($ticket['status'] ?? 0),
             'status_label' => $this->statusLabel((int) ($ticket['status'] ?? 0)),
-            'priority_label' => (string) ($ticket['priority'] ?? '—'),
-            'category' => (string) ($ticket['itilcategories_id'] ?? '—'),
+            'priority_label' => $this->priorityLabel((int) ($ticket['priority'] ?? 0)),
+            'category' => ($category === '' || $category === '0') ? '—' : $category,
             'requester' => (string) ($ticket['users_id_recipient'] ?? '—'),
             'date' => (string) ($ticket['date'] ?? ''),
             'url' => $this->frontBaseUrl !== ''
                 ? "{$this->frontBaseUrl}/front/ticket.form.php?id={$id}"
                 : null,
         ];
+    }
+
+    private function priorityLabel(int $priority): string
+    {
+        return match ($priority) {
+            1 => 'Muito baixa',
+            2 => 'Baixa',
+            3 => 'Média',
+            4 => 'Alta',
+            5 => 'Muito alta',
+            6 => 'Crítica',
+            default => '—',
+        };
     }
 
     private function statusLabel(int $status): string
