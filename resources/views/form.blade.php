@@ -126,6 +126,16 @@
                                     <input type="email" name="email" id="email" value="{{ old('email') }}" required
                                         class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="voce@email.com" />
                                 </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="nacionalidade" class="block text-sm font-semibold text-slate-900">Nacionalidade</label>
+                                    <input type="text" name="nacionalidade" id="nacionalidade" value="{{ old('nacionalidade') }}" required
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
+                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                                    <label for="profissao" class="block text-sm font-semibold text-slate-900">Profissão</label>
+                                    <input type="text" name="profissao" id="profissao" value="{{ old('profissao') }}" required
+                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                </div>
                                 <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm pj-only">
                                     <label for="website" class="block text-sm font-semibold text-slate-900">Website</label>
                                     <input type="text" name="website" id="website" value="{{ old('website') }}"
@@ -149,16 +159,6 @@
                                     <label for="representante_legal_email" class="block text-sm font-semibold text-slate-900">E-mail do representante legal</label>
                                     <input type="email" name="representante_legal_email" id="representante_legal_email" value="{{ old('representante_legal_email') }}"
                                         class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="representante@email.com" />
-                                </div>
-                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                                    <label for="nacionalidade" class="block text-sm font-semibold text-slate-900">Nacionalidade</label>
-                                    <input type="text" name="nacionalidade" id="nacionalidade" value="{{ old('nacionalidade') }}" required
-                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
-                                </div>
-                                <div class="space-y-2 rounded-xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                                    <label for="profissao" class="block text-sm font-semibold text-slate-900">Profissão</label>
-                                    <input type="text" name="profissao" id="profissao" value="{{ old('profissao') }}" required
-                                        class="block w-full rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:border-red-500 focus:ring-red-500" />
                                 </div>
                             </div>
                         </div>
