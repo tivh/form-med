@@ -630,7 +630,6 @@
                         ['key' => 'data_protection', 'label' => 'Termo de proteção de dados pessoais - LGPD'],
                     ];
                 @endphp
-                @if($terms_pf || $terms_pj || $code_of_conduct_pf || $code_of_conduct_pj || $integrity_policy_pf || $integrity_policy_pj || $data_protection_pf || $data_protection_pj)
                 <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4" id="terms-section">
                     <div class="flex items-center gap-2" data-question>
                         <span class="question-number"></span>
@@ -682,7 +681,6 @@
                         <p class="text-xs text-red-600">Você precisa confirmar que possui poderes de representação para este aceite.</p>
                     @enderror
                 </div>
-                @endif
 
                 <div class="flex items-center justify-between">
                     <button type="button" id="previous-step" class="inline-flex items-center px-5 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold shadow-sm hover:border-red-200 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Voltar</button>
@@ -694,7 +692,6 @@
 </div>
 
 <!-- Modal de Termos -->
-@if($terms_pf || $terms_pj || $code_of_conduct_pf || $code_of_conduct_pj || $integrity_policy_pf || $integrity_policy_pj || $data_protection_pf || $data_protection_pj)
 <div id="terms-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-modal="true" role="dialog">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="terms-modal-backdrop"></div>
     <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
@@ -718,7 +715,6 @@
         </div>
     </div>
 </div>
-@endif
 
 <script>
     (function() {

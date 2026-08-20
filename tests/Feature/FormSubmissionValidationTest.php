@@ -13,6 +13,16 @@ class FormSubmissionValidationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_public_form_always_displays_legal_document_acceptances(): void
+    {
+        $this->get(route('forms.show', ['form' => 'form-med']))
+            ->assertOk()
+            ->assertSee('Termos e Condições')
+            ->assertSee('Código de conduta')
+            ->assertSee('Política de integridade')
+            ->assertSee('Termo de proteção de dados pessoais - LGPD');
+    }
+
     public function test_pj_submission_requires_new_partner_fields_and_sets_compliance_timestamp(): void
     {
         Storage::fake('private_uploads');
