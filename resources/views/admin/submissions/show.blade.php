@@ -2,7 +2,15 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto px-4 pt-12 pb-10">
-    @php $isPj = $submission->registration_type === 'pj'; @endphp
+    @php
+        $isPj = $submission->registration_type === 'pj';
+        $classificationLabel = match ($submission->classification ?? null) {
+            'pj-rh' => 'PJ RH',
+            'pj' => 'PJ',
+            'pf' => 'PF',
+            default => ($isPj ? 'PJ' : 'PF'),
+        };
+    @endphp
     
     <!-- Header -->
     <div class="rounded-3xl bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-white shadow-xl overflow-hidden mb-8">
@@ -17,6 +25,9 @@
                     </span>
                     <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20">
                         {{ $isPj ? 'Pessoa Jurídica' : 'Pessoa Física' }}
+                    </span>
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 font-semibold">
+                        Classificação: {{ $classificationLabel }}
                     </span>
                 </div>
             </div>
