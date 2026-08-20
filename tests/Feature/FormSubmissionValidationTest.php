@@ -294,4 +294,38 @@ class FormSubmissionValidationTest extends TestCase
 
         $this->assertTrue($submission->fresh()->verified);
     }
+
+    public function test_admin_can_print_a_submission(): void
+    {
+        $user = User::factory()->create([
+            'form_scope' => 'form-med',
+        ]);
+        $user->markEmailAsVerified();
+
+        $submission = FormSubmission::create([
+            'form_type' => 'form-med',
+            'registration_type' => 'pf',
+            'classification' => 'pf',
+            'nome' => 'Cliente para Impressão',
+            'email' => 'impressao@example.com',
+            'endereco' => 'Rua da Impressão, 123',
+            'nacionalidade' => 'Brasileira',
+            'profissao' => 'Analista',
+            'legal_declaration' => 'concorda',
+            'legal_representative' => 'Responsável',
+            'legal_representative_cpf' => '123.456.789-09',
+            'legal_representative_date' => '2026-07-28',
+            'public_power_relatives' => 'nao',
+            'internal_relationships' => 'nao',
+            'employee_shareholding' => 'nao',
+            'conflict_situation' => 'nao',
+            'competitor_relationships' => 'nao',
+            'documents' => [],
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('admin.submissions.print', $submission))
+            ->assertOk()
+            ->assertSee('Cliente para Impressão');
+    }
 }
