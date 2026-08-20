@@ -253,7 +253,7 @@ class PublicFormController extends Controller
             'document_acceptances.*' => ['nullable', 'accepted'],
             'representation_authority_accepted' => ['required', 'accepted'],
             'compliance_aceito_em' => ['prohibited'],
-            'documents' => ['required', 'array', 'min:1'],
+            'documents' => ['nullable', 'array'],
             'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,zip,rar,7z', 'max:15360'],
         ];
 

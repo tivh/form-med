@@ -23,6 +23,51 @@ class FormSubmissionValidationTest extends TestCase
             ->assertSee('Termo de proteção de dados pessoais - LGPD');
     }
 
+    public function test_public_form_allows_empty_documentation_checklist_and_empty_additional_uploads(): void
+    {
+        Storage::fake('private_uploads');
+
+        $response = $this->post(route('forms.submit', ['form' => 'form-med']), [
+            'registration_type' => 'pf',
+            'nome' => 'Maria da Silva',
+            'cpf' => '123.456.789-09',
+            'endereco' => 'Rua A, 123',
+            'email' => 'maria@example.com',
+            'nacionalidade' => 'Brasileira',
+            'profissao' => 'Analista',
+            'telefone' => '(11) 99999-9999',
+            'data_nascimento' => '1990-01-01',
+            'testemunha_nome' => 'João Testemunha',
+            'testemunha_email' => 'joao@example.com',
+            'doc_checklist' => [],
+            'required_documents' => [
+                'personal_documents' => UploadedFile::fake()->create('documento-pessoal.pdf', 100, 'application/pdf'),
+            ],
+            'compliance_policies' => ['Nenhum'],
+            'investigated_for' => ['Não'],
+            'law_12846_compliant' => '1',
+            'lgpd_compliant' => '1',
+            'conflict_roles' => ['Nenhuma das opções acima'],
+            'public_power_relatives' => 'nao',
+            'internal_relationships' => 'nao',
+            'employee_shareholding' => 'nao',
+            'conflict_situation' => 'nao',
+            'competitor_relationships' => 'nao',
+            'contractor_shareholding' => 'nao',
+            'friendship_ties' => 'nao',
+            'legal_declaration' => 'concorda',
+            'legal_representative' => 'Fulano Responsável',
+            'legal_representative_cpf' => '123.456.789-09',
+            'legal_representative_role' => 'Diretor',
+            'legal_representative_date' => '2026-07-28',
+            'terms_accepted' => '1',
+            'representation_authority_accepted' => '1',
+            'documents' => [],
+        ]);
+
+        $response->assertRedirect(route('forms.success', ['form' => 'form-med']));
+    }
+
     public function test_pj_submission_requires_new_partner_fields_and_sets_compliance_timestamp(): void
     {
         Storage::fake('private_uploads');

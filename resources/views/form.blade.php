@@ -646,6 +646,7 @@
                                             name="document_acceptances[{{ $document['key'] }}]"
                                             id="document-acceptance-{{ $document['key'] }}"
                                             value="1"
+                                            required
                                             class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
                                         >
                                         <label for="document-acceptance-{{ $document['key'] }}" class="flex-1 text-sm text-slate-800 leading-relaxed">
@@ -666,6 +667,7 @@
                                     name="representation_authority_accepted"
                                     id="representation_authority_accepted"
                                     value="1"
+                                    required
                                     class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
                                 >
                                 <label for="representation_authority_accepted" class="flex-1 text-sm text-slate-800 leading-relaxed">
@@ -1103,6 +1105,24 @@
         }
 
         form.addEventListener('submit', (e) => {
+            const documentAcceptanceInputs = Array.from(document.querySelectorAll('input[name^="document_acceptances"][type="checkbox"]'));
+            const representationAuthorityInput = document.getElementById('representation_authority_accepted');
+
+            const allDocumentAcceptancesChecked = documentAcceptanceInputs.length > 0 && documentAcceptanceInputs.every((input) => input.checked);
+            const representationAuthorityChecked = !representationAuthorityInput || representationAuthorityInput.checked;
+
+            if (!allDocumentAcceptancesChecked || !representationAuthorityChecked) {
+                e.preventDefault();
+                showStep(2);
+                if (!allDocumentAcceptancesChecked) {
+                    const firstUnchecked = documentAcceptanceInputs.find((input) => !input.checked);
+                    firstUnchecked?.focus();
+                } else if (representationAuthorityInput && !representationAuthorityInput.checked) {
+                    representationAuthorityInput.focus();
+                }
+                return;
+            }
+
             const invalidFields = validateForm();
             if (invalidFields.length > 0) {
                 e.preventDefault();
