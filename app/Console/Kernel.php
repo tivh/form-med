@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('documents:cleanup')->dailyAt('02:00');
+        // A limpeza automática de arquivos foi desativada para manter os documentos armazenados permanentemente.
     }
 
     /**

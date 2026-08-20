@@ -35,6 +35,18 @@ class PublicFormController extends Controller
             'form' => $formConfig,
             'terms_pf' => Setting::get('terms_pf', ''),
             'terms_pj' => Setting::get('terms_pj', ''),
+            'code_of_conduct_pf' => Setting::get('code_of_conduct_pf', ''),
+            'code_of_conduct_pj' => Setting::get('code_of_conduct_pj', ''),
+            'integrity_policy_pf' => Setting::get('integrity_policy_pf', ''),
+            'integrity_policy_pj' => Setting::get('integrity_policy_pj', ''),
+            'data_protection_pf' => Setting::get('data_protection_pf', ''),
+            'data_protection_pj' => Setting::get('data_protection_pj', ''),
+            'code_of_conduct_version_pf' => Setting::get('code_of_conduct_version_pf', 'v1.0'),
+            'code_of_conduct_version_pj' => Setting::get('code_of_conduct_version_pj', 'v1.0'),
+            'integrity_policy_version_pf' => Setting::get('integrity_policy_version_pf', 'v1.0'),
+            'integrity_policy_version_pj' => Setting::get('integrity_policy_version_pj', 'v1.0'),
+            'data_protection_version_pf' => Setting::get('data_protection_version_pf', 'v1.0'),
+            'data_protection_version_pj' => Setting::get('data_protection_version_pj', 'v1.0'),
         ]);
     }
 

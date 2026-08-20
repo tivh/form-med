@@ -623,26 +623,42 @@
                 </div>
 
                 <!-- Termos e Condições -->
-                @if($terms_pf || $terms_pj)
+                @php
+                    $termsDocumentDefinitions = [
+                        ['key' => 'code_of_conduct', 'label' => 'Código de conduta'],
+                        ['key' => 'integrity_policy', 'label' => 'Política de integridade'],
+                        ['key' => 'data_protection', 'label' => 'Termo de proteção de dados pessoais - LGPD'],
+                    ];
+                @endphp
+                @if($terms_pf || $terms_pj || $code_of_conduct_pf || $code_of_conduct_pj || $integrity_policy_pf || $integrity_policy_pj || $data_protection_pf || $data_protection_pj)
                 <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4" id="terms-section">
                     <div class="flex items-center gap-2" data-question>
                         <span class="question-number"></span>
                         <p class="block text-sm font-semibold text-slate-800">Termos e Condições</p>
                     </div>
-                    <label class="inline-flex items-start gap-3 cursor-pointer group">
-                        <input
-                            type="checkbox"
-                            name="terms_accepted"
-                            id="terms_accepted"
-                            value="1"
-                            {{ old('terms_accepted') ? 'checked' : '' }}
-                            class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
-                        >
-                        <span class="text-sm text-slate-800 leading-relaxed">
-                            Li e aceito os
-                            <button type="button" id="open-terms-modal" class="font-semibold text-red-600 underline underline-offset-2 hover:text-red-800 transition">termos e condições</button>
-                            referentes a este cadastro.
-                        </span>
+                    <label class="block cursor-pointer group">
+                        <div class="flex items-start gap-3">
+                            <input
+                                type="checkbox"
+                                name="terms_accepted"
+                                id="terms_accepted"
+                                value="1"
+                                {{ old('terms_accepted') ? 'checked' : '' }}
+                                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
+                            >
+                            <div class="text-sm text-slate-800 leading-relaxed">
+                                <span>Li e aceito os documentos referentes a este cadastro:</span>
+                                <div class="mt-3 space-y-2">
+                                    @foreach($termsDocumentDefinitions as $document)
+                                        <div>
+                                            <button type="button" class="terms-link font-semibold text-red-600 underline underline-offset-2 hover:text-red-800 transition" data-document-key="{{ $document['key'] }}">
+                                                {{ $document['label'] }}
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
                     </label>
                     @error('terms_accepted')
                         <p class="text-xs text-red-600">Você precisa aceitar os termos para continuar.</p>
@@ -660,14 +676,14 @@
 </div>
 
 <!-- Modal de Termos -->
-@if($terms_pf || $terms_pj)
+@if($terms_pf || $terms_pj || $code_of_conduct_pf || $code_of_conduct_pj || $integrity_policy_pf || $integrity_policy_pj || $data_protection_pf || $data_protection_pj)
 <div id="terms-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-modal="true" role="dialog">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="terms-modal-backdrop"></div>
     <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
         <div class="flex items-center justify-between p-6 border-b border-slate-200">
             <div class="flex items-center gap-3">
                 <span id="terms-modal-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700"></span>
-                <h2 class="text-lg font-bold text-slate-900">Termos e Condições</h2>
+                <h2 class="text-lg font-bold text-slate-900">Documento</h2>
             </div>
             <button type="button" id="close-terms-modal" class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -1141,20 +1157,70 @@
         });
 
         // --- Modal de Termos ---
-        const termsPf = @json($terms_pf ?? '');
-        const termsPj = @json($terms_pj ?? '');
+        const termsConfig = {
+            pf: {
+                code_of_conduct: {
+                    label: 'Código de conduta',
+                    version: @json($code_of_conduct_version_pf ?? 'v1.0'),
+                    text: @json($code_of_conduct_pf ?? '')
+                },
+                integrity_policy: {
+                    label: 'Política de integridade',
+                    version: @json($integrity_policy_version_pf ?? 'v1.0'),
+                    text: @json($integrity_policy_pf ?? '')
+                },
+                data_protection: {
+                    label: 'Termo de proteção de dados pessoais - LGPD',
+                    version: @json($data_protection_version_pf ?? 'v1.0'),
+                    text: @json($data_protection_pf ?? '')
+                }
+            },
+            pj: {
+                code_of_conduct: {
+                    label: 'Código de conduta',
+                    version: @json($code_of_conduct_version_pj ?? 'v1.0'),
+                    text: @json($code_of_conduct_pj ?? '')
+                },
+                integrity_policy: {
+                    label: 'Política de integridade',
+                    version: @json($integrity_policy_version_pj ?? 'v1.0'),
+                    text: @json($integrity_policy_pj ?? '')
+                },
+                data_protection: {
+                    label: 'Termo de proteção de dados pessoais - LGPD',
+                    version: @json($data_protection_version_pj ?? 'v1.0'),
+                    text: @json($data_protection_pj ?? '')
+                }
+            }
+        };
 
         const modal = document.getElementById('terms-modal');
         const modalContent = document.getElementById('terms-modal-content');
         const modalBadge = document.getElementById('terms-modal-badge');
+        const termsButtons = Array.from(document.querySelectorAll('.terms-link'));
 
-        const openModal = () => {
+        const syncTermsLabels = () => {
+            const type = getRegistrationType();
+            const entries = termsConfig[type] || termsConfig.pf;
+            termsButtons.forEach((button) => {
+                const key = button.dataset.documentKey;
+                const item = entries[key];
+                if (!item) return;
+                const suffix = item.version ? ` (v${item.version})` : '';
+                button.textContent = `${item.label}${suffix}`;
+            });
+        };
+
+        const openModal = (documentKey) => {
             if (!modal) return;
             const type = getRegistrationType();
-            const text = type === 'pj' ? termsPj : termsPf;
-            const label = type === 'pj' ? 'Pessoa Jurídica' : 'Pessoa Física';
-            if (modalContent) modalContent.textContent = text || 'Nenhum texto de termos configurado.';
-            if (modalBadge) modalBadge.textContent = label;
+            const config = (termsConfig[type] || termsConfig.pf)[documentKey] || {
+                label: 'Documento',
+                version: '',
+                text: 'Nenhum texto de documento configurado.'
+            };
+            if (modalContent) modalContent.textContent = config.text || 'Nenhum texto de documento configurado.';
+            if (modalBadge) modalBadge.textContent = config.version ? `${config.label} (${config.version})` : config.label;
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         };
@@ -1165,7 +1231,10 @@
             document.body.style.overflow = '';
         };
 
-        document.getElementById('open-terms-modal')?.addEventListener('click', openModal);
+        termsButtons.forEach((button) => {
+            button.addEventListener('click', () => openModal(button.dataset.documentKey));
+        });
+
         document.getElementById('close-terms-modal')?.addEventListener('click', closeModal);
         document.getElementById('terms-modal-backdrop')?.addEventListener('click', closeModal);
         document.getElementById('accept-terms-btn')?.addEventListener('click', () => {
@@ -1174,17 +1243,23 @@
             closeModal();
         });
 
-        // Clicar no checkbox abre a modal em vez de marcar diretamente
         const termsCheckbox = document.getElementById('terms_accepted');
         if (termsCheckbox) {
             termsCheckbox.addEventListener('click', (e) => {
-                // Só abre se está tentando marcar (não ao desmarcar)
                 if (!termsCheckbox.checked) {
                     e.preventDefault();
-                    openModal();
+                    const firstKey = Object.keys(termsConfig.pf)[0];
+                    openModal(firstKey);
                 }
             });
         }
+
+        form.querySelectorAll('input[name="registration_type"]').forEach((r) => {
+            r.addEventListener('change', () => {
+                syncTermsLabels();
+            });
+        });
+        syncTermsLabels();
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
