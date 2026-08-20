@@ -8,6 +8,23 @@ use Illuminate\Support\Str;
 
 class FormSubmission extends Model
 {
+    public static function normalizeClassification(?string $classification, ?string $registrationType = null, ?string $source = null): ?string
+    {
+        $normalized = is_string($classification) ? strtolower(trim($classification)) : null;
+
+        return match (true) {
+            in_array($normalized, ['pj-rh', 'pj_colaborador', 'pj colaborador', 'pj_colab', 'rh'], true) => 'pj-rh',
+            in_array($normalized, ['pj', 'pj_diverso', 'pj diverso', 'diverso'], true) => 'pj',
+            in_array($normalized, ['pf', 'pf pessoa fisica', 'pessoa fisica'], true) => 'pf',
+            default => match (true) {
+                ($source !== null && strtolower((string) $source) === 'rh') || ($registrationType !== null && strtolower((string) $registrationType) === 'pj' && strtolower((string) $source) === 'rh') => 'pj-rh',
+                strtolower((string) ($registrationType ?? '')) === 'pj' => 'pj',
+                strtolower((string) ($registrationType ?? '')) === 'pf' => 'pf',
+                default => null,
+            },
+        };
+    }
+
     use HasFactory;
 
     protected static function booted(): void

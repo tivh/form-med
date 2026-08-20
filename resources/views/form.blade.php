@@ -46,6 +46,7 @@
             <div class="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/80 p-4 text-sm font-semibold">
                 <button type="button" data-step-indicator="1" data-go-step="1" class="step-pill inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-red-900 shadow-sm transition cursor-pointer">Dados cadastrais</button>
                 <button type="button" data-step-indicator="2" data-go-step="2" class="step-pill inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-red-900 shadow-sm transition cursor-pointer">Compliance e Conflito de Interesses</button>
+                <button type="button" data-step-indicator="3" data-go-step="3" class="step-pill inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-red-900 shadow-sm transition cursor-pointer">Termos e Condições</button>
             </div>
 
             <div id="step-1" data-step="1" class="space-y-8">
@@ -622,7 +623,13 @@
                     </div>
                 </div>
 
-                <!-- Termos e Condições -->
+                <div class="flex items-center justify-between">
+                    <button type="button" id="previous-step" class="inline-flex items-center px-5 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold shadow-sm hover:border-red-200 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Voltar</button>
+                    <button type="button" id="next-to-terms" class="inline-flex items-center px-6 py-3 rounded-xl bg-red-600 text-white font-semibold shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Avançar para termos</button>
+                </div>
+            </div>
+
+            <div id="step-3" data-step="3" class="space-y-6 hidden">
                 @php
                     $termsDocumentDefinitions = [
                         ['key' => 'code_of_conduct', 'label' => 'Código de conduta'],
@@ -630,52 +637,68 @@
                         ['key' => 'data_protection', 'label' => 'Termo de proteção de dados pessoais - LGPD'],
                     ];
                 @endphp
-                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4" id="terms-section">
+
+                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-5">
                     <div class="flex items-center gap-2" data-question>
                         <span class="question-number"></span>
                         <p class="block text-sm font-semibold text-slate-800">Termos e Condições</p>
                     </div>
-                    <div class="text-sm text-slate-800 leading-relaxed">
-                        <span>Li e aceito os documentos referentes a este cadastro:</span>
-                        <div class="mt-3 space-y-3">
-                            @foreach($termsDocumentDefinitions as $document)
-                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                                    <div class="flex items-start gap-3">
-                                        <input
-                                            type="checkbox"
-                                            name="document_acceptances[{{ $document['key'] }}]"
-                                            id="document-acceptance-{{ $document['key'] }}"
-                                            value="1"
-                                            required
-                                            class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
-                                        >
-                                        <label for="document-acceptance-{{ $document['key'] }}" class="flex-1 text-sm text-slate-800 leading-relaxed">
-                                            <button type="button" class="terms-link font-semibold text-red-600 underline underline-offset-2 hover:text-red-800 transition" data-document-key="{{ $document['key'] }}">
-                                                {{ $document['label'] }}
-                                            </button>
-                                            <span class="block mt-1 text-xs text-slate-500">Marque após ler o documento completo.</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
 
-                        <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                            <div class="flex items-start gap-3">
-                                <input
-                                    type="checkbox"
-                                    name="representation_authority_accepted"
-                                    id="representation_authority_accepted"
-                                    value="1"
-                                    required
-                                    class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
-                                >
-                                <label for="representation_authority_accepted" class="flex-1 text-sm text-slate-800 leading-relaxed">
-                                    Declaro que possuo poderes de representação da pessoa jurídica acima qualificada para fins deste aceite, nos termos de contrato social, procuração ou ata de eleição.
+                    <div class="pf-only rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-5">
+                        @foreach($termsDocumentDefinitions as $document)
+                            @php
+                                $documentKey = $document['key'];
+                                $value = match ($documentKey) {
+                                    'code_of_conduct' => $code_of_conduct_pf ?? '',
+                                    'integrity_policy' => $integrity_policy_pf ?? '',
+                                    'data_protection' => $data_protection_pf ?? '',
+                                    default => '',
+                                };
+                            @endphp
+                            <div class="rounded-xl border border-slate-200 bg-white p-4">
+                                <label class="block text-base font-bold text-slate-900 mb-3">{{ $document['label'] }}</label>
+                                <div class="max-h-[280px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                    <pre class="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 font-sans">{{ $value }}</pre>
+                                </div>
+                                <label class="mt-4 flex items-start gap-3 text-sm text-slate-800">
+                                    <input type="checkbox" name="document_acceptances[{{ $documentKey }}]" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                                    <span>Li e aceito este documento.</span>
                                 </label>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
+
+                    <div class="pj-only rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-5 hidden">
+                        @foreach($termsDocumentDefinitions as $document)
+                            @php
+                                $documentKey = $document['key'];
+                                $value = match ($documentKey) {
+                                    'code_of_conduct' => $code_of_conduct_pj ?? '',
+                                    'integrity_policy' => $integrity_policy_pj ?? '',
+                                    'data_protection' => $data_protection_pj ?? '',
+                                    default => '',
+                                };
+                            @endphp
+                            <div class="rounded-xl border border-slate-200 bg-white p-4">
+                                <label class="block text-base font-bold text-slate-900 mb-3">{{ $document['label'] }}</label>
+                                <div class="max-h-[280px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                    <pre class="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 font-sans">{{ $value }}</pre>
+                                </div>
+                                <label class="mt-4 flex items-start gap-3 text-sm text-slate-800">
+                                    <input type="checkbox" name="document_acceptances[{{ $documentKey }}]" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                                    <span>Li e aceito este documento.</span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <label class="flex items-start gap-3 text-sm text-slate-800">
+                            <input type="checkbox" name="representation_authority_accepted" id="representation_authority_accepted" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                            <span>Declaro que possuo poderes de representação da pessoa jurídica acima qualificada para fins deste aceite, nos termos de contrato social, procuração ou ata de eleição.</span>
+                        </label>
+                    </div>
+
                     @error('document_acceptances')
                         <p class="text-xs text-red-600">Você precisa marcar cada documento após ler o conteúdo.</p>
                     @enderror
@@ -685,36 +708,11 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <button type="button" id="previous-step" class="inline-flex items-center px-5 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold shadow-sm hover:border-red-200 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Voltar</button>
+                    <button type="button" id="previous-to-step-2" class="inline-flex items-center px-5 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold shadow-sm hover:border-red-200 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Voltar</button>
                     <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-red-600 text-white font-semibold shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-white transition">Enviar formulário</button>
                 </div>
             </div>
         </form>
-    </div>
-</div>
-
-<!-- Modal de Termos -->
-<div id="terms-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-modal="true" role="dialog">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="terms-modal-backdrop"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-        <div class="flex items-center justify-between p-6 border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <span id="terms-modal-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700"></span>
-                <h2 class="text-lg font-bold text-slate-900">Documento</h2>
-            </div>
-            <button type="button" id="close-terms-modal" class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <div class="p-6 overflow-y-auto flex-1">
-            <pre id="terms-modal-content" class="whitespace-pre-wrap text-sm text-slate-800 font-sans leading-relaxed"></pre>
-        </div>
-        <div class="p-4 border-t border-slate-200 flex justify-end">
-            <button type="button" id="accept-terms-btn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Aceitar e fechar
-            </button>
-        </div>
     </div>
 </div>
 
@@ -723,12 +721,14 @@
         const form = document.getElementById('submission-form');
         if (!form) return;
 
-        const stepPanels = [1, 2]
+        const stepPanels = [1, 2, 3]
             .map((step) => document.getElementById(`step-${step}`))
             .filter(Boolean);
         const indicators = Array.from(form.querySelectorAll('[data-step-indicator]'));
         const nextBtn = document.getElementById('next-step');
         const prevBtn = document.getElementById('previous-step');
+        const nextToTermsBtn = document.getElementById('next-to-terms');
+        const prevToStep2Btn = document.getElementById('previous-to-step-2');
         let currentStep = 1;
 
         const getRegistrationType = () => form.querySelector('input[name="registration_type"]:checked')?.value;
@@ -1044,6 +1044,20 @@
             });
         }
 
+        if (nextToTermsBtn) {
+            nextToTermsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToStep(3);
+            });
+        }
+
+        if (prevToStep2Btn) {
+            prevToStep2Btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToStep(2);
+            });
+        }
+
         indicators.forEach((indicator) => {
             indicator.addEventListener('click', () => {
                 const targetStep = Number(indicator.dataset.goStep);
@@ -1113,7 +1127,7 @@
 
             if (!allDocumentAcceptancesChecked || !representationAuthorityChecked) {
                 e.preventDefault();
-                showStep(2);
+                showStep(3);
                 if (!allDocumentAcceptancesChecked) {
                     const firstUnchecked = documentAcceptanceInputs.find((input) => !input.checked);
                     firstUnchecked?.focus();
@@ -1189,126 +1203,6 @@
             markFieldValidity(legalCpfInput, false);
             if (legalCpfError) legalCpfError.classList.add('hidden');
         });
-
-        // --- Modal de Termos ---
-        const termsConfig = {
-            pf: {
-                code_of_conduct: {
-                    label: 'Código de conduta',
-                    version: @json($code_of_conduct_version_pf ?? 'v1.0'),
-                    text: @json($code_of_conduct_pf ?? '')
-                },
-                integrity_policy: {
-                    label: 'Política de integridade',
-                    version: @json($integrity_policy_version_pf ?? 'v1.0'),
-                    text: @json($integrity_policy_pf ?? '')
-                },
-                data_protection: {
-                    label: 'Termo de proteção de dados pessoais - LGPD',
-                    version: @json($data_protection_version_pf ?? 'v1.0'),
-                    text: @json($data_protection_pf ?? '')
-                }
-            },
-            pj: {
-                code_of_conduct: {
-                    label: 'Código de conduta',
-                    version: @json($code_of_conduct_version_pj ?? 'v1.0'),
-                    text: @json($code_of_conduct_pj ?? '')
-                },
-                integrity_policy: {
-                    label: 'Política de integridade',
-                    version: @json($integrity_policy_version_pj ?? 'v1.0'),
-                    text: @json($integrity_policy_pj ?? '')
-                },
-                data_protection: {
-                    label: 'Termo de proteção de dados pessoais - LGPD',
-                    version: @json($data_protection_version_pj ?? 'v1.0'),
-                    text: @json($data_protection_pj ?? '')
-                }
-            }
-        };
-
-        const modal = document.getElementById('terms-modal');
-        const modalContent = document.getElementById('terms-modal-content');
-        const modalBadge = document.getElementById('terms-modal-badge');
-        const termsButtons = Array.from(document.querySelectorAll('.terms-link'));
-        const documentAcceptanceInputs = Array.from(document.querySelectorAll('input[name^="document_acceptances"][type="checkbox"]'));
-
-        const syncTermsLabels = () => {
-            const type = getRegistrationType();
-            const entries = termsConfig[type] || termsConfig.pf;
-            termsButtons.forEach((button) => {
-                const key = button.dataset.documentKey;
-                const item = entries[key];
-                if (!item) return;
-                const suffix = item.version ? ` (v${item.version})` : '';
-                button.textContent = `${item.label}${suffix}`;
-            });
-        };
-
-        let activeDocumentKey = null;
-
-        const openModal = (documentKey) => {
-            if (!modal) return;
-            activeDocumentKey = documentKey;
-            const type = getRegistrationType();
-            const config = (termsConfig[type] || termsConfig.pf)[documentKey] || {
-                label: 'Documento',
-                version: '',
-                text: 'Nenhum texto de documento configurado.'
-            };
-            if (modalContent) modalContent.textContent = config.text || 'Nenhum texto de documento configurado.';
-            if (modalBadge) modalBadge.textContent = config.version ? `${config.label} (${config.version})` : config.label;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
-
-        const closeModal = () => {
-            if (!modal) return;
-            modal.classList.add('hidden');
-            document.body.style.overflow = '';
-        };
-
-        termsButtons.forEach((button) => {
-            button.addEventListener('click', () => openModal(button.dataset.documentKey));
-        });
-
-        document.getElementById('close-terms-modal')?.addEventListener('click', closeModal);
-        document.getElementById('terms-modal-backdrop')?.addEventListener('click', closeModal);
-        document.getElementById('accept-terms-btn')?.addEventListener('click', () => {
-            if (activeDocumentKey) {
-                const input = document.querySelector(`input[name="document_acceptances[${activeDocumentKey}]"]`);
-                if (input) input.checked = true;
-            }
-            closeModal();
-        });
-
-        documentAcceptanceInputs.forEach((input) => {
-            input.addEventListener('change', () => {
-                // no-op: cada documento é validado individualmente
-            });
-        });
-
-        form.querySelectorAll('input[name="registration_type"]').forEach((r) => {
-            r.addEventListener('change', () => {
-                syncTermsLabels();
-            });
-        });
-        syncTermsLabels();
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // Atualiza badge do modal quando tipo muda
-        form.querySelectorAll('input[name="registration_type"]').forEach((r) => {
-            r.addEventListener('change', () => {
-                if (!modal?.classList.contains('hidden')) {
-                    openModal();
-                }
-            });
-        });
-        // --- fim modal ---
 
         updateIndicators();
         setQuestionNumbers();

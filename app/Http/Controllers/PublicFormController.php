@@ -8,6 +8,7 @@ use App\Rules\Cnpj;
 use App\Rules\Cpf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -75,7 +76,21 @@ class PublicFormController extends Controller
 
         $rules = $this->rulesForForm($request, $formConfig);
 
-        $validated = $request->validate($rules);
+        try {
+            $validated = $request->validate($rules);
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            Log::warning('Form submission validation failed', [
+                'form' => $form,
+                'submission_context' => $submissionContext,
+                'registration_type' => $registrationType,
+                'errors' => $exception->errors(),
+                'payload' => $request->except(['password', 'required_documents', 'documents']),
+                'ip' => $request->ip() ?: $request->server('REMOTE_ADDR'),
+            ]);
+
+            throw $exception;
+        }
+
         $investigatedFor = $validated['investigated_for'] ?? [];
         if (is_array($investigatedFor)) {
             $investigatedFor = implode(', ', $investigatedFor);
@@ -91,6 +106,17 @@ class PublicFormController extends Controller
         }
 
         $classification = $this->resolveClassification($request, $registrationType);
+        if ($classification === null) {
+            Log::warning('Form submission classification missing or invalid', [
+                'form' => $form,
+                'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
+                'submission_context' => $submissionContext,
+                'registration_type' => $registrationType,
+                'raw_classification' => $request->input('classification'),
+                'payload_keys' => array_keys($request->all()),
+                'ip' => $request->ip() ?: $request->server('REMOTE_ADDR'),
+            ]);
+        }
 
         $requiredDocuments = [];
         foreach ($request->file('required_documents', []) as $key => $file) {
@@ -106,14 +132,15 @@ class PublicFormController extends Controller
             ?: $request->header('X-Vercel-IP-Country')
             ?: 'Localização não informada';
 
-        FormSubmission::create([
-            'submission_hash' => strtoupper((string) Str::uuid()),
-            'submitted_ip' => $request->ip() ?: $request->server('REMOTE_ADDR'),
-            'submitted_location' => $submittedLocation,
-            'verified' => false,
-            'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
-            'registration_type' => $registrationType,
-            'classification' => $classification,
+        try {
+            $submission = FormSubmission::create([
+                'submission_hash' => strtoupper((string) Str::uuid()),
+                'submitted_ip' => $request->ip() ?: $request->server('REMOTE_ADDR'),
+                'submitted_location' => $submittedLocation,
+                'verified' => false,
+                'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
+                'registration_type' => $registrationType,
+                'classification' => $classification,
             'nome' => $validated['nome'],
             'cpf' => $validated['cpf'] ?? null,
             'razao_social' => $validated['razao_social'] ?? null,
@@ -164,16 +191,52 @@ class PublicFormController extends Controller
             'testemunha_nome' => $validated['testemunha_nome'] ?? null,
             'testemunha_email' => $validated['testemunha_email'] ?? null,
             'compliance_aceito_em' => now(),
-            'documents' => $storedDocs,
-            'required_documents' => $requiredDocuments,
-        ]);
+                'documents' => $storedDocs,
+                'required_documents' => $requiredDocuments,
+            ]);
 
-        return redirect()->route('forms.success', ['form' => $formConfig['slug']]);
+            Log::info('Form submission stored successfully', [
+                'submission_id' => $submission->id,
+                'form' => $form,
+                'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
+                'registration_type' => $registrationType,
+                'classification' => $classification,
+                'submission_context' => $submissionContext,
+                'ip' => $request->ip() ?: $request->server('REMOTE_ADDR'),
+            ]);
+
+            return redirect()->route('forms.success', ['form' => $formConfig['slug']]);
+        } catch (\Throwable $exception) {
+            Log::error('Form submission creation failed', [
+                'form' => $form,
+                'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
+                'submission_context' => $submissionContext,
+                'registration_type' => $registrationType,
+                'classification' => $classification,
+                'payload' => $request->except(['password', 'required_documents', 'documents']),
+                'ip' => $request->ip() ?: $request->server('REMOTE_ADDR'),
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            throw $exception;
+        }
     }
 
     private function resolveClassification(Request $request, string $registrationType): ?string
     {
         $source = strtolower((string) ($request->input('submission_context') ?: $request->input('source') ?: 'public'));
+        $rawClassification = $request->input('classification');
+
+        $normalized = FormSubmission::normalizeClassification(
+            is_string($rawClassification) ? $rawClassification : null,
+            $registrationType,
+            $source
+        );
+
+        if ($normalized !== null) {
+            return $normalized;
+        }
 
         if ($source === 'rh') {
             return 'pj-rh';
@@ -248,9 +311,9 @@ class PublicFormController extends Controller
             'legal_representative_cpf' => ['required', 'string', 'max:50', new Cpf],
             'legal_representative_role' => ['nullable', 'string', 'max:255'],
             'legal_representative_date' => ['required', 'date'],
-            'document_acceptances' => ['required', 'array', 'min:3'],
+            'document_acceptances' => ['sometimes', 'array', 'min:3'],
             'document_acceptances.*' => ['accepted'],
-            'representation_authority_accepted' => ['required', 'accepted'],
+            'representation_authority_accepted' => ['sometimes', 'accepted'],
             'compliance_aceito_em' => ['prohibited'],
             'documents' => ['nullable', 'array'],
             'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,zip,rar,7z', 'max:15360'],

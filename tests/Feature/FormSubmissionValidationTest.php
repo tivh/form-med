@@ -258,6 +258,15 @@ class FormSubmissionValidationTest extends TestCase
         $this->assertSame('pj-rh', $submission->classification);
     }
 
+    public function test_legacy_classification_values_are_normalized_for_admin_visibility(): void
+    {
+        $this->assertSame('pj-rh', FormSubmission::normalizeClassification('pj_colaborador', 'pj', 'rh'));
+        $this->assertSame('pj-rh', FormSubmission::normalizeClassification('pj-rh', 'pj', 'rh'));
+        $this->assertSame('pj', FormSubmission::normalizeClassification('pj_diverso', 'pj', 'public'));
+        $this->assertSame('pj', FormSubmission::normalizeClassification(null, 'pj', 'public'));
+        $this->assertSame('pf', FormSubmission::normalizeClassification(null, 'pf', 'public'));
+    }
+
     public function test_rh_user_only_sees_pj_colaborador_classification(): void
     {
         $rhUser = User::factory()->create([
