@@ -659,9 +659,27 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                            <div class="flex items-start gap-3">
+                                <input
+                                    type="checkbox"
+                                    name="representation_authority_accepted"
+                                    id="representation_authority_accepted"
+                                    value="1"
+                                    class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
+                                >
+                                <label for="representation_authority_accepted" class="flex-1 text-sm text-slate-800 leading-relaxed">
+                                    Declaro que possuo poderes de representação da pessoa jurídica acima qualificada para fins deste aceite, nos termos de contrato social, procuração ou ata de eleição.
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    @error('terms_accepted')
-                        <p class="text-xs text-red-600">Você precisa aceitar os termos para continuar.</p>
+                    @error('document_acceptances')
+                        <p class="text-xs text-red-600">Você precisa marcar cada documento após ler o conteúdo.</p>
+                    @enderror
+                    @error('representation_authority_accepted')
+                        <p class="text-xs text-red-600">Você precisa confirmar que possui poderes de representação para este aceite.</p>
                     @enderror
                 </div>
                 @endif

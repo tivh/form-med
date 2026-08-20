@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\LegalDocument;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,22 +13,31 @@ class SettingsController extends Controller
 {
     public function index(): View
     {
-        return view('admin.settings.index', [
+        $documentGroups = [
+            'code_of_conduct' => ['label' => 'Código de conduta'],
+            'integrity_policy' => ['label' => 'Política de integridade'],
+            'data_protection' => ['label' => 'Termo de proteção de dados pessoais - LGPD'],
+        ];
+
+        $data = [];
+        foreach (['pf', 'pj'] as $personType) {
+            foreach (array_keys($documentGroups) as $documentKey) {
+                $fallbackText = Setting::get("{$documentKey}_{$personType}", '');
+                $fallbackVersion = Setting::get("{$documentKey}_version_{$personType}", 'v1.0');
+                $document = LegalDocument::getDocument($documentKey, $personType, $documentGroups[$documentKey]['label'], $fallbackText, $fallbackVersion);
+
+                $data["{$documentKey}_{$personType}"] = $document['text'];
+                $data["{$documentKey}_version_{$personType}"] = $document['version'];
+                $data["{$documentKey}_updated_{$personType}"] = $document['updated_at'];
+            }
+        }
+
+        $viewData = [
             'terms_pf' => Setting::get('terms_pf', ''),
             'terms_pj' => Setting::get('terms_pj', ''),
-            'code_of_conduct_pf' => Setting::get('code_of_conduct_pf', ''),
-            'code_of_conduct_pj' => Setting::get('code_of_conduct_pj', ''),
-            'integrity_policy_pf' => Setting::get('integrity_policy_pf', ''),
-            'integrity_policy_pj' => Setting::get('integrity_policy_pj', ''),
-            'data_protection_pf' => Setting::get('data_protection_pf', ''),
-            'data_protection_pj' => Setting::get('data_protection_pj', ''),
-            'code_of_conduct_version_pf' => Setting::get('code_of_conduct_version_pf', 'v1.0'),
-            'code_of_conduct_version_pj' => Setting::get('code_of_conduct_version_pj', 'v1.0'),
-            'integrity_policy_version_pf' => Setting::get('integrity_policy_version_pf', 'v1.0'),
-            'integrity_policy_version_pj' => Setting::get('integrity_policy_version_pj', 'v1.0'),
-            'data_protection_version_pf' => Setting::get('data_protection_version_pf', 'v1.0'),
-            'data_protection_version_pj' => Setting::get('data_protection_version_pj', 'v1.0'),
-        ]);
+        ];
+
+        return view('admin.settings.index', array_merge($viewData, $data));
     }
 
     public function update(Request $request): RedirectResponse
@@ -51,18 +61,23 @@ class SettingsController extends Controller
 
         Setting::set('terms_pf', $request->input('terms_pf', ''));
         Setting::set('terms_pj', $request->input('terms_pj', ''));
-        Setting::set('code_of_conduct_pf', $request->input('code_of_conduct_pf', ''));
-        Setting::set('code_of_conduct_pj', $request->input('code_of_conduct_pj', ''));
-        Setting::set('integrity_policy_pf', $request->input('integrity_policy_pf', ''));
-        Setting::set('integrity_policy_pj', $request->input('integrity_policy_pj', ''));
-        Setting::set('data_protection_pf', $request->input('data_protection_pf', ''));
-        Setting::set('data_protection_pj', $request->input('data_protection_pj', ''));
-        Setting::set('code_of_conduct_version_pf', $request->input('code_of_conduct_version_pf', 'v1.0'));
-        Setting::set('code_of_conduct_version_pj', $request->input('code_of_conduct_version_pj', 'v1.0'));
-        Setting::set('integrity_policy_version_pf', $request->input('integrity_policy_version_pf', 'v1.0'));
-        Setting::set('integrity_policy_version_pj', $request->input('integrity_policy_version_pj', 'v1.0'));
-        Setting::set('data_protection_version_pf', $request->input('data_protection_version_pf', 'v1.0'));
-        Setting::set('data_protection_version_pj', $request->input('data_protection_version_pj', 'v1.0'));
+
+        $documentGroups = [
+            'code_of_conduct' => 'Código de conduta',
+            'integrity_policy' => 'Política de integridade',
+            'data_protection' => 'Termo de proteção de dados pessoais - LGPD',
+        ];
+
+        foreach (['pf', 'pj'] as $personType) {
+            foreach ($documentGroups as $documentKey => $title) {
+                $text = $request->input("{$documentKey}_{$personType}", '');
+                $version = $request->input("{$documentKey}_version_{$personType}", 'v1.0');
+
+                LegalDocument::saveDocument($documentKey, $personType, $title, $text, $version);
+                Setting::set("{$documentKey}_{$personType}", $text);
+                Setting::set("{$documentKey}_version_{$personType}", $version);
+            }
+        }
 
         return back()->with('success', 'Configurações salvas com sucesso.');
     }

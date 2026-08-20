@@ -26,26 +26,32 @@
                 [
                     'key' => 'code_of_conduct',
                     'label' => 'Código de conduta',
-                    'version_pf' => old('code_of_conduct_version_pf', $code_of_conduct_version_pf),
-                    'version_pj' => old('code_of_conduct_version_pj', $code_of_conduct_version_pj),
-                    'text_pf' => old('code_of_conduct_pf', $code_of_conduct_pf),
-                    'text_pj' => old('code_of_conduct_pj', $code_of_conduct_pj),
+                    'version_pf' => old('code_of_conduct_version_pf', $code_of_conduct_version_pf ?? 'v1.0'),
+                    'version_pj' => old('code_of_conduct_version_pj', $code_of_conduct_version_pj ?? 'v1.0'),
+                    'text_pf' => old('code_of_conduct_pf', $code_of_conduct_pf ?? ''),
+                    'text_pj' => old('code_of_conduct_pj', $code_of_conduct_pj ?? ''),
+                    'updated_pf' => $code_of_conduct_updated_pf ?? null,
+                    'updated_pj' => $code_of_conduct_updated_pj ?? null,
                 ],
                 [
                     'key' => 'integrity_policy',
                     'label' => 'Política de integridade',
-                    'version_pf' => old('integrity_policy_version_pf', $integrity_policy_version_pf),
-                    'version_pj' => old('integrity_policy_version_pj', $integrity_policy_version_pj),
-                    'text_pf' => old('integrity_policy_pf', $integrity_policy_pf),
-                    'text_pj' => old('integrity_policy_pj', $integrity_policy_pj),
+                    'version_pf' => old('integrity_policy_version_pf', $integrity_policy_version_pf ?? 'v1.0'),
+                    'version_pj' => old('integrity_policy_version_pj', $integrity_policy_version_pj ?? 'v1.0'),
+                    'text_pf' => old('integrity_policy_pf', $integrity_policy_pf ?? ''),
+                    'text_pj' => old('integrity_policy_pj', $integrity_policy_pj ?? ''),
+                    'updated_pf' => $integrity_policy_updated_pf ?? null,
+                    'updated_pj' => $integrity_policy_updated_pj ?? null,
                 ],
                 [
                     'key' => 'data_protection',
                     'label' => 'Termo de proteção de dados pessoais - LGPD',
-                    'version_pf' => old('data_protection_version_pf', $data_protection_version_pf),
-                    'version_pj' => old('data_protection_version_pj', $data_protection_version_pj),
-                    'text_pf' => old('data_protection_pf', $data_protection_pf),
-                    'text_pj' => old('data_protection_pj', $data_protection_pj),
+                    'version_pf' => old('data_protection_version_pf', $data_protection_version_pf ?? 'v1.0'),
+                    'version_pj' => old('data_protection_version_pj', $data_protection_version_pj ?? 'v1.0'),
+                    'text_pf' => old('data_protection_pf', $data_protection_pf ?? ''),
+                    'text_pj' => old('data_protection_pj', $data_protection_pj ?? ''),
+                    'updated_pf' => $data_protection_updated_pf ?? null,
+                    'updated_pj' => $data_protection_updated_pj ?? null,
                 ],
             ];
         @endphp
@@ -61,10 +67,15 @@
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-4">
                     <div class="flex items-center justify-between gap-3">
                         <h3 class="text-sm font-bold text-slate-900">{{ $doc['label'] }}</h3>
-                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700">
-                            <span>Versão</span>
-                            <input type="text" name="{{ $doc['key'] }}_version_pf" value="{{ $doc['version_pf'] }}" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-900 focus:border-red-500 focus:ring-red-500" placeholder="v1.0" />
-                        </label>
+                        <div class="flex items-center gap-2">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-700">
+                                <span>Versão</span>
+                                <input type="text" name="{{ $doc['key'] }}_version_pf" value="{{ $doc['version_pf'] }}" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-900 focus:border-red-500 focus:ring-red-500" placeholder="v1.0" />
+                            </label>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-slate-500">
+                        Última atualização: {{ !empty($doc['updated_pf']) ? \Carbon\Carbon::parse($doc['updated_pf'])->format('d/m/Y H:i') : '—' }}
                     </div>
                     <textarea
                         name="{{ $doc['key'] }}_pf"
@@ -87,10 +98,15 @@
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-4">
                     <div class="flex items-center justify-between gap-3">
                         <h3 class="text-sm font-bold text-slate-900">{{ $doc['label'] }}</h3>
-                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700">
-                            <span>Versão</span>
-                            <input type="text" name="{{ $doc['key'] }}_version_pj" value="{{ $doc['version_pj'] }}" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-900 focus:border-red-500 focus:ring-red-500" placeholder="v1.0" />
-                        </label>
+                        <div class="flex items-center gap-2">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-700">
+                                <span>Versão</span>
+                                <input type="text" name="{{ $doc['key'] }}_version_pj" value="{{ $doc['version_pj'] }}" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-900 focus:border-red-500 focus:ring-red-500" placeholder="v1.0" />
+                            </label>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-slate-500">
+                        Última atualização: {{ !empty($doc['updated_pj']) ? \Carbon\Carbon::parse($doc['updated_pj'])->format('d/m/Y H:i') : '—' }}
                     </div>
                     <textarea
                         name="{{ $doc['key'] }}_pj"

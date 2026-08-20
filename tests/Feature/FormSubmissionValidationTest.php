@@ -68,6 +68,7 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_role' => 'Diretora',
             'legal_representative_date' => '2026-07-28',
             'terms_accepted' => '1',
+            'representation_authority_accepted' => '1',
             'documents' => [UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf')],
         ]);
 
@@ -131,6 +132,7 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_role' => 'Diretora',
             'legal_representative_date' => '2026-07-28',
             'terms_accepted' => '1',
+            'representation_authority_accepted' => '1',
             'documents' => [UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf')],
         ]);
 
@@ -187,6 +189,7 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_role' => 'Diretora',
             'legal_representative_date' => '2026-07-28',
             'terms_accepted' => '1',
+            'representation_authority_accepted' => '1',
             'documents' => [UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf')],
         ]);
 

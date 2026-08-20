@@ -142,24 +142,25 @@ class FormSubmissionController extends Controller
     public function print(FormSubmission $submission)
     {
         $isPj = $submission->registration_type === 'pj';
+        $personType = $isPj ? 'pj' : 'pf';
         $documents = [
             [
                 'key' => 'code_of_conduct',
                 'label' => 'Código de conduta',
-                'text' => Setting::get($isPj ? 'code_of_conduct_pj' : 'code_of_conduct_pf', ''),
-                'version' => Setting::get($isPj ? 'code_of_conduct_version_pj' : 'code_of_conduct_version_pf', 'v1.0'),
+                'text' => LegalDocument::getDocument('code_of_conduct', $personType, 'Código de conduta', Setting::get("code_of_conduct_{$personType}", ''), Setting::get("code_of_conduct_version_{$personType}", 'v1.0'))['text'],
+                'version' => LegalDocument::getDocument('code_of_conduct', $personType, 'Código de conduta', Setting::get("code_of_conduct_{$personType}", ''), Setting::get("code_of_conduct_version_{$personType}", 'v1.0'))['version'],
             ],
             [
                 'key' => 'integrity_policy',
                 'label' => 'Política de integridade',
-                'text' => Setting::get($isPj ? 'integrity_policy_pj' : 'integrity_policy_pf', ''),
-                'version' => Setting::get($isPj ? 'integrity_policy_version_pj' : 'integrity_policy_version_pf', 'v1.0'),
+                'text' => LegalDocument::getDocument('integrity_policy', $personType, 'Política de integridade', Setting::get("integrity_policy_{$personType}", ''), Setting::get("integrity_policy_version_{$personType}", 'v1.0'))['text'],
+                'version' => LegalDocument::getDocument('integrity_policy', $personType, 'Política de integridade', Setting::get("integrity_policy_{$personType}", ''), Setting::get("integrity_policy_version_{$personType}", 'v1.0'))['version'],
             ],
             [
                 'key' => 'data_protection',
                 'label' => 'Termo de proteção de dados pessoais - LGPD',
-                'text' => Setting::get($isPj ? 'data_protection_pj' : 'data_protection_pf', ''),
-                'version' => Setting::get($isPj ? 'data_protection_version_pj' : 'data_protection_version_pf', 'v1.0'),
+                'text' => LegalDocument::getDocument('data_protection', $personType, 'Termo de proteção de dados pessoais - LGPD', Setting::get("data_protection_{$personType}", ''), Setting::get("data_protection_version_{$personType}", 'v1.0'))['text'],
+                'version' => LegalDocument::getDocument('data_protection', $personType, 'Termo de proteção de dados pessoais - LGPD', Setting::get("data_protection_{$personType}", ''), Setting::get("data_protection_version_{$personType}", 'v1.0'))['version'],
             ],
         ];
 
