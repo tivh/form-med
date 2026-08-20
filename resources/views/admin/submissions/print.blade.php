@@ -249,6 +249,18 @@
                     <span>{{ $isPj ? 'Pessoa Jurídica' : 'Pessoa Física' }}</span>
                 </div>
                 <div class="meta-item">
+                    <span class="meta-label">Hash:</span>
+                    <span>{{ $submission->submission_hash ?: '—' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">IP:</span>
+                    <span>{{ $submission->submitted_ip ?: 'Não informado' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Localização:</span>
+                    <span>{{ $submission->submitted_location ?: 'Não informada' }}</span>
+                </div>
+                <div class="meta-item">
                     <span class="meta-label">Status:</span>
                     <span>{{ $submission->verified ? 'Verificado' : 'Pendente' }}</span>
                 </div>

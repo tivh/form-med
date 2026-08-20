@@ -8,6 +8,7 @@ use App\Rules\Cnpj;
 use App\Rules\Cpf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PublicFormController extends Controller
@@ -100,7 +101,15 @@ class PublicFormController extends Controller
             ];
         }
 
+        $submittedLocation = $request->header('CF-IPCountry')
+            ?: $request->header('X-Country-Code')
+            ?: $request->header('X-Vercel-IP-Country')
+            ?: 'Localização não informada';
+
         FormSubmission::create([
+            'submission_hash' => strtoupper((string) Str::uuid()),
+            'submitted_ip' => $request->ip() ?: $request->server('REMOTE_ADDR'),
+            'submitted_location' => $submittedLocation,
             'verified' => false,
             'form_type' => $formConfig['form_type'] ?? $formConfig['slug'],
             'registration_type' => $registrationType,

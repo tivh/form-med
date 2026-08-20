@@ -4,12 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class FormSubmission extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $submission): void {
+            $submission->submission_hash ??= strtoupper((string) Str::uuid());
+            $submission->submitted_ip ??= request()->ip() ?: request()->server('REMOTE_ADDR') ?: '0.0.0.0';
+            $submission->submitted_location ??= request()->header('CF-IPCountry')
+                ?: request()->header('X-Country-Code')
+                ?: request()->header('X-Vercel-IP-Country')
+                ?: 'Localização não informada';
+        });
+    }
+
     protected $fillable = [
+        'submission_hash',
+        'submitted_ip',
+        'submitted_location',
         'verified',
         'form_type',
         'registration_type',

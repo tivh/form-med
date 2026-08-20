@@ -82,6 +82,9 @@ class FormSubmissionValidationTest extends TestCase
         $this->assertSame('carlos@example.com', $submission->testemunha_email);
         $this->assertArrayHasKey('corporate_document', $submission->required_documents);
         $this->assertArrayHasKey('legal_representative_document', $submission->required_documents);
+        $this->assertNotNull($submission->submission_hash);
+        $this->assertNotNull($submission->submitted_ip);
+        $this->assertNotNull($submission->submitted_location);
         $this->assertNotNull($submission->compliance_aceito_em);
         $this->assertFalse($submission->verified);
     }

@@ -54,7 +54,7 @@
 
     <!-- Status e Verificação -->
     <div class="glass rounded-2xl p-6 mb-8 border border-white/60 shadow-lg">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
                 <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Tipo de Cadastro</p>
                 <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold {{ $isPj ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100' }}">
@@ -78,8 +78,14 @@
                 <p class="text-xs text-slate-600">{{ optional($submission->created_at)->format('H:i') }}</p>
             </div>
             <div>
-                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">ID do Registro</p>
-                <p class="text-sm font-semibold text-slate-900">#{{ $submission->id }}</p>
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">IP / Origem</p>
+                <p class="text-sm font-semibold text-slate-900">{{ $submission->submitted_ip ?: 'Não informado' }}</p>
+                <p class="text-xs text-slate-600">{{ $submission->submitted_location ?: 'Localização não informada' }}</p>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold mb-2">Hash / Registro</p>
+                <p class="text-sm font-semibold text-slate-900 break-all">{{ $submission->submission_hash ?: '—' }}</p>
+                <p class="text-xs text-slate-600">#{{ $submission->id }}</p>
             </div>
         </div>
     </div>
