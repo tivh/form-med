@@ -42,8 +42,8 @@ class User extends Authenticatable
         }
 
         $legacyMap = [
-            'rh' => ['pj_colaborador'],
-            'juridico' => ['pj_diverso', 'pf'],
+            'rh' => ['pj-rh'],
+            'juridico' => ['pj', 'pf'],
         ];
 
         if (is_array($this->admin_role)) {
@@ -71,17 +71,25 @@ class User extends Authenticatable
             return [];
         }
 
-        return array_values(array_unique(array_filter($options, fn ($value) => in_array($value, ['pj_diverso', 'pj_colaborador', 'pf'], true))));
+        $normalized = array_map(function ($value) {
+            return match ($value) {
+                'pj_diverso', 'pj' => 'pj',
+                'pj_colaborador', 'pj-rh' => 'pj-rh',
+                default => $value,
+            };
+        }, $options);
+
+        return array_values(array_unique(array_filter($normalized, fn ($value) => in_array($value, ['pj', 'pj-rh', 'pf'], true))));
     }
 
     public function isRh(): bool
     {
-        return in_array('pj_colaborador', $this->allowedClassifications(), true);
+        return in_array('pj-rh', $this->allowedClassifications(), true);
     }
 
     public function isJuridico(): bool
     {
-        return in_array('pj_diverso', $this->allowedClassifications(), true) || in_array('pf', $this->allowedClassifications(), true);
+        return in_array('pj', $this->allowedClassifications(), true) || in_array('pf', $this->allowedClassifications(), true);
     }
 
     public function canViewSubmission(

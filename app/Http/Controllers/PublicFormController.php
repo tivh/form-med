@@ -155,11 +155,15 @@ class PublicFormController extends Controller
         $source = strtolower((string) ($request->input('submission_context') ?: $request->input('source') ?: 'public'));
 
         if ($source === 'rh') {
-            return 'pj_colaborador';
+            return 'pj-rh';
         }
 
         if ($registrationType === 'pj') {
-            return 'pj_diverso';
+            return 'pj';
+        }
+
+        if ($registrationType === 'pf') {
+            return 'pf';
         }
 
         return null;

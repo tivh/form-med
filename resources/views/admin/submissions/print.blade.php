@@ -318,11 +318,42 @@
             </div>
         </div>
 
-        <!-- SEÇÃO 2 (apenas PJ) -->
-        @if($isPj)
+        <!-- SEÇÃO 2: DOCUMENTAÇÃO OBRIGATÓRIA -->
         <div class="section">
             <div class="section-header">
                 <div class="section-number">2</div>
+                <div class="section-title">Documentação obrigatória</div>
+            </div>
+
+            <div class="section-content full">
+                @php
+                    $requiredDocumentLabels = [
+                        'personal_documents' => 'Documento pessoal (CNH ou RG)',
+                        'corporate_document' => 'Contrato social ou Estatuto social',
+                        'legal_representative_document' => 'Documento do representante legal (CNH ou RG)',
+                    ];
+                @endphp
+
+                @if(is_array($submission->required_documents) && count($submission->required_documents))
+                    @foreach ($submission->required_documents as $key => $doc)
+                        <div class="field full-width">
+                            <div class="field-label">{{ $requiredDocumentLabels[$key] ?? 'Documento obrigatório' }}</div>
+                            <div class="field-value">{{ $doc['original_name'] ?? 'Arquivo enviado' }}</div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="field full-width">
+                        <div class="field-value empty">Nenhum documento obrigatório anexado</div>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- SEÇÃO 3 (apenas PJ) -->
+        @if($isPj)
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
                 <div class="section-title">Representantes Legais</div>
             </div>
             
@@ -350,10 +381,10 @@
         </div>
         @endif
 
-        <!-- SEÇÃO 3 -->
+        <!-- SEÇÃO 4 -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">{{ $isPj ? '3' : '2' }}</div>
+                <div class="section-number">{{ $isPj ? '4' : '3' }}</div>
                 <div class="section-title">Testemunha e Dados Financeiros</div>
             </div>
             
@@ -373,10 +404,10 @@
             </div>
         </div>
 
-        <!-- SEÇÃO 4: COMPLIANCE -->
+        <!-- SEÇÃO 5: COMPLIANCE -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">{{ $isPj ? '4' : '3' }}</div>
+                <div class="section-number">{{ $isPj ? '5' : '4' }}</div>
                 <div class="section-title">Compliance e Conformidades</div>
             </div>
             
@@ -442,10 +473,10 @@
             </div>
         </div>
 
-        <!-- SEÇÃO 5: CONFLITO DE INTERESSES -->
+        <!-- SEÇÃO 6: CONFLITO DE INTERESSES -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">{{ $isPj ? '5' : '4' }}</div>
+                <div class="section-number">{{ $isPj ? '6' : '5' }}</div>
                 <div class="section-title">Conflito de Interesses</div>
             </div>
             
@@ -592,10 +623,10 @@
             </div>
         </div>
 
-        <!-- SEÇÃO 6: ASSINATURA LEGAL -->
+        <!-- SEÇÃO 7: ASSINATURA LEGAL -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">{{ $isPj ? '6' : '5' }}</div>
+                <div class="section-number">{{ $isPj ? '7' : '6' }}</div>
                 <div class="section-title">Assinatura Legal</div>
             </div>
             

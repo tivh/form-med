@@ -17,9 +17,6 @@
                     <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20">
                         Atualiza em tempo real
                     </span>
-                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20">
-                        Documentos guardados por 15 dias
-                    </span>
                 </div>
             </div>
 

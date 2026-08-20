@@ -64,11 +64,11 @@
                         <div class="mt-2 flex flex-wrap gap-3">
                             @php $selectedRoles = old('admin_role', []); @endphp
                             <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50">
-                                <input type="checkbox" name="admin_role[]" value="pj_diverso" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" {{ in_array('pj_diverso', $selectedRoles, true) ? 'checked' : '' }}>
-                                <span>PJ normal</span>
+                                <input type="checkbox" name="admin_role[]" value="pj" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" {{ in_array('pj', $selectedRoles, true) || in_array('pj_diverso', $selectedRoles, true) ? 'checked' : '' }}>
+                                <span>PJ principal</span>
                             </label>
                             <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50">
-                                <input type="checkbox" name="admin_role[]" value="pj_colaborador" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" {{ in_array('pj_colaborador', $selectedRoles, true) ? 'checked' : '' }}>
+                                <input type="checkbox" name="admin_role[]" value="pj-rh" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" {{ in_array('pj-rh', $selectedRoles, true) || in_array('pj_colaborador', $selectedRoles, true) ? 'checked' : '' }}>
                                 <span>PJ RH</span>
                             </label>
                             <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50">

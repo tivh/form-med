@@ -49,7 +49,7 @@ class UserController extends Controller
         if ($actingUser->isSuperAdmin()) {
             $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))] ;
             $rules['admin_role'] = ['nullable', 'array'];
-            $rules['admin_role.*'] = ['string', 'in:pj_diverso,pj_colaborador,pf'];
+            $rules['admin_role.*'] = ['string', 'in:pj,pj-rh,pf,pj_diverso,pj_colaborador'];
         }
 
         $data = $request->validate($rules);
@@ -96,7 +96,7 @@ class UserController extends Controller
 
         if ($actingUser->isSuperAdmin()) {
             $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];            $rules['admin_role'] = ['nullable', 'array'];
-            $rules['admin_role.*'] = ['string', 'in:pj_diverso,pj_colaborador,pf'];        }
+            $rules['admin_role.*'] = ['string', 'in:pj,pj-rh,pf,pj_diverso,pj_colaborador'];        }
 
         $data = $request->validate($rules);
 

@@ -138,7 +138,7 @@ class FormSubmissionValidationTest extends TestCase
 
         $submission = FormSubmission::latest()->first();
         $this->assertNotNull($submission);
-        $this->assertSame('pj_diverso', $submission->classification);
+        $this->assertSame('pj', $submission->classification);
     }
 
     public function test_rh_form_submission_is_classified_as_pj_colaborador(): void
@@ -194,7 +194,7 @@ class FormSubmissionValidationTest extends TestCase
 
         $submission = FormSubmission::latest()->first();
         $this->assertNotNull($submission);
-        $this->assertSame('pj_colaborador', $submission->classification);
+        $this->assertSame('pj-rh', $submission->classification);
     }
 
     public function test_rh_user_only_sees_pj_colaborador_classification(): void
@@ -208,7 +208,7 @@ class FormSubmissionValidationTest extends TestCase
         FormSubmission::create([
             'form_type' => 'form-med',
             'registration_type' => 'pj',
-            'classification' => 'pj_colaborador',
+            'classification' => 'pj-rh',
             'nome' => 'Colaborador Ltda',
             'email' => 'rh@example.com',
             'endereco' => 'Rua RH, 1',
@@ -229,7 +229,7 @@ class FormSubmissionValidationTest extends TestCase
         FormSubmission::create([
             'form_type' => 'form-med',
             'registration_type' => 'pj',
-            'classification' => 'pj_diverso',
+            'classification' => 'pj',
             'nome' => 'Diverso Ltda',
             'email' => 'diverso@example.com',
             'endereco' => 'Rua Diversa, 2',

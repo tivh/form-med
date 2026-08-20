@@ -250,6 +250,10 @@
                 @endphp
 
                 <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-4" data-step="1">
+                    <div class="mb-2">
+                        <h2 class="text-base font-bold text-slate-900">Documentação obrigatória</h2>
+                    </div>
+
                     <div class="rounded-2xl border border-red-200 bg-red-50/60 p-5 shadow-sm pf-only">
                         <div class="flex items-center gap-2" data-question>
                             <span class="question-number"></span>
