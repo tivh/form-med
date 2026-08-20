@@ -240,6 +240,8 @@ class PublicFormController extends Controller
             'legal_representative_role' => ['nullable', 'string', 'max:255'],
             'legal_representative_date' => ['required', 'date'],
             'terms_accepted' => ['required', 'accepted'],
+            'document_acceptances' => ['nullable', 'array'],
+            'document_acceptances.*' => ['required', 'accepted'],
             'compliance_aceito_em' => ['prohibited'],
             'documents' => ['required', 'array', 'min:1'],
             'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,zip,rar,7z', 'max:15360'],

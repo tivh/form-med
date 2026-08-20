@@ -636,8 +636,30 @@
                         <span class="question-number"></span>
                         <p class="block text-sm font-semibold text-slate-800">Termos e Condições</p>
                     </div>
-                    <label class="block cursor-pointer group">
-                        <div class="flex items-start gap-3">
+                    <div class="text-sm text-slate-800 leading-relaxed">
+                        <span>Li e aceito os documentos referentes a este cadastro:</span>
+                        <div class="mt-3 space-y-3">
+                            @foreach($termsDocumentDefinitions as $document)
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                    <div class="flex items-start gap-3">
+                                        <input
+                                            type="checkbox"
+                                            name="document_acceptances[{{ $document['key'] }}]"
+                                            id="document-acceptance-{{ $document['key'] }}"
+                                            value="1"
+                                            class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
+                                        >
+                                        <label for="document-acceptance-{{ $document['key'] }}" class="flex-1 text-sm text-slate-800 leading-relaxed">
+                                            <button type="button" class="terms-link font-semibold text-red-600 underline underline-offset-2 hover:text-red-800 transition" data-document-key="{{ $document['key'] }}">
+                                                {{ $document['label'] }}
+                                            </button>
+                                            <span class="block mt-1 text-xs text-slate-500">Marque após ler o documento completo.</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="mt-4 flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
                             <input
                                 type="checkbox"
                                 name="terms_accepted"
@@ -646,20 +668,11 @@
                                 {{ old('terms_accepted') ? 'checked' : '' }}
                                 class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
                             >
-                            <div class="text-sm text-slate-800 leading-relaxed">
-                                <span>Li e aceito os documentos referentes a este cadastro:</span>
-                                <div class="mt-3 space-y-2">
-                                    @foreach($termsDocumentDefinitions as $document)
-                                        <div>
-                                            <button type="button" class="terms-link font-semibold text-red-600 underline underline-offset-2 hover:text-red-800 transition" data-document-key="{{ $document['key'] }}">
-                                                {{ $document['label'] }}
-                                            </button>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
+                            <label for="terms_accepted" class="text-sm text-slate-800 leading-relaxed">
+                                Confirmo que li e aceitei todos os documentos acima.
+                            </label>
                         </div>
-                    </label>
+                    </div>
                     @error('terms_accepted')
                         <p class="text-xs text-red-600">Você precisa aceitar os termos para continuar.</p>
                     @enderror
@@ -1198,6 +1211,8 @@
         const modalContent = document.getElementById('terms-modal-content');
         const modalBadge = document.getElementById('terms-modal-badge');
         const termsButtons = Array.from(document.querySelectorAll('.terms-link'));
+        const documentAcceptanceInputs = Array.from(document.querySelectorAll('input[name^="document_acceptances"][type="checkbox"]'));
+        const masterAcceptanceCheckbox = document.getElementById('terms_accepted');
 
         const syncTermsLabels = () => {
             const type = getRegistrationType();
@@ -1211,8 +1226,11 @@
             });
         };
 
+        let activeDocumentKey = null;
+
         const openModal = (documentKey) => {
             if (!modal) return;
+            activeDocumentKey = documentKey;
             const type = getRegistrationType();
             const config = (termsConfig[type] || termsConfig.pf)[documentKey] || {
                 label: 'Documento',
@@ -1238,21 +1256,44 @@
         document.getElementById('close-terms-modal')?.addEventListener('click', closeModal);
         document.getElementById('terms-modal-backdrop')?.addEventListener('click', closeModal);
         document.getElementById('accept-terms-btn')?.addEventListener('click', () => {
-            const checkbox = document.getElementById('terms_accepted');
-            if (checkbox) checkbox.checked = true;
+            if (activeDocumentKey) {
+                const input = document.querySelector(`input[name="document_acceptances[${activeDocumentKey}]"]`);
+                if (input) input.checked = true;
+            }
             closeModal();
+            const allRead = documentAcceptanceInputs.every((input) => input.checked);
+            if (masterAcceptanceCheckbox) {
+                masterAcceptanceCheckbox.checked = allRead;
+            }
         });
 
-        const termsCheckbox = document.getElementById('terms_accepted');
-        if (termsCheckbox) {
-            termsCheckbox.addEventListener('click', (e) => {
-                if (!termsCheckbox.checked) {
+        if (masterAcceptanceCheckbox) {
+            masterAcceptanceCheckbox.addEventListener('click', (e) => {
+                if (!masterAcceptanceCheckbox.checked) {
                     e.preventDefault();
-                    const firstKey = Object.keys(termsConfig.pf)[0];
-                    openModal(firstKey);
+                    return;
+                }
+                const allRead = documentAcceptanceInputs.every((input) => input.checked);
+                if (!allRead) {
+                    e.preventDefault();
+                    documentAcceptanceInputs.forEach((input) => {
+                        if (!input.checked) {
+                            openModal(input.name.replace('document_acceptances[', '').replace(']', ''));
+                            return;
+                        }
+                    });
                 }
             });
         }
+
+        documentAcceptanceInputs.forEach((input) => {
+            input.addEventListener('change', () => {
+                const allRead = documentAcceptanceInputs.every((checkbox) => checkbox.checked);
+                if (masterAcceptanceCheckbox) {
+                    masterAcceptanceCheckbox.checked = allRead;
+                }
+            });
+        });
 
         form.querySelectorAll('input[name="registration_type"]').forEach((r) => {
             r.addEventListener('change', () => {

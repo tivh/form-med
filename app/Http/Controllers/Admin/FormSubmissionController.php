@@ -141,9 +141,32 @@ class FormSubmissionController extends Controller
 
     public function print(FormSubmission $submission)
     {
+        $isPj = $submission->registration_type === 'pj';
+        $documents = [
+            [
+                'key' => 'code_of_conduct',
+                'label' => 'Código de conduta',
+                'text' => Setting::get($isPj ? 'code_of_conduct_pj' : 'code_of_conduct_pf', ''),
+                'version' => Setting::get($isPj ? 'code_of_conduct_version_pj' : 'code_of_conduct_version_pf', 'v1.0'),
+            ],
+            [
+                'key' => 'integrity_policy',
+                'label' => 'Política de integridade',
+                'text' => Setting::get($isPj ? 'integrity_policy_pj' : 'integrity_policy_pf', ''),
+                'version' => Setting::get($isPj ? 'integrity_policy_version_pj' : 'integrity_policy_version_pf', 'v1.0'),
+            ],
+            [
+                'key' => 'data_protection',
+                'label' => 'Termo de proteção de dados pessoais - LGPD',
+                'text' => Setting::get($isPj ? 'data_protection_pj' : 'data_protection_pf', ''),
+                'version' => Setting::get($isPj ? 'data_protection_version_pj' : 'data_protection_version_pf', 'v1.0'),
+            ],
+        ];
+
         return view('admin.submissions.print', [
             'submission' => $submission,
             'terms' => Setting::get($submission->registration_type === 'pj' ? 'terms_pj' : 'terms_pf', ''),
+            'documents' => $documents,
         ]);
     }
 

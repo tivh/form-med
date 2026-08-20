@@ -648,11 +648,24 @@
                     <div class="field-label">Termos e Condições</div>
                     <div class="field-value">
                         <span class="compliance-answer yes">
-                            Li e aceito os termos e condições referentes a este cadastro.
+                            Li e aceito os documentos referentes a este cadastro.
                             <span class="compliance-answer-status">✓ Aceitos</span>
                         </span>
+
+                        @foreach($documents ?? [] as $document)
+                            <div class="terms-content" style="margin-top: 14px; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+                                <strong>{{ $document['label'] }}</strong>
+                                @if(!empty($document['version']))
+                                    <span style="color: #6b7280;"> (Versão {{ $document['version'] }})</span>
+                                @endif
+                                @if(!empty($document['text']))
+                                    <div style="margin-top: 6px; white-space: pre-wrap;">{{ $document['text'] }}</div>
+                                @endif
+                            </div>
+                        @endforeach
+
                         @if($terms)
-                            <div class="terms-content">{{ $terms }}</div>
+                            <div class="terms-content" style="margin-top: 14px; border-top: 1px solid #e5e7eb; padding-top: 10px;">{{ $terms }}</div>
                         @endif
                     </div>
                 </div>
