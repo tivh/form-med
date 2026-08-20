@@ -659,19 +659,6 @@
                                 </div>
                             @endforeach
                         </div>
-                        <div class="mt-4 flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
-                            <input
-                                type="checkbox"
-                                name="terms_accepted"
-                                id="terms_accepted"
-                                value="1"
-                                {{ old('terms_accepted') ? 'checked' : '' }}
-                                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500 flex-shrink-0"
-                            >
-                            <label for="terms_accepted" class="text-sm text-slate-800 leading-relaxed">
-                                Confirmo que li e aceitei todos os documentos acima.
-                            </label>
-                        </div>
                     </div>
                     @error('terms_accepted')
                         <p class="text-xs text-red-600">Você precisa aceitar os termos para continuar.</p>
@@ -1212,7 +1199,6 @@
         const modalBadge = document.getElementById('terms-modal-badge');
         const termsButtons = Array.from(document.querySelectorAll('.terms-link'));
         const documentAcceptanceInputs = Array.from(document.querySelectorAll('input[name^="document_acceptances"][type="checkbox"]'));
-        const masterAcceptanceCheckbox = document.getElementById('terms_accepted');
 
         const syncTermsLabels = () => {
             const type = getRegistrationType();
@@ -1261,37 +1247,11 @@
                 if (input) input.checked = true;
             }
             closeModal();
-            const allRead = documentAcceptanceInputs.every((input) => input.checked);
-            if (masterAcceptanceCheckbox) {
-                masterAcceptanceCheckbox.checked = allRead;
-            }
         });
-
-        if (masterAcceptanceCheckbox) {
-            masterAcceptanceCheckbox.addEventListener('click', (e) => {
-                if (!masterAcceptanceCheckbox.checked) {
-                    e.preventDefault();
-                    return;
-                }
-                const allRead = documentAcceptanceInputs.every((input) => input.checked);
-                if (!allRead) {
-                    e.preventDefault();
-                    documentAcceptanceInputs.forEach((input) => {
-                        if (!input.checked) {
-                            openModal(input.name.replace('document_acceptances[', '').replace(']', ''));
-                            return;
-                        }
-                    });
-                }
-            });
-        }
 
         documentAcceptanceInputs.forEach((input) => {
             input.addEventListener('change', () => {
-                const allRead = documentAcceptanceInputs.every((checkbox) => checkbox.checked);
-                if (masterAcceptanceCheckbox) {
-                    masterAcceptanceCheckbox.checked = allRead;
-                }
+                // no-op: cada documento é validado individualmente
             });
         });
 
