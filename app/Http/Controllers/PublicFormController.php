@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FormSubmission;
+use App\Models\LegalDocument;
 use App\Models\Setting;
 use App\Rules\Cnpj;
 use App\Rules\Cpf;
@@ -32,23 +33,24 @@ class PublicFormController extends Controller
     public function show(string $form): View
     {
         $formConfig = $this->availableForm($form);
+        $termsDocuments = $this->loadTermsDocuments();
 
         return view($formConfig['view'], [
             'form' => $formConfig,
             'terms_pf' => Setting::get('terms_pf', ''),
             'terms_pj' => Setting::get('terms_pj', ''),
-            'code_of_conduct_pf' => Setting::get('code_of_conduct_pf', ''),
-            'code_of_conduct_pj' => Setting::get('code_of_conduct_pj', ''),
-            'integrity_policy_pf' => Setting::get('integrity_policy_pf', ''),
-            'integrity_policy_pj' => Setting::get('integrity_policy_pj', ''),
-            'data_protection_pf' => Setting::get('data_protection_pf', ''),
-            'data_protection_pj' => Setting::get('data_protection_pj', ''),
-            'code_of_conduct_version_pf' => Setting::get('code_of_conduct_version_pf', 'v1.0'),
-            'code_of_conduct_version_pj' => Setting::get('code_of_conduct_version_pj', 'v1.0'),
-            'integrity_policy_version_pf' => Setting::get('integrity_policy_version_pf', 'v1.0'),
-            'integrity_policy_version_pj' => Setting::get('integrity_policy_version_pj', 'v1.0'),
-            'data_protection_version_pf' => Setting::get('data_protection_version_pf', 'v1.0'),
-            'data_protection_version_pj' => Setting::get('data_protection_version_pj', 'v1.0'),
+            'code_of_conduct_pf' => $termsDocuments['pf']['code_of_conduct']['text'],
+            'code_of_conduct_pj' => $termsDocuments['pj']['code_of_conduct']['text'],
+            'integrity_policy_pf' => $termsDocuments['pf']['integrity_policy']['text'],
+            'integrity_policy_pj' => $termsDocuments['pj']['integrity_policy']['text'],
+            'data_protection_pf' => $termsDocuments['pf']['data_protection']['text'],
+            'data_protection_pj' => $termsDocuments['pj']['data_protection']['text'],
+            'code_of_conduct_version_pf' => $termsDocuments['pf']['code_of_conduct']['version'],
+            'code_of_conduct_version_pj' => $termsDocuments['pj']['code_of_conduct']['version'],
+            'integrity_policy_version_pf' => $termsDocuments['pf']['integrity_policy']['version'],
+            'integrity_policy_version_pj' => $termsDocuments['pj']['integrity_policy']['version'],
+            'data_protection_version_pf' => $termsDocuments['pf']['data_protection']['version'],
+            'data_protection_version_pj' => $termsDocuments['pj']['data_protection']['version'],
         ]);
     }
 
@@ -311,9 +313,11 @@ class PublicFormController extends Controller
             'legal_representative_cpf' => ['required', 'string', 'max:50', new Cpf],
             'legal_representative_role' => ['nullable', 'string', 'max:255'],
             'legal_representative_date' => ['required', 'date'],
-            'document_acceptances' => ['sometimes', 'array', 'min:3'],
-            'document_acceptances.*' => ['accepted'],
-            'representation_authority_accepted' => ['sometimes', 'accepted'],
+            'document_acceptances' => ['required', 'array'],
+            'document_acceptances.code_of_conduct' => ['accepted'],
+            'document_acceptances.integrity_policy' => ['accepted'],
+            'document_acceptances.data_protection' => ['accepted'],
+            'representation_authority_accepted' => ['accepted'],
             'compliance_aceito_em' => ['prohibited'],
             'documents' => ['nullable', 'array'],
             'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,zip,rar,7z', 'max:15360'],
@@ -370,5 +374,50 @@ class PublicFormController extends Controller
     private function formsCatalog(): array
     {
         return config('forms', []);
+    }
+
+    private function loadTermsDocuments(): array
+    {
+        $definitions = [
+            'code_of_conduct' => 'Código de conduta',
+            'integrity_policy' => 'Política de integridade',
+            'data_protection' => 'Termo de proteção de dados pessoais - LGPD',
+        ];
+
+        $documents = [
+            'pf' => [],
+            'pj' => [],
+        ];
+
+        foreach (['pf', 'pj'] as $personType) {
+            $fallbackType = $personType === 'pf' ? 'pj' : 'pf';
+
+            foreach ($definitions as $documentKey => $title) {
+                $fallbackText = (string) Setting::get("{$documentKey}_{$personType}", '');
+                $fallbackVersion = (string) Setting::get("{$documentKey}_version_{$personType}", 'v1.0');
+
+                if (trim($fallbackText) === '') {
+                    $fallbackText = (string) Setting::get("{$documentKey}_{$fallbackType}", '');
+                    $fallbackVersion = (string) Setting::get("{$documentKey}_version_{$fallbackType}", $fallbackVersion);
+                }
+
+                $document = LegalDocument::getDocument($documentKey, $personType, $title, $fallbackText, $fallbackVersion);
+
+                if (trim((string) ($document['text'] ?? '')) === '') {
+                    $fallbackDocument = LegalDocument::getDocument($documentKey, $fallbackType, $title, $fallbackText, $fallbackVersion);
+                    if (trim((string) ($fallbackDocument['text'] ?? '')) !== '') {
+                        $document = $fallbackDocument;
+                    }
+                }
+
+                if (trim((string) ($document['text'] ?? '')) === '') {
+                    $document['text'] = 'Conteúdo indisponível no momento. O aceite deste documento continua obrigatório para concluir o envio.';
+                }
+
+                $documents[$personType][$documentKey] = $document;
+            }
+        }
+
+        return $documents;
     }
 }

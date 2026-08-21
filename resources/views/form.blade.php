@@ -636,6 +636,19 @@
                         ['key' => 'integrity_policy', 'label' => 'Política de integridade'],
                         ['key' => 'data_protection', 'label' => 'Termo de proteção de dados pessoais - LGPD'],
                     ];
+
+                    $termsDocumentsByType = [
+                        'pf' => [
+                            'code_of_conduct' => $code_of_conduct_pf ?? '',
+                            'integrity_policy' => $integrity_policy_pf ?? '',
+                            'data_protection' => $data_protection_pf ?? '',
+                        ],
+                        'pj' => [
+                            'code_of_conduct' => $code_of_conduct_pj ?? '',
+                            'integrity_policy' => $integrity_policy_pj ?? '',
+                            'data_protection' => $data_protection_pj ?? '',
+                        ],
+                    ];
                 @endphp
 
                 <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm space-y-5">
@@ -644,53 +657,34 @@
                         <p class="block text-sm font-semibold text-slate-800">Termos e Condições</p>
                     </div>
 
-                    <div class="pf-only rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-5">
-                        @foreach($termsDocumentDefinitions as $document)
-                            @php
-                                $documentKey = $document['key'];
-                                $value = match ($documentKey) {
-                                    'code_of_conduct' => $code_of_conduct_pf ?? '',
-                                    'integrity_policy' => $integrity_policy_pf ?? '',
-                                    'data_protection' => $data_protection_pf ?? '',
-                                    default => '',
-                                };
-                            @endphp
-                            <div class="rounded-xl border border-slate-200 bg-white p-4">
-                                <label class="block text-base font-bold text-slate-900 mb-3">{{ $document['label'] }}</label>
-                                <div class="max-h-[280px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                    <pre class="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 font-sans">{{ $value }}</pre>
+                    @foreach(['pf', 'pj'] as $personType)
+                        @php
+                            $typeContainerClass = $personType === 'pf' ? 'pf-only' : 'pj-only hidden';
+                        @endphp
+                        <div class="{{ $typeContainerClass }} rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-5">
+                            @foreach($termsDocumentDefinitions as $document)
+                                @php
+                                    $documentKey = $document['key'];
+                                    $value = (string) ($termsDocumentsByType[$personType][$documentKey] ?? '');
+                                    $hasContent = trim($value) !== '';
+                                @endphp
+                                <div class="rounded-xl border border-slate-200 bg-white p-4">
+                                    <label class="block text-base font-bold text-slate-900 mb-3">{{ $document['label'] }}</label>
+                                    <div class="max-h-[280px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                        @if($hasContent)
+                                            <pre class="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 font-sans">{{ $value }}</pre>
+                                        @else
+                                            <p class="text-sm leading-relaxed text-amber-700">Conteúdo indisponível no momento. O aceite deste documento continua obrigatório para concluir o envio.</p>
+                                        @endif
+                                    </div>
+                                    <label class="mt-4 flex items-start gap-3 text-sm text-slate-800">
+                                        <input type="checkbox" name="document_acceptances[{{ $documentKey }}]" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                                        <span>Li e aceito este documento.</span>
+                                    </label>
                                 </div>
-                                <label class="mt-4 flex items-start gap-3 text-sm text-slate-800">
-                                    <input type="checkbox" name="document_acceptances[{{ $documentKey }}]" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
-                                    <span>Li e aceito este documento.</span>
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="pj-only rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-5 hidden">
-                        @foreach($termsDocumentDefinitions as $document)
-                            @php
-                                $documentKey = $document['key'];
-                                $value = match ($documentKey) {
-                                    'code_of_conduct' => $code_of_conduct_pj ?? '',
-                                    'integrity_policy' => $integrity_policy_pj ?? '',
-                                    'data_protection' => $data_protection_pj ?? '',
-                                    default => '',
-                                };
-                            @endphp
-                            <div class="rounded-xl border border-slate-200 bg-white p-4">
-                                <label class="block text-base font-bold text-slate-900 mb-3">{{ $document['label'] }}</label>
-                                <div class="max-h-[280px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                    <pre class="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 font-sans">{{ $value }}</pre>
-                                </div>
-                                <label class="mt-4 flex items-start gap-3 text-sm text-slate-800">
-                                    <input type="checkbox" name="document_acceptances[{{ $documentKey }}]" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
-                                    <span>Li e aceito este documento.</span>
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @endforeach
 
                     <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <label class="flex items-start gap-3 text-sm text-slate-800">
@@ -705,6 +699,7 @@
                     @error('representation_authority_accepted')
                         <p class="text-xs text-red-600">Você precisa confirmar que possui poderes de representação para este aceite.</p>
                     @enderror
+                    <p id="document-acceptance-error" class="hidden text-xs text-red-600">Você precisa marcar os documentos ativos e confirmar os poderes de representação para enviar.</p>
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -1119,15 +1114,21 @@
         }
 
         form.addEventListener('submit', (e) => {
-            const documentAcceptanceInputs = Array.from(document.querySelectorAll('input[name^="document_acceptances"][type="checkbox"]'));
+            const documentAcceptanceError = document.getElementById('document-acceptance-error');
+            const documentAcceptanceInputs = Array
+                .from(document.querySelectorAll('input[name^="document_acceptances"][type="checkbox"]'))
+                .filter((input) => !input.disabled && isEnabledForType(input));
             const representationAuthorityInput = document.getElementById('representation_authority_accepted');
 
             const allDocumentAcceptancesChecked = documentAcceptanceInputs.length > 0 && documentAcceptanceInputs.every((input) => input.checked);
-            const representationAuthorityChecked = !representationAuthorityInput || representationAuthorityInput.checked;
+            const representationAuthorityChecked = !representationAuthorityInput || representationAuthorityInput.disabled || representationAuthorityInput.checked;
 
             if (!allDocumentAcceptancesChecked || !representationAuthorityChecked) {
                 e.preventDefault();
                 showStep(3);
+                if (documentAcceptanceError) {
+                    documentAcceptanceError.classList.remove('hidden');
+                }
                 if (!allDocumentAcceptancesChecked) {
                     const firstUnchecked = documentAcceptanceInputs.find((input) => !input.checked);
                     firstUnchecked?.focus();
@@ -1135,6 +1136,10 @@
                     representationAuthorityInput.focus();
                 }
                 return;
+            }
+
+            if (documentAcceptanceError) {
+                documentAcceptanceError.classList.add('hidden');
             }
 
             const invalidFields = validateForm();
