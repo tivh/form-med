@@ -23,6 +23,14 @@ class FormSubmissionValidationTest extends TestCase
             ->assertSee('Termo de proteção de dados pessoais - LGPD');
     }
 
+    public function test_public_form_pj_terms_block_is_not_rendered_hidden_by_default(): void
+    {
+        $response = $this->get(route('forms.show', ['form' => 'form-med']));
+
+        $response->assertOk()
+            ->assertDontSee('pj-only hidden');
+    }
+
     public function test_public_form_allows_empty_documentation_checklist_and_empty_additional_uploads(): void
     {
         Storage::fake('private_uploads');
@@ -61,6 +69,11 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_role' => 'Diretor',
             'legal_representative_date' => '2026-07-28',
             'terms_accepted' => '1',
+            'document_acceptances' => [
+                'code_of_conduct' => '1',
+                'integrity_policy' => '1',
+                'data_protection' => '1',
+            ],
             'representation_authority_accepted' => '1',
             'documents' => [],
         ]);
@@ -123,6 +136,11 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_role' => 'Diretora',
             'legal_representative_date' => '2026-07-28',
             'terms_accepted' => '1',
+            'document_acceptances' => [
+                'code_of_conduct' => '1',
+                'integrity_policy' => '1',
+                'data_protection' => '1',
+            ],
             'representation_authority_accepted' => '1',
             'documents' => [UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf')],
         ]);
@@ -190,6 +208,11 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_role' => 'Diretora',
             'legal_representative_date' => '2026-07-28',
             'terms_accepted' => '1',
+            'document_acceptances' => [
+                'code_of_conduct' => '1',
+                'integrity_policy' => '1',
+                'data_protection' => '1',
+            ],
             'representation_authority_accepted' => '1',
             'documents' => [UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf')],
         ]);
@@ -247,6 +270,11 @@ class FormSubmissionValidationTest extends TestCase
             'legal_representative_role' => 'Diretora',
             'legal_representative_date' => '2026-07-28',
             'terms_accepted' => '1',
+            'document_acceptances' => [
+                'code_of_conduct' => '1',
+                'integrity_policy' => '1',
+                'data_protection' => '1',
+            ],
             'representation_authority_accepted' => '1',
             'documents' => [UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf')],
         ]);

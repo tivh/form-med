@@ -659,7 +659,7 @@
 
                     @foreach(['pf', 'pj'] as $personType)
                         @php
-                            $typeContainerClass = $personType === 'pf' ? 'pf-only' : 'pj-only hidden';
+                            $typeContainerClass = $personType === 'pf' ? 'pf-only' : 'pj-only';
                         @endphp
                         <div class="{{ $typeContainerClass }} rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-5">
                             @foreach($termsDocumentDefinitions as $document)
@@ -908,6 +908,7 @@
 
         const setVisibilityAndState = (selector, visible) => {
             form.querySelectorAll(selector).forEach((el) => {
+                el.classList.toggle('hidden', !visible);
                 el.style.display = visible ? '' : 'none';
                 if (el.matches('input, select, textarea')) {
                     el.disabled = !visible;
