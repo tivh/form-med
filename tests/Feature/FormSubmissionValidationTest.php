@@ -17,6 +17,9 @@ class FormSubmissionValidationTest extends TestCase
     {
         $this->get(route('forms.show', ['form' => 'form-med']))
             ->assertOk()
+            ->assertSee('id="submission-form" novalidate', false)
+            ->assertSee('id="client-validation-error"', false)
+            ->assertSee('Não foi possível enviar o formulário.')
             ->assertSee('Termos e Condições')
             ->assertSee('Código de conduta')
             ->assertSee('Política de integridade')

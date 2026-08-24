@@ -37,7 +37,12 @@
             </div>
         @endif
 
-        <form action="{{ route('forms.submit', ['form' => $formSlug]) }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="submission-form">
+        <div id="client-validation-error" role="alert" aria-live="assertive" class="hidden mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
+            <p class="font-semibold">Não foi possível enviar o formulário.</p>
+            <p id="client-validation-error-message" class="mt-1 text-sm"></p>
+        </div>
+
+        <form action="{{ route('forms.submit', ['form' => $formSlug]) }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="submission-form" novalidate>
             @csrf
             <input type="hidden" name="submission_context" value="{{ $form['submission_context'] ?? 'public' }}">
 
@@ -724,7 +729,21 @@
         const prevBtn = document.getElementById('previous-step');
         const nextToTermsBtn = document.getElementById('next-to-terms');
         const prevToStep2Btn = document.getElementById('previous-to-step-2');
+        const clientValidationError = document.getElementById('client-validation-error');
+        const clientValidationErrorMessage = document.getElementById('client-validation-error-message');
         let currentStep = 1;
+
+        const showClientValidationError = (message) => {
+            if (!clientValidationError || !clientValidationErrorMessage) return;
+
+            clientValidationErrorMessage.textContent = message;
+            clientValidationError.classList.remove('hidden');
+            clientValidationError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        const clearClientValidationError = () => {
+            clientValidationError?.classList.add('hidden');
+        };
 
         const getRegistrationType = () => form.querySelector('input[name="registration_type"]:checked')?.value;
 
@@ -1127,6 +1146,7 @@
             if (!allDocumentAcceptancesChecked || !representationAuthorityChecked) {
                 e.preventDefault();
                 showStep(3);
+                showClientValidationError('Revise os termos e condições e confirme todos os aceites obrigatórios.');
                 if (documentAcceptanceError) {
                     documentAcceptanceError.classList.remove('hidden');
                 }
@@ -1142,11 +1162,13 @@
             if (documentAcceptanceError) {
                 documentAcceptanceError.classList.add('hidden');
             }
+            clearClientValidationError();
 
             const invalidFields = validateForm();
             if (invalidFields.length > 0) {
                 e.preventDefault();
                 showStep(getStepForField(invalidFields[0]));
+                showClientValidationError('Revise os campos obrigatórios destacados antes de enviar o formulário.');
                 invalidFields[0].focus();
                 return;
             }
@@ -1157,6 +1179,7 @@
                 const fileInput = document.getElementById('documents');
                 if (fileInput) {
                     showStep(getStepForField(fileInput));
+                    showClientValidationError('Revise os arquivos anexados antes de enviar o formulário.');
                     fileInput.focus();
                 }
                 return;
@@ -1176,6 +1199,7 @@
                     markFieldValidity(cpfInput, true);
                     if (cpfError) cpfError.classList.remove('hidden');
                     showStep(getStepForField(cpfInput));
+                    showClientValidationError('Informe um CPF válido antes de enviar o formulário.');
                     cpfInput.focus();
                     return;
                 }
@@ -1189,6 +1213,7 @@
                     markFieldValidity(cnpjInput, true);
                     if (cnpjError) cnpjError.classList.remove('hidden');
                     showStep(getStepForField(cnpjInput));
+                    showClientValidationError('Informe um CNPJ válido antes de enviar o formulário.');
                     cnpjInput.focus();
                     return;
                 }
@@ -1202,6 +1227,7 @@
                     markFieldValidity(legalCpfInput, true);
                     if (legalCpfError) legalCpfError.classList.remove('hidden');
                     showStep(getStepForField(legalCpfInput));
+                    showClientValidationError('Informe um CPF válido para o representante legal antes de enviar o formulário.');
                     legalCpfInput.focus();
                     return;
                 }
