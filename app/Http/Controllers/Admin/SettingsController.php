@@ -11,8 +11,10 @@ use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        abort_unless($request->user()->isSuperAdmin(), 403, 'Acesso restrito ao Super Admin.');
+
         $documentGroups = [
             'code_of_conduct' => ['label' => 'Código de conduta'],
             'integrity_policy' => ['label' => 'Política de integridade'],
@@ -42,6 +44,8 @@ class SettingsController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        abort_unless($request->user()->isSuperAdmin(), 403, 'Acesso restrito ao Super Admin.');
+
         $request->validate([
             'terms_pf' => ['nullable', 'string', 'max:10000'],
             'terms_pj' => ['nullable', 'string', 'max:10000'],

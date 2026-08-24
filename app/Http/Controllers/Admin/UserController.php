@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Area;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,31 +15,33 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $actingUser = $request->user();
+        abort_unless($actingUser->isSuperAdmin(), 403, 'Acesso restrito ao Super Admin.');
 
-        $query = User::query()->latest();
-
-        if (!$actingUser->isSuperAdmin()) {
-            $query->where('form_scope', $actingUser->form_scope);
-        }
-
+        $query = User::query()->with('areas')->latest();
         $users = $query->paginate(20);
 
         return view('admin.users.index', [
             'users' => $users,
-            'isSuperAdmin' => $actingUser->isSuperAdmin(),
+            'isSuperAdmin' => true,
         ]);
     }
 
     public function create(Request $request): View
     {
+        abort_unless($request->user()->isSuperAdmin(), 403, 'Acesso restrito ao Super Admin.');
+
+        $areas = Area::active()->get();
+
         return view('admin.users.create', [
-            'isSuperAdmin' => $request->user()->isSuperAdmin(),
+            'areas' => $areas,
+            'isSuperAdmin' => true,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $actingUser = $request->user();
+        abort_unless($actingUser->isSuperAdmin(), 403, 'Acesso restrito ao Super Admin.');
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
@@ -47,25 +50,44 @@ class UserController extends Controller
         ];
 
         if ($actingUser->isSuperAdmin()) {
-            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))] ;
+            $rules['is_super_admin'] = ['nullable', 'boolean'];
+            $rules['areas'] = ['nullable', 'array'];
+            $rules['areas.*'] = ['string'];
+            $rules['form_scope'] = ['nullable', 'string'];
             $rules['admin_role'] = ['nullable', 'array'];
             $rules['admin_role.*'] = ['string', 'in:pj,pj-rh,pf,pj_diverso,pj_colaborador'];
         }
 
         $data = $request->validate($rules);
 
-        // Admin escopado só cria usuário dentro do próprio escopo, não escolhe.
-        $formScope = $actingUser->isSuperAdmin()
-            ? ($data['form_scope'] ?? null)
-            : $actingUser->form_scope;
+        $isSuperAdmin = $actingUser->isSuperAdmin() && !empty($data['is_super_admin']);
 
-        User::create([
+        // Se for Super Admin, não precisa de form_scope
+        $formScope = null;
+        if (!$isSuperAdmin) {
+            if ($actingUser->isSuperAdmin()) {
+                $selectedAreas = $data['areas'] ?? (!empty($data['form_scope']) ? [$data['form_scope']] : []);
+                $formScope = count($selectedAreas) === 1 ? $selectedAreas[0] : (count($selectedAreas) > 1 ? implode(',', $selectedAreas) : null);
+            } else {
+                $formScope = $actingUser->form_scope;
+            }
+        }
+
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'is_super_admin' => $isSuperAdmin,
             'form_scope' => $formScope,
             'admin_role' => $this->normalizeAdminRole($data['admin_role'] ?? null),
         ]);
+
+        if ($actingUser->isSuperAdmin()) {
+            $this->syncUserAreas($user, $isSuperAdmin, $data['areas'] ?? [], $data['admin_role'] ?? null);
+        } elseif ($actingUser->areas()->exists()) {
+            // Se usuário escopado criar outro usuário, herda a mesma área
+            $user->areas()->sync($actingUser->areas()->pluck('areas.id'));
+        }
 
         return redirect()
             ->route('admin.users.index')
@@ -76,8 +98,12 @@ class UserController extends Controller
     {
         $this->authorizeManage($request->user(), $user);
 
+        $areas = Area::active()->get();
+        $user->load('areas');
+
         return view('admin.users.edit', [
             'user' => $user,
+            'areas' => $areas,
             'isSuperAdmin' => $request->user()->isSuperAdmin(),
         ]);
     }
@@ -95,22 +121,30 @@ class UserController extends Controller
         ];
 
         if ($actingUser->isSuperAdmin()) {
-            $rules['form_scope'] = ['nullable', 'string', 'in:' . implode(',', array_keys(config('admin_areas')))];            $rules['admin_role'] = ['nullable', 'array'];
-            $rules['admin_role.*'] = ['string', 'in:pj,pj-rh,pf,pj_diverso,pj_colaborador'];        }
+            $rules['is_super_admin'] = ['nullable', 'boolean'];
+            $rules['areas'] = ['nullable', 'array'];
+            $rules['areas.*'] = ['string'];
+            $rules['form_scope'] = ['nullable', 'string'];
+            $rules['admin_role'] = ['nullable', 'array'];
+            $rules['admin_role.*'] = ['string', 'in:pj,pj-rh,pf,pj_diverso,pj_colaborador'];
+        }
 
         $data = $request->validate($rules);
+
+        $isSuperAdmin = $actingUser->isSuperAdmin()
+            ? (bool) ($data['is_super_admin'] ?? false)
+            : $user->isSuperAdmin();
 
         // Impede o último Super Admin de se rebaixar e travar o próprio acesso.
         if (
             $actingUser->isSuperAdmin()
             && $user->id === $actingUser->id
-            && array_key_exists('form_scope', $data)
-            && !empty($data['form_scope'])
-            && User::whereNull('form_scope')->count() <= 1
+            && !$isSuperAdmin
+            && User::where('is_super_admin', true)->count() <= 1
         ) {
             return back()
                 ->withInput()
-                ->withErrors(['form_scope' => 'Não é possível remover o último Super Admin do sistema.']);
+                ->withErrors(['is_super_admin' => 'Não é possível remover o último Super Admin do sistema.']);
         }
 
         $updateData = [
@@ -122,13 +156,14 @@ class UserController extends Controller
             $updateData['password'] = Hash::make($data['password']);
         }
 
-        // Só o Super Admin pode alterar a área de um usuário.
-        if ($actingUser->isSuperAdmin() && array_key_exists('form_scope', $data)) {
-            $updateData['form_scope'] = $data['form_scope'] ?: null;
-        }
+        if ($actingUser->isSuperAdmin()) {
+            $updateData['is_super_admin'] = $isSuperAdmin;
 
-        if ($actingUser->isSuperAdmin() && array_key_exists('admin_role', $data)) {
+            $selectedAreas = $data['areas'] ?? (!empty($data['form_scope']) ? [$data['form_scope']] : []);
+            $updateData['form_scope'] = count($selectedAreas) === 1 ? $selectedAreas[0] : null;
             $updateData['admin_role'] = $this->normalizeAdminRole($data['admin_role'] ?? null);
+
+            $this->syncUserAreas($user, $isSuperAdmin, $selectedAreas, $data['admin_role'] ?? null);
         }
 
         $user->update($updateData);
@@ -138,35 +173,62 @@ class UserController extends Controller
             ->with('status', 'Usuário atualizado com sucesso.');
     }
 
-    private function normalizeAdminRole(mixed $value): ?string
+    private function syncUserAreas(User $user, bool $isSuperAdmin, array $selectedAreaSlugs, mixed $rawAdminRole): void
+    {
+        if ($isSuperAdmin) {
+            // Super Admin tem acesso a todas as áreas sem precisar de registros pivot restritivos
+            $user->areas()->detach();
+            return;
+        }
+
+        $allAreas = Area::whereIn('slug', $selectedAreaSlugs)->get();
+        $syncData = [];
+
+        $normalizedClassifications = $this->extractClassifications($rawAdminRole);
+
+        foreach ($allAreas as $area) {
+            $permissions = null;
+            if ($area->slug === 'form-med' && $normalizedClassifications !== []) {
+                $permissions = json_encode([
+                    'allowed_classifications' => $normalizedClassifications,
+                ]);
+            }
+
+            $syncData[$area->id] = [
+                'permissions' => $permissions,
+            ];
+        }
+
+        $user->areas()->sync($syncData);
+    }
+
+    private function extractClassifications(mixed $value): array
     {
         if (empty($value)) {
-            return null;
+            return [];
         }
 
-        if (is_array($value)) {
-            $values = array_values(array_unique(array_filter(array_map('strval', $value), fn ($item) => $item !== '')));
-            return $values === [] ? null : implode(',', $values);
-        }
+        $array = is_array($value) ? $value : explode(',', (string) $value);
+        $normalized = array_map(function ($item) {
+            $trimmed = trim((string) $item);
+            return match ($trimmed) {
+                'pj_diverso', 'pj' => 'pj',
+                'pj_colaborador', 'pj-rh' => 'pj-rh',
+                default => $trimmed,
+            };
+        }, $array);
 
-        if (is_string($value)) {
-            $values = array_filter(array_map('trim', explode(',', $value)));
-            return $values === [] ? null : implode(',', $values);
-        }
+        return array_values(array_unique(array_filter($normalized, fn ($v) => in_array($v, ['pj', 'pj-rh', 'pf'], true))));
+    }
 
-        return null;
+    private function normalizeAdminRole(mixed $value): ?string
+    {
+        $classifications = $this->extractClassifications($value);
+        return $classifications === [] ? null : implode(',', $classifications);
     }
 
     private function authorizeManage(User $actingUser, User $targetUser): void
     {
-        if ($actingUser->isSuperAdmin()) {
-            return;
-        }
-
-        abort_unless(
-            $targetUser->form_scope === $actingUser->form_scope,
-            403,
-            'Você não tem permissão para gerenciar este usuário.'
-        );
+        abort_unless($actingUser->isSuperAdmin(), 403, 'Acesso restrito ao Super Admin.');
     }
 }
