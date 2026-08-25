@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Area;
 use App\Models\CustomForm;
+use App\Models\FormField;
 use App\Models\FormSubmission;
 use App\Models\TaxRegimeSubmission;
 use App\Models\User;
@@ -143,5 +144,49 @@ class DynamicFormFilamentTest extends TestCase
         $showResponse = $this->get(route('forms.show', ['form' => 'novo-formulario-teste']));
         $showResponse->assertOk()
             ->assertSee('Novo Formulário Customizado');
+    }
+
+    public function test_super_admin_can_save_custom_form_via_filament_page(): void
+    {
+        $admin = User::factory()->create([
+            'is_super_admin' => true,
+        ]);
+        $admin->markEmailAsVerified();
+
+        $formMed = CustomForm::where('slug', 'form-med')->firstOrFail();
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Resources\CustomFormResource\Pages\EditCustomForm::class, [
+                'record' => $formMed->getRouteKey(),
+            ])
+            ->fillForm([
+                'title' => 'Formulário Alterado com Sucesso',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertEquals('Formulário Alterado com Sucesso', $formMed->fresh()->title);
+    }
+
+    public function test_tax_regime_custom_options_render_on_public_page(): void
+    {
+        $taxForm = CustomForm::where('slug', 'regime-tributario')->firstOrFail();
+        $field = FormField::whereHas('step', fn ($q) => $q->where('custom_form_id', $taxForm->id))
+            ->where('name', 'regime_tributario')
+            ->firstOrFail();
+
+        $field->update([
+            'options' => [
+                'Simples Regular',
+                'Simples Hibrido',
+                'Lucro Presumido',
+                'Lucro Real',
+            ],
+        ]);
+
+        $response = $this->get(route('tax-regime.show'));
+        $response->assertOk()
+            ->assertSee('Simples Regular')
+            ->assertSee('Simples Hibrido');
     }
 }

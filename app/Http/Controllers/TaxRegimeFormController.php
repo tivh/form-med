@@ -20,7 +20,7 @@ class TaxRegimeFormController extends Controller
         $validated = $request->validate([
             'razao_social' => ['required', 'string', 'max:255'],
             'cnpj' => ['required', 'string', 'max:50', new Cnpj],
-            'regime_tributario' => ['required', 'string', 'in:Simples Nacional,Lucro Presumido,Lucro Real'],
+            'regime_tributario' => ['required', 'string', 'max:255'],
             'lc_214_2025_compliant' => ['required', 'boolean'],
         ]);
 

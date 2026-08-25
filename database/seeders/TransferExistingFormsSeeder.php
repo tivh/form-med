@@ -468,10 +468,10 @@ class TransferExistingFormsSeeder extends Seeder
                 'type' => 'radio',
                 'is_required' => true,
                 'options' => [
-                    ['label' => 'Simples Nacional', 'value' => 'simples_nacional'],
-                    ['label' => 'Lucro Presumido', 'value' => 'lucro_presumido'],
-                    ['label' => 'Lucro Real', 'value' => 'lucro_real'],
-                    ['label' => 'MEI (Microempreendedor Individual)', 'value' => 'mei'],
+                    'simples_nacional' => 'Simples Nacional',
+                    'lucro_presumido' => 'Lucro Presumido',
+                    'lucro_real' => 'Lucro Real',
+                    'mei' => 'MEI (Microempreendedor Individual)',
                 ],
                 'grid_columns' => 2,
                 'order_index' => 3,
@@ -499,7 +499,7 @@ class TransferExistingFormsSeeder extends Seeder
                 'type' => 'radio',
                 'is_required' => true,
                 'options' => [
-                    ['label' => 'Declaro sob as penas da lei a exatidão e veracidade do regime tributário informado.', 'value' => 'concorda'],
+                    'concorda' => 'Declaro sob as penas da lei a exatidão e veracidade do regime tributário informado.',
                 ],
                 'grid_columns' => 1,
                 'order_index' => 6,

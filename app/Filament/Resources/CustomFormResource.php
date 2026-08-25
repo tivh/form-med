@@ -191,8 +191,24 @@ class CustomFormResource extends Resource
 
                                                 Forms\Components\KeyValue::make('options')
                                                     ->label('Opções de Resposta (para Radio / Select / Checkbox)')
-                                                    ->keyLabel('Valor')
+                                                    ->keyLabel('Valor / Chave')
                                                     ->valueLabel('Rótulo visível')
+                                                    ->formatStateUsing(function ($state) {
+                                                        if (!is_array($state)) {
+                                                            return [];
+                                                        }
+                                                        $normalized = [];
+                                                        foreach ($state as $key => $val) {
+                                                            if (is_array($val)) {
+                                                                $itemKey = $val['value'] ?? $key;
+                                                                $itemLabel = $val['label'] ?? ($val['value'] ?? '');
+                                                                $normalized[(string) $itemKey] = (string) $itemLabel;
+                                                            } else {
+                                                                $normalized[(string) $key] = (string) $val;
+                                                            }
+                                                        }
+                                                        return $normalized;
+                                                    })
                                                     ->visible(fn (Forms\Get $get) => in_array($get('type'), ['radio', 'select', 'checkbox'])),
                                             ])
                                             ->columnSpanFull(),
