@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Filament\Resources\CustomFormResource\Pages;
+
+use App\Filament\Resources\CustomFormResource;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateCustomForm extends CreateRecord
+{
+    protected static string $resource = CustomFormResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+}

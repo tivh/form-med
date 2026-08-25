@@ -3,14 +3,11 @@
 use App\Http\Controllers\Admin\ComplianceDocumentController as AdminComplianceDocumentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
-use App\Http\Controllers\Admin\GlpiFeedController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\SupportAdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComplianceDocumentController;
 use App\Http\Controllers\PublicFormController;
-use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\TaxRegimeFormController;
 use App\Http\Controllers\TaxRegimeSubmissionController;
 use Illuminate\Support\Facades\Route;
@@ -55,14 +52,6 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/suporte', [SupportRequestController::class, 'create'])->name('support.create');
-Route::post('/suporte', [SupportRequestController::class, 'store'])->name('support.store');
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/minhas-solicitacoes', [SupportRequestController::class, 'index'])->name('support.index');
-    Route::get('/minhas-solicitacoes/{supportRequest}', [SupportRequestController::class, 'show'])->name('support.show');
-});
-
 Route::get('/documentos-comp', [ComplianceDocumentController::class, 'index'])->name('compliance.index');
 Route::get('/documentos-comp/{complianceDocument}/download', [ComplianceDocumentController::class, 'download'])->name('compliance.download');
 
@@ -98,22 +87,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::post('tax-regime/{taxRegimeSubmission}/toggle-verified', [TaxRegimeSubmissionController::class, 'toggleVerified'])->name('tax-regime.toggle-verified');
         Route::delete('tax-regime/{taxRegimeSubmission}', [TaxRegimeSubmissionController::class, 'destroy'])->name('tax-regime.destroy');
     });
-    // routes/web.php — dentro do grupo Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(...)
 
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
-    Route::get('glpi-feed', [GlpiFeedController::class, 'index'])->name('glpi-feed.index');
-    Route::get('glpi-feed/data', [GlpiFeedController::class, 'data'])->name('glpi-feed.data');
-
-    Route::get('support', [SupportAdminController::class, 'feed'])->name('support.feed');
-    Route::get('support/{supportRequest}', [SupportAdminController::class, 'show'])->name('support.show');
-    Route::post('support/{supportRequest}/reply', [SupportAdminController::class, 'reply'])->name('support.reply');
-    Route::patch('support/{supportRequest}/close', [SupportAdminController::class, 'close'])->name('support.close');
-
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('users', [UserController::class, 'store'])->name('users.store');
-    Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');   // NOVO
-    Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');    // NOVO
+    Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
 });

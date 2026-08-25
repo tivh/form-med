@@ -361,18 +361,55 @@ class PublicFormController extends Controller
 
     private function availableForm(string $slug): array
     {
-        $forms = $this->formsCatalog();
-        $form = $forms[$slug] ?? null;
+        if (\Illuminate\Support\Facades\Schema::hasTable('custom_forms')) {
+            $customForm = \App\Models\CustomForm::where('slug', $slug)->with(['steps.fields'])->first();
 
-        if (!$form || ($form['status'] ?? 'online') !== 'online') {
-            abort(404);
+            if ($customForm) {
+                $view = $customForm->slug === 'regime-tributario' ? 'tax-regime-form' : 'form';
+                return [
+                    'slug' => $customForm->slug,
+                    'title' => $customForm->title,
+                    'description' => $customForm->description,
+                    'status' => $customForm->status,
+                    'view' => $view,
+                    'form_type' => $customForm->slug,
+                    'submission_context' => $customForm->submission_context ?? 'public',
+                    'restrict_registration_type' => $customForm->restrict_registration_type,
+                    'is_multi_step' => $customForm->is_multi_step,
+                    'model' => $customForm,
+                ];
+            }
         }
+
+        $form = config("forms.{$slug}");
+
+        abort_unless($form, 404, 'Formulário não encontrado.');
 
         return array_merge($form, ['slug' => $slug]);
     }
 
     private function formsCatalog(): array
     {
+        if (\Illuminate\Support\Facades\Schema::hasTable('custom_forms')) {
+            $dbForms = \App\Models\CustomForm::online()->get();
+
+            if ($dbForms->isNotEmpty()) {
+                $catalog = [];
+                foreach ($dbForms as $form) {
+                    $catalog[$form->slug] = [
+                        'title' => $form->title,
+                        'description' => $form->description,
+                        'status' => $form->status,
+                        'view' => $form->slug === 'regime-tributario' ? 'tax-regime-form' : 'form',
+                        'form_type' => $form->slug,
+                        'submission_context' => $form->submission_context,
+                        'restrict_registration_type' => $form->restrict_registration_type,
+                    ];
+                }
+                return $catalog;
+            }
+        }
+
         return config('forms', []);
     }
 

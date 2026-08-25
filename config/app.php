@@ -1,4 +1,4 @@
-<?php
+ï»¿<?php
 
 return [
     'name' => env('APP_NAME', 'Laravel'),
@@ -36,13 +36,14 @@ return [
         Illuminate\Session\SessionServiceProvider::class,
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
-        Illuminate\View\ViewServiceProvider::class, // Aqui está a classe que estava faltando!
+        Illuminate\View\ViewServiceProvider::class,
 
         /* Application Service Providers... */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\Filament\AdminPanelProvider::class,
     ],
 
     'aliases' => [
