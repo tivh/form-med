@@ -218,4 +218,12 @@ class User extends Authenticatable implements FilamentUser
             'is_super_admin' => 'boolean',
         ];
     }
+
+    /**
+     * Envia a notificação customizada de redefinição de senha para o usuário.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }

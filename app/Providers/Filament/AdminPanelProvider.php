@@ -33,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(fn () => asset('favicon.ico'))
             ->font('Inter')
             ->login()
+            ->passwordReset()
             ->darkMode(true)
             ->colors([
                 'primary' => Color::Red,

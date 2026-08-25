@@ -9,7 +9,10 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        //
+        $this->app->bind(
+            \Filament\Notifications\Auth\ResetPassword::class,
+            \App\Notifications\ResetPasswordNotification::class
+        );
     }
 
     public function boot()
