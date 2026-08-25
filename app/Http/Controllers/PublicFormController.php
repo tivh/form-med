@@ -362,6 +362,10 @@ class PublicFormController extends Controller
     private function availableForm(string $slug): array
     {
         if (\Illuminate\Support\Facades\Schema::hasTable('custom_forms')) {
+            if (\App\Models\CustomForm::count() === 0) {
+                (new \Database\Seeders\TransferExistingFormsSeeder())->run();
+            }
+
             $customForm = \App\Models\CustomForm::where('slug', $slug)->with(['steps.fields'])->first();
 
             if ($customForm) {
@@ -391,6 +395,10 @@ class PublicFormController extends Controller
     private function formsCatalog(): array
     {
         if (\Illuminate\Support\Facades\Schema::hasTable('custom_forms')) {
+            if (\App\Models\CustomForm::count() === 0) {
+                (new \Database\Seeders\TransferExistingFormsSeeder())->run();
+            }
+
             $dbForms = \App\Models\CustomForm::online()->get();
 
             if ($dbForms->isNotEmpty()) {

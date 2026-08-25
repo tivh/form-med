@@ -48,32 +48,29 @@ class AccessControlTest extends TestCase
         ]);
         $superAdmin->markEmailAsVerified();
 
-        // 1. Dashboard exibe os cards de todas as áreas
+        // 1. Dashboard redireciona para a área unificada do Filament
         $this->actingAs($superAdmin)
             ->get(route('admin.dashboard'))
-            ->assertOk()
-            ->assertSee('Compliance')
-            ->assertSee('Financeiro')
-            ->assertSee('Usuários');
+            ->assertRedirect('/filament');
 
-        // 2. Acesso à área de Compliance
+        // 2. Acesso à área de Compliance no Filament
         $this->actingAs($superAdmin)
-            ->get(route('admin.submissions.index'))
+            ->get('/filament/form-submissions')
             ->assertOk();
 
-        // 3. Acesso à área de Financeiro
+        // 3. Acesso à área de Financeiro no Filament
         $this->actingAs($superAdmin)
-            ->get(route('admin.tax-regime.index'))
+            ->get('/filament/tax-regime-submissions')
             ->assertOk();
 
-        // 4. Acesso à gestão de usuários
+        // 4. Acesso à gestão de usuários no Filament
         $this->actingAs($superAdmin)
-            ->get(route('admin.users.index'))
+            ->get('/filament/users')
             ->assertOk();
 
-        // 5. Acesso às configurações gerais
+        // 5. Acesso aos formulários dinâmicos no Filament
         $this->actingAs($superAdmin)
-            ->get(route('admin.settings.index'))
+            ->get('/filament/custom-forms')
             ->assertOk();
     }
 
@@ -88,31 +85,23 @@ class AccessControlTest extends TestCase
         // Vincula as duas áreas: Compliance e Financeiro
         $director->areas()->attach([$this->complianceArea->id, $this->financeArea->id]);
 
-        // 1. Dashboard exibe apenas os cards das áreas permitidas
+        // 1. Dashboard redireciona para o Filament
         $response = $this->actingAs($director)->get(route('admin.dashboard'));
-        $response->assertOk();
-        $response->assertSee('Compliance');
-        $response->assertSee('Financeiro');
-        $response->assertDontSee('Gerencie permissões e visões de acesso dos usuários');
+        $response->assertRedirect('/filament');
 
         // 2. Acesso à área de Compliance permitido
         $this->actingAs($director)
-            ->get(route('admin.submissions.index'))
+            ->get('/filament/form-submissions')
             ->assertOk();
 
         // 3. Acesso à área de Financeiro permitido
         $this->actingAs($director)
-            ->get(route('admin.tax-regime.index'))
+            ->get('/filament/tax-regime-submissions')
             ->assertOk();
 
         // 4. Bloqueada em Usuários (403 Forbidden)
         $this->actingAs($director)
-            ->get(route('admin.users.index'))
-            ->assertForbidden();
-
-        // 5. Bloqueada em Configurações (403 Forbidden)
-        $this->actingAs($director)
-            ->get(route('admin.settings.index'))
+            ->get('/filament/users')
             ->assertForbidden();
     }
 
@@ -124,19 +113,19 @@ class AccessControlTest extends TestCase
         $financialUser->markEmailAsVerified();
         $financialUser->areas()->attach($this->financeArea->id);
 
-        // 1. Ao acessar /admin é redirecionado direto para a rota do Financeiro
+        // 1. Ao acessar /admin é redirecionado para /filament
         $this->actingAs($financialUser)
             ->get(route('admin.dashboard'))
-            ->assertRedirect(route('admin.tax-regime.index'));
+            ->assertRedirect('/filament');
 
-        // 2. Acesso ao Financeiro permitido
+        // 2. Acesso ao Financeiro no Filament permitido
         $this->actingAs($financialUser)
-            ->get(route('admin.tax-regime.index'))
+            ->get('/filament/tax-regime-submissions')
             ->assertOk();
 
-        // 3. Acesso ao Compliance proibido (403)
+        // 3. Acesso ao Compliance no Filament proibido (403)
         $this->actingAs($financialUser)
-            ->get(route('admin.submissions.index'))
+            ->get('/filament/form-submissions')
             ->assertForbidden();
     }
 

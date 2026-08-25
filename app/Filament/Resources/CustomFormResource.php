@@ -278,6 +278,10 @@ class CustomFormResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+        if (CustomForm::count() === 0) {
+            (new \Database\Seeders\TransferExistingFormsSeeder())->run();
+        }
+
         $query = parent::getEloquentQuery();
         $user = auth()->user();
 

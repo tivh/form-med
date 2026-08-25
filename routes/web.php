@@ -48,17 +48,16 @@ Route::get('/form-med/sucesso', [PublicFormController::class, 'success'])
     ->name('form.success')
     ->defaults('form', 'form-med');
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/login', fn () => redirect('/filament/login'))->name('login');
+Route::post('/logout', fn () => redirect('/filament/login'))->name('logout');
 
 Route::get('/documentos-comp', [ComplianceDocumentController::class, 'index'])->name('compliance.index');
 Route::get('/documentos-comp/{complianceDocument}/download', [ComplianceDocumentController::class, 'download'])->name('compliance.download');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
 
-    // Hub: super admin vê os cards; usuário escopado é redirecionado direto pra sua área
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    // Redireciona o dashboard legado direto para a área única do Filament
+    Route::get('/', fn () => redirect('/filament'))->name('dashboard');
 
     // Área Compliance (form-med)
     Route::middleware('form.scope:form-med')->group(function () {
